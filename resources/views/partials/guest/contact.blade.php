@@ -80,7 +80,7 @@
                         </a></div>
                 </div>
             </div>
-            <div class="bg-gradient-surface p-8 rounded-2xl border border-border shadow-card"><h3
+            <div id="contact" class="bg-gradient-surface p-8 rounded-2xl border border-border shadow-card"><h3
                         class="text-2xl font-semibold text-text-primary mb-6">Napište mi</h3>
                 <form class="space-y-6">
                     <div class="grid sm:grid-cols-2 gap-4">
