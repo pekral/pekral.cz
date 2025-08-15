@@ -3,7 +3,7 @@
         <div class="flex justify-center order-2 md:order-1">
             <div class="relative">
                 <div class="w-80 h-80 rounded-full overflow-hidden border-4 border-primary/20 shadow-glow">
-                    <img src="/assets/profile-avatar-BJY4wJC-.jpg" alt="Petr Král - PHP/Laravel Developer"
+                    <img src="/assets/profile.jpg" alt="Petr Král - PHP/Laravel Developer"
                          class="w-full h-full object-cover"></div>
                 <div class="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full animate-pulse"></div>
             </div>
