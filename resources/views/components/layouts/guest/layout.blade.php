@@ -20,7 +20,8 @@
             @include('partials.guest.footer')
         </footer>
     </div>
-</div>
+    </div>
+    @include('cookie-consent::index')
 <deepl-input-controller translate="no"></deepl-input-controller>
 </body>
 </html>
