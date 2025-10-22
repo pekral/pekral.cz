@@ -10,9 +10,12 @@
                         <p>Správcem osobních údajů je:</p>
                         <div class="bg-muted/50 rounded-lg p-4 mt-4">
                             <p><strong>Petr Král</strong></p>
+                            <p><strong>IČO:</strong> 19326343</p>
+                            <p><strong>Adresa:</strong> Družstevní 709, 503 51 Chlumec nad Cidlinou</p>
+                            <p>Fyzická osoba zapsaná v živnostenském rejstříku</p>
+                            <p>Neplátce DPH</p>
                             <p>Email: <a href="mailto:kral.petr.88@gmail.com" class="text-primary hover:text-primary/80">kral.petr.88@gmail.com</a></p>
                             <p>Telefon: <a href="tel:+420733382412" class="text-primary hover:text-primary/80">+420 733 382 412</a></p>
-                            <p>Adresa: Chlumec nad Cidlinou, Česká republika</p>
                         </div>
                     </section>
 
@@ -50,9 +53,10 @@
 
                     <section>
                         <h2 class="text-2xl font-semibold text-text-primary mb-4">5. Google Analytics</h2>
-                        <p>Na našich webových stránkách používáme Google Analytics, službu webové analýzy společnosti Google LLC. Google Analytics používá cookies k analýze způsobu používání našich webových stránek.</p>
+                        <p>Na našich webových stránkách používáme Google Analytics 4 (ID měření: G-5Y5XCMQSTB), službu webové analýzy společnosti Google LLC. Google Analytics používá cookies k analýze způsobu používání našich webových stránek.</p>
                         <p class="mt-4">Informace o vašem používání těchto webových stránek (včetně vaší IP adresy) budou předány společnosti Google a uloženy na serverech v USA. Google může tyto informace předat třetím stranám, pokud to vyžaduje zákon nebo pokud třetí strany zpracovávají tyto informace jménem společnosti Google.</p>
-                        <p class="mt-4">Můžete zabránit ukládání cookies nastavením vašeho prohlížeče; nicméně upozorňujeme, že v takovém případě nemusí být všechny funkce těchto webových stránek plně funkční.</p>
+                        <p class="mt-4">Google Analytics cookies se načítají pouze po vašem souhlasu prostřednictvím cookie banneru. Můžete svůj souhlas kdykoli odvolat nebo zabránit ukládání cookies nastavením vašeho prohlížeče; nicméně upozorňujeme, že v takovém případě nemusí být všechny funkce těchto webových stránek plně funkční.</p>
+                        <p class="mt-4">Pro více informací o tom, jak Google zpracovává vaše data, navštivte: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary/80">https://policies.google.com/privacy</a></p>
                     </section>
 
                     <section>

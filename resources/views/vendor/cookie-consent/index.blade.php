@@ -12,6 +12,9 @@
             function consentWithCookies() {
                 setCookie('{{ $cookieConsentConfig['cookie_name'] }}', COOKIE_VALUE, {{ $cookieConsentConfig['cookie_lifetime'] }});
                 hideCookieDialog();
+                
+                // Vyslat událost pro Google Analytics
+                document.dispatchEvent(new CustomEvent('cookie-consent-agreed'));
             }
 
             function cookieExists(name) {
