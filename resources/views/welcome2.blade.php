@@ -5,9 +5,6 @@
     <!-- START about section -->
     @include('partials.guest.about')
     <!-- END about section -->
-    <!-- START blog section -->
-    @include('partials.guest.blog')
-    <!-- END blog section -->
     <!-- START contact section -->
     @include('partials.guest.contact')
     <!-- END contact section -->

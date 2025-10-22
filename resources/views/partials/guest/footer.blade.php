@@ -13,9 +13,6 @@
                     mně
                 </button>
                 <button class="block mx-auto text-text-secondary hover:text-primary transition-smooth">
-                    Blog
-                </button>
-                <button class="block mx-auto text-text-secondary hover:text-primary transition-smooth">
                     Kontakt
                 </button>
             </div>
