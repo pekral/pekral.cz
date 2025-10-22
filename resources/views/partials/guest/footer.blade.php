@@ -3,7 +3,7 @@
         <div class="text-center md:text-left">
             <div class="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mx-auto md:mx-0 mb-4">
                 <span class="text-primary-foreground font-bold text-xl">JS</span></div>
-            <p class="text-text-secondary">PHP/Laravel Developer<br>Praha, Česká republika</p></div>
+            <p class="text-text-secondary">PHP/Laravel Developer<br>Chlumec nad Cidlinou, Česká republika</p></div>
         <div class="text-center"><h4 class="text-text-primary font-semibold mb-4">Rychlé odkazy</h4>
             <div class="space-y-2">
                 <button class="block mx-auto text-text-secondary hover:text-primary transition-smooth">
@@ -19,7 +19,7 @@
         </div>
         <div class="text-center md:text-right"><h4 class="text-text-primary font-semibold mb-4">Sledujte
                 mě</h4>
-            <div class="flex justify-center md:justify-end gap-4"><a href="https://github.com"
+            <div class="flex justify-center md:justify-end gap-4"><a href="https://github.com/pekral"
                                                                      target="_blank"
                                                                      rel="noopener noreferrer"
                                                                      class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-text-secondary hover:text-primary hover:bg-primary/10 transition-smooth"
@@ -30,7 +30,7 @@
                         <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
                         <path d="M9 18c-4.51 2-5-2-7-2"></path>
                     </svg>
-                </a><a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+                </a><a href="https://www.linkedin.com/in/petr-král-60223752/" target="_blank" rel="noopener noreferrer"
                        class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-text-secondary hover:text-primary hover:bg-primary/10 transition-smooth"
                        aria-label="LinkedIn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -40,7 +40,7 @@
                         <rect width="4" height="12" x="2" y="9"></rect>
                         <circle cx="4" cy="4" r="2"></circle>
                     </svg>
-                </a><a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
+                </a><a href="https://x.com/kral_petr_88" target="_blank" rel="noopener noreferrer"
                        class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-text-secondary hover:text-primary hover:bg-primary/10 transition-smooth"
                        aria-label="Twitter">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
