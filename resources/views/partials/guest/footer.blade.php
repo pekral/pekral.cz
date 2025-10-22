@@ -61,5 +61,10 @@
             </svg>
             pomocí React a Tailwind CSS.
         </p>
+        <div class="mt-4 flex justify-center gap-8 text-sm">
+            <a href="/gdpr" class="text-text-secondary hover:text-primary transition-smooth">Zásady ochrany osobních údajů</a>
+            <a href="#contact" class="text-text-secondary hover:text-primary transition-smooth">Kontakt</a>
+            <a href="#about" class="text-text-secondary hover:text-primary transition-smooth">O mně</a>
+        </div>
     </div>
 </div>

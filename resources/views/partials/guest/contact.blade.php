@@ -103,6 +103,9 @@
                     <div><label for="message" class="block text-sm font-medium text-text-secondary mb-2">Zpráva</label><textarea
                                 class="flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-background border-border focus:border-primary resize-none"
                                 id="message" name="message" rows="5" required=""></textarea></div>
+                    <div class="text-sm text-text-secondary">
+                        <p class="mb-4">Odesláním formuláře souhlasíte se zpracováním vašich osobních údajů podle našich <a href="/gdpr" class="text-primary hover:text-primary/80 underline">zásad ochrany osobních údajů</a>.</p>
+                    </div>
                     <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 h-10 px-4 w-full bg-gradient-primary hover:bg-accent-blue-dark text-primary-foreground py-3 text-lg font-medium shadow-glow transition-smooth"
                             type="submit">Odeslat zprávu
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"

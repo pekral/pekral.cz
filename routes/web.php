@@ -7,6 +7,8 @@ Route::get('/', function () {
     return view('welcome2');
 })->name('home');
 
+Route::view('gdpr', 'gdpr')->name('gdpr');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
