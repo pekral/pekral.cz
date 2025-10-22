@@ -13,13 +13,12 @@
              aria-atomic="false"></section>
     <div class="min-h-screen bg-background text-foreground">
         @include('partials.guest.nav')
-        <main>
+        <main role="main">
            {{$slot}}
         </main>
-        <footer class="bg-background border-t border-border py-12">
+        <footer class="bg-background border-t border-border py-12" role="contentinfo">
             @include('partials.guest.footer')
         </footer>
-    </div>
     </div>
     @include('cookie-consent::index')
 <deepl-input-controller translate="no"></deepl-input-controller>
