@@ -13,9 +13,6 @@
                     <a href="#about-me" class="text-text-secondary hover:text-primary transition-smooth px-3 py-2 text-sm font-medium">
                         O mně
                     </a>
-                    <button class="text-text-secondary hover:text-primary transition-smooth px-3 py-2 text-sm font-medium">
-                        Blog
-                    </button>
                     <a href="#contact" class="text-text-secondary hover:text-primary transition-smooth px-3 py-2 text-sm font-medium">
                         Kontakt
                     </a>

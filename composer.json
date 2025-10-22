@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "pekral/pekral",
     "type": "project",
-    "description": "Personal website and blog",
+    "description": "Personal website",
     "keywords": [
         "laravel",
         "framework"
