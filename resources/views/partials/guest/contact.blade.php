@@ -6,7 +6,7 @@
         <div class="grid lg:grid-cols-2 gap-12">
             <div class="space-y-8"><h3 class="text-2xl font-semibold text-text-primary mb-6">Jak mě můžete
                     kontaktovat</h3>
-                <div class="space-y-6"><a href="mailto:jan.svoboda@example.com"
+                <div class="space-y-6"><a href="mailto:kral.petr.88@gmail.com"
                                           class="flex items-center gap-4 p-4 bg-gradient-surface rounded-xl border border-border hover:border-primary/30 transition-smooth group">
                         <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-smooth">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -18,8 +18,8 @@
                             </svg>
                         </div>
                         <div><p class="text-text-secondary text-sm">Email</p>
-                            <p class="text-text-primary font-medium">jan.svoboda@example.com</p></div>
-                    </a><a href="tel:+420123456789"
+                            <p class="text-text-primary font-medium">kral.petr.88@gmail.com</p></div>
+                    </a><a href="tel:+420733382412"
                            class="flex items-center gap-4 p-4 bg-gradient-surface rounded-xl border border-border hover:border-primary/30 transition-smooth group">
                         <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-smooth">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -30,7 +30,7 @@
                             </svg>
                         </div>
                         <div><p class="text-text-secondary text-sm">Telefon</p>
-                            <p class="text-text-primary font-medium">+420 123 456 789</p></div>
+                            <p class="text-text-primary font-medium">+420 733 382 412</p></div>
                     </a><a href="#"
                            class="flex items-center gap-4 p-4 bg-gradient-surface rounded-xl border border-border hover:border-primary/30 transition-smooth group">
                         <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-smooth">
@@ -43,10 +43,10 @@
                             </svg>
                         </div>
                         <div><p class="text-text-secondary text-sm">Lokace</p>
-                            <p class="text-text-primary font-medium">Praha, Česká republika</p></div>
+                            <p class="text-text-primary font-medium">Chlumec nad Cidlinou, Česká republika</p></div>
                     </a></div>
                 <div class="pt-8"><h4 class="text-lg font-semibold text-text-primary mb-4">Sledujte mě</h4>
-                    <div class="flex gap-4"><a href="https://github.com" target="_blank"
+                    <div class="flex gap-4"><a href="https://github.com/pekral" target="_blank"
                                                rel="noopener noreferrer"
                                                class="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-text-secondary transition-smooth hover:text-white"
                                                aria-label="GitHub">
@@ -57,7 +57,7 @@
                                 <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
                                 <path d="M9 18c-4.51 2-5-2-7-2"></path>
                             </svg>
-                        </a><a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+                        </a><a href="https://www.linkedin.com/in/petr-král-60223752/" target="_blank" rel="noopener noreferrer"
                                class="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-text-secondary transition-smooth hover:text-blue-500"
                                aria-label="LinkedIn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -68,7 +68,7 @@
                                 <rect width="4" height="12" x="2" y="9"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
-                        </a><a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
+                        </a><a href="https://x.com/kral_petr_88" target="_blank" rel="noopener noreferrer"
                                class="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-text-secondary transition-smooth hover:text-blue-400"
                                aria-label="Twitter">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"

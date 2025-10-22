@@ -36,7 +36,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             type="email"
             required
             autofocus
-            placeholder="email@example.com"
+            placeholder="kral.petr.88@gmail.com"
         />
 
         <flux:button variant="primary" type="submit" class="w-full">{{ __('Email password reset link') }}</flux:button>
