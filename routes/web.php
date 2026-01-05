@@ -7,6 +7,18 @@ Route::get('/', function () {
     return view('welcome2');
 })->name('home');
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/skills', function () {
+    return view('skills');
+})->name('skills');
+
+Route::get('/projects', function () {
+    return view('projects');
+})->name('projects');
+
 Route::view('gdpr', 'gdpr')->name('gdpr');
 
 // Robots.txt
