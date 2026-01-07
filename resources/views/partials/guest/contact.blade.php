@@ -9,13 +9,11 @@
         </p>
 
         <div class="flex flex-wrap gap-4">
-            <a href="mailto:kral.petr.88@gmail.com" class="inline-flex items-center gap-2 bg-[#374151] text-white font-mono text-sm px-5 py-2.5 rounded-md no-underline hover:bg-[#4b5563] transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                </svg>
-                <span>kral.petr.88@gmail.com</span>
-            </a>
+            <x-obfuscated-email
+                email="kral.petr.88@gmail.com"
+                class="inline-flex items-center gap-2 bg-[#374151] text-white font-mono text-sm px-5 py-2.5 rounded-md no-underline hover:bg-[#4b5563] transition-colors"
+                :showIcon="true"
+            />
 
             <a href="https://www.linkedin.com/in/petr-král-60223752/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-[#374151] text-white font-mono text-sm px-5 py-2.5 rounded-md no-underline hover:bg-[#4b5563] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

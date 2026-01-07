@@ -16,9 +16,10 @@
                         {{ $link['name'] }}
                     </a>
                 @endforeach
-                <a href="mailto:petr@pekral.cz" class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors">
-                    contact
-                </a>
+                <x-obfuscated-email
+                    email="kral.petr.88@gmail.com"
+                    class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors"
+                >contact</x-obfuscated-email>
             </div>
         </div>
     </div>

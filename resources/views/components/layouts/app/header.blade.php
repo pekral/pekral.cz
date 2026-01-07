@@ -29,6 +29,7 @@
                         icon="folder-git-2"
                         href="https://github.com/laravel/livewire-starter-kit"
                         target="_blank"
+                        rel="noopener noreferrer"
                         :label="__('Repository')"
                     />
                 </flux:tooltip>
@@ -38,6 +39,7 @@
                         icon="book-open-text"
                         href="https://laravel.com/docs/starter-kits#livewire"
                         target="_blank"
+                        rel="noopener noreferrer"
                         label="Documentation"
                     />
                 </flux:tooltip>
@@ -107,11 +109,11 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
+                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank" rel="noopener noreferrer">
                 {{ __('Repository') }}
                 </flux:navlist.item>
 
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
+                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank" rel="noopener noreferrer">
                 {{ __('Documentation') }}
                 </flux:navlist.item>
             </flux:navlist>

@@ -19,7 +19,7 @@ test('gdpr page contains contact information', function () {
 
     $response->assertSee('Petr Král');
     $response->assertSee('19326343');
-    $response->assertSee('kral.petr.88@gmail.com');
+    $response->assertSee('kral.petr.88 [at] gmail.com');
 });
 
 test('gdpr page contains required sections', function () {

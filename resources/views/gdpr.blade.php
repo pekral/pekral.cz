@@ -14,7 +14,7 @@
                             <p><strong>Adresa:</strong> Družstevní 709, 503 51 Chlumec nad Cidlinou</p>
                             <p>Fyzická osoba zapsaná v živnostenském rejstříku</p>
                             <p>Neplátce DPH</p>
-                            <p>Email: <a href="mailto:kral.petr.88@gmail.com" class="text-primary hover:text-primary/80">kral.petr.88@gmail.com</a></p>
+                            <p>Email: <x-obfuscated-email email="kral.petr.88@gmail.com" class="text-primary hover:text-primary/80" /></p>
                             <p>Telefon: <a href="tel:+420733382412" class="text-primary hover:text-primary/80">+420 733 382 412</a></p>
                         </div>
                     </section>
@@ -88,7 +88,7 @@
                         <h2 class="text-2xl font-semibold text-text-primary mb-4">8. Kontakt</h2>
                         <p>Pro uplatnění vašich práv nebo pro jakékoli dotazy týkající se zpracování osobních údajů nás kontaktujte:</p>
                         <div class="bg-muted/50 rounded-lg p-4 mt-4">
-                            <p>Email: <a href="mailto:kral.petr.88@gmail.com" class="text-primary hover:text-primary/80">kral.petr.88@gmail.com</a></p>
+                            <p>Email: <x-obfuscated-email email="kral.petr.88@gmail.com" class="text-primary hover:text-primary/80" /></p>
                             <p>Telefon: <a href="tel:+420733382412" class="text-primary hover:text-primary/80">+420 733 382 412</a></p>
                         </div>
                     </section>

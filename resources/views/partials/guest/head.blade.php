@@ -45,7 +45,7 @@
     'description' => 'PHP developer passionate about clean code, automated refactoring with Rector, and building scalable web applications.',
     'url' => url('/'),
     'image' => asset('assets/profile-photo.jpg'),
-    'email' => 'petr@pekral.cz',
+    'email' => 'kral.petr.88@gmail.com',
     'address' => [
         '@type' => 'PostalAddress',
         'addressLocality' => 'Chlumec nad Cidlinou',

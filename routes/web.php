@@ -27,6 +27,9 @@ Route::get('robots.txt', function () {
     $robots .= "Allow: /\n\n";
     $robots .= "# Povolit indexování hlavních stránek\n";
     $robots .= "Allow: /\n";
+    $robots .= "Allow: /about\n";
+    $robots .= "Allow: /skills\n";
+    $robots .= "Allow: /projects\n";
     $robots .= "Allow: /gdpr\n\n";
     $robots .= "# Zakázat indexování citlivých oblastí\n";
     $robots .= "Disallow: /dashboard\n";
@@ -62,6 +65,24 @@ Route::get('sitemap.xml', function () {
             'lastmod' => now()->format('Y-m-d'),
             'changefreq' => 'monthly',
             'priority' => '1.0',
+        ],
+        [
+            'loc' => url('/about'),
+            'lastmod' => now()->format('Y-m-d'),
+            'changefreq' => 'monthly',
+            'priority' => '0.8',
+        ],
+        [
+            'loc' => url('/skills'),
+            'lastmod' => now()->format('Y-m-d'),
+            'changefreq' => 'monthly',
+            'priority' => '0.8',
+        ],
+        [
+            'loc' => url('/projects'),
+            'lastmod' => now()->format('Y-m-d'),
+            'changefreq' => 'weekly',
+            'priority' => '0.8',
         ],
         [
             'loc' => url('/gdpr'),
