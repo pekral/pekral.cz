@@ -17,13 +17,13 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> About
+                        <span class="text-primary">#</span> About Petr Král - PHP Developer & Laravel Programmer
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        I'm a Senior PHP Developer based in Chlumec nad Cidlinou, Czech Republic. I've been coding for over <span class="text-primary font-semibold">20 years</span>, working on everything from startups to large-scale platforms.
+                        I'm a <strong class="text-foreground">Senior PHP Developer</strong> and <strong class="text-foreground">Laravel programmer</strong> based in Czech Republic. I've been working as a <strong class="text-foreground">backend developer</strong> for over <span class="text-primary font-semibold">20 years</span>, building everything from startups to large-scale platforms.
                     </p>
                     <p class="text-muted-foreground leading-relaxed">
-                        My experience includes <span class="text-primary font-semibold">e-commerce platforms</span>, email marketing systems, and custom web applications. Currently self-employed, specializing in <span class="text-primary font-semibold">Laravel</span>, API development, and scalable backend solutions.
+                        My experience as a <strong class="text-foreground">PHP programmer</strong> includes e-commerce platforms, email marketing systems, and custom web applications. As an active <strong class="text-foreground">open source contributor</strong>, I specialize in <span class="text-primary font-semibold">Laravel development</span>, REST API programming, and scalable backend solutions.
                     </p>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 <rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
             </svg>
-            <span><span class="text-primary">#</span> Experience</span>
+            <span><span class="text-primary">#</span> Developer Experience & Career</span>
         </h2>
 
         <div class="relative">

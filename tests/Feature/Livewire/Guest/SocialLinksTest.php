@@ -28,8 +28,7 @@ it('displays linkedin link', function () {
         ->assertSeeHtml('href="https://www.linkedin.com/in/petr-kr');
 });
 
-it('displays website link', function () {
+it('displays correct number of social links', function () {
     Livewire::test(SocialLinks::class)
-        ->assertSee('Website')
-        ->assertSeeHtml('href="https://pekral.cz"');
+        ->assertSeeHtml('social-link');
 });

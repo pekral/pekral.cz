@@ -17,7 +17,8 @@ it('displays profile name', function () {
 
 it('displays role', function () {
     Livewire::test(HeroSection::class)
-        ->assertSee('PHP Developer');
+        ->assertSee('PHP Developer')
+        ->assertSee('Laravel Programmer');
 });
 
 it('displays location', function () {
@@ -27,7 +28,9 @@ it('displays location', function () {
 
 it('displays bio text', function () {
     Livewire::test(HeroSection::class)
-        ->assertSee('open-source contributor');
+        ->assertSee('Senior PHP Developer')
+        ->assertSee('Laravel programmer')
+        ->assertSee('open source contributor');
 });
 
 it('displays terminal window', function () {

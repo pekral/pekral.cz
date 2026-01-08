@@ -24,18 +24,18 @@ it('displays back link', function () {
 it('displays experience section', function () {
     Livewire::test(AboutPage::class)
         ->assertSee('Experience')
-        ->assertSee('PHP Programmer')
+        ->assertSee('PHP Developer')
         ->assertSee('Self-employed');
 });
 
 it('displays focus section', function () {
     Livewire::test(AboutPage::class)
         ->assertSee('What I Focus On')
-        ->assertSee('Rector rules');
+        ->assertSee('Laravel & PHP development');
 });
 
-it('displays open source section', function () {
+it('displays connect section', function () {
     Livewire::test(AboutPage::class)
-        ->assertSee('Open Source')
+        ->assertSee('Connect')
         ->assertSee('github.com/pekral');
 });

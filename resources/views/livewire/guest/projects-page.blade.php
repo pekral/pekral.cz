@@ -17,10 +17,10 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> Projects
+                        <span class="text-primary">#</span> Open Source PHP Projects
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        Open-source projects I maintain. Focused on code quality, automated refactoring, and developer tooling.
+                        As a <strong class="text-foreground">PHP developer</strong> and <strong class="text-foreground">open source contributor</strong>, I maintain several <strong class="text-foreground">PHP libraries</strong> and <strong class="text-foreground">Laravel packages</strong>. My projects focus on code quality, automated refactoring, and developer tooling for the <strong class="text-foreground">PHP programming</strong> community.
                     </p>
                 </div>
             </div>
@@ -90,13 +90,13 @@
                 </svg>
                 <div>
                     <p class="text-muted-foreground text-sm mb-4">
-                        Want to see more? Check out all my repositories on GitHub.
+                        Want to see more of my work as a <strong class="text-foreground">PHP developer</strong>? Explore all my <strong class="text-foreground">open source</strong> repositories on GitHub.
                     </p>
                     <a href="https://github.com/pekral?tab=repositories"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                        View all repositories
+                        View all open source PHP projects
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                             <polyline points="15 3 21 3 21 9"></polyline>

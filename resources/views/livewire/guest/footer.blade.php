@@ -1,14 +1,72 @@
-<footer class="border-t border-border py-8 mt-16">
+<footer class="border-t border-border py-12 mt-16" role="contentinfo">
     <div class="container max-w-4xl mx-auto px-6">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground font-mono">
-            <p>© {{ date('Y') }} Petr Král</p>
-            <p class="flex items-center gap-1.5">
-                Built with
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-primary">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-                and Laravel
-            </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {{-- About Column --}}
+            <div>
+                <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
+                    <span class="text-primary">#</span> Petr Král
+                </h2>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                    <strong class="text-foreground">PHP Developer</strong> and <strong class="text-foreground">Laravel programmer</strong> with 20+ years of experience. <strong class="text-foreground">Open source contributor</strong> specializing in backend development and scalable solutions.
+                </p>
+            </div>
+
+            {{-- Navigation Column --}}
+            <div>
+                <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
+                    <span class="text-primary">#</span> Navigation
+                </h2>
+                <nav aria-label="Footer navigation">
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{{ route('home') }}" class="text-muted-foreground hover:text-primary transition-colors">Home</a></li>
+                        <li><a href="{{ route('about') }}" class="text-muted-foreground hover:text-primary transition-colors">About Me</a></li>
+                        <li><a href="{{ route('skills') }}" class="text-muted-foreground hover:text-primary transition-colors">Technical Skills</a></li>
+                        <li><a href="{{ route('projects') }}" class="text-muted-foreground hover:text-primary transition-colors">Open Source Projects</a></li>
+                        <li><a href="{{ route('gdpr') }}" class="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            {{-- Connect Column --}}
+            <div>
+                <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
+                    <span class="text-primary">#</span> Connect
+                </h2>
+                <ul class="space-y-2 text-sm">
+                    <li>
+                        <a href="https://github.com/pekral" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+                                <path d="M9 18c-4.51 2-5-2-7-2"></path>
+                            </svg>
+                            GitHub
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/petr-kr%C3%A1l-60223752/" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect width="4" height="12" x="2" y="9"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                            LinkedIn
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://x.com/kral_petr_88" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+                                <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+                            </svg>
+                            X (Twitter)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground font-mono">
+            <p>© {{ date('Y') }} Petr Král - PHP Developer & Laravel Programmer</p>
         </div>
     </div>
 </footer>

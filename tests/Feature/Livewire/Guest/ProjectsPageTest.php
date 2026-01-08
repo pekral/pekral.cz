@@ -145,7 +145,7 @@ it('displays github link', function (): void {
     ]);
 
     Livewire::test(ProjectsPage::class)
-        ->assertSee('View all repositories');
+        ->assertSee('View all open source PHP projects');
 });
 
 it('handles empty repositories list', function (): void {

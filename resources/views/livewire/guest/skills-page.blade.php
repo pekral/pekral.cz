@@ -17,10 +17,10 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> Skills
+                        <span class="text-primary">#</span> PHP Developer Skills & Technologies
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        Over 20 years of experience with various technologies. I focus on PHP ecosystem, modern JavaScript, and best development practices.
+                        As a <strong class="text-foreground">PHP developer</strong> and <strong class="text-foreground">Laravel programmer</strong> with over 20 years of experience, I've mastered the <strong class="text-foreground">PHP ecosystem</strong>, modern JavaScript, and best development practices for building <strong class="text-foreground">open source</strong> and enterprise applications.
                     </p>
                 </div>
             </div>

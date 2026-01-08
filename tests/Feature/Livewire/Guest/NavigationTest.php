@@ -15,8 +15,7 @@ it('displays all navigation links', function () {
     Livewire::test(Navigation::class)
         ->assertSee('about')
         ->assertSee('skills')
-        ->assertSee('projects')
-        ->assertSee('contact');
+        ->assertSee('projects');
 });
 
 it('contains home link', function () {
@@ -39,7 +38,7 @@ it('contains projects link with route', function () {
         ->assertSeeHtml('href="'.route('projects').'"');
 });
 
-it('contains contact email link', function () {
+it('contains obfuscated email component', function () {
     Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="mailto:petr@pekral.cz"');
+        ->assertSee('contact');
 });

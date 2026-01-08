@@ -14,11 +14,11 @@ it('displays copyright with current year', function () {
     $currentYear = date('Y');
 
     Livewire::test(Footer::class)
-        ->assertSee("© {$currentYear} Petr Král");
+        ->assertSee("© {$currentYear} Petr Král - PHP Developer");
 });
 
 it('displays built with text', function () {
     Livewire::test(Footer::class)
         ->assertSee('Built with')
-        ->assertSee('and Laravel');
+        ->assertSeeHtml('Laravel');
 });
