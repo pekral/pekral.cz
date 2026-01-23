@@ -17,8 +17,17 @@ it('displays copyright with current year', function () {
         ->assertSee("© {$currentYear} Petr Král - PHP Developer");
 });
 
-it('displays built with text', function () {
+it('displays navigation links', function () {
     Livewire::test(Footer::class)
-        ->assertSee('Built with')
-        ->assertSeeHtml('Laravel');
+        ->assertSee('Navigation')
+        ->assertSee('Home')
+        ->assertSee('About Me')
+        ->assertSee('Privacy Policy');
+});
+
+it('displays connect section with social links', function () {
+    Livewire::test(Footer::class)
+        ->assertSee('Connect')
+        ->assertSee('GitHub')
+        ->assertSee('LinkedIn');
 });

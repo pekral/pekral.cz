@@ -20,6 +20,7 @@ Route::get('/projects', function () {
 })->name('projects');
 
 Route::view('gdpr', 'gdpr')->name('gdpr');
+Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 
 // Robots.txt
 Route::get('robots.txt', function () {
@@ -30,7 +31,8 @@ Route::get('robots.txt', function () {
     $robots .= "Allow: /about\n";
     $robots .= "Allow: /skills\n";
     $robots .= "Allow: /projects\n";
-    $robots .= "Allow: /gdpr\n\n";
+    $robots .= "Allow: /gdpr\n";
+    $robots .= "Allow: /privacy-policy\n\n";
     $robots .= "# Zakázat indexování citlivých oblastí\n";
     $robots .= "Disallow: /dashboard\n";
     $robots .= "Disallow: /settings/\n";
@@ -86,6 +88,12 @@ Route::get('sitemap.xml', function () {
         ],
         [
             'loc' => url('/gdpr'),
+            'lastmod' => now()->format('Y-m-d'),
+            'changefreq' => 'yearly',
+            'priority' => '0.3',
+        ],
+        [
+            'loc' => url('/privacy-policy'),
             'lastmod' => now()->format('Y-m-d'),
             'changefreq' => 'yearly',
             'priority' => '0.3',

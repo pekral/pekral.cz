@@ -30,5 +30,5 @@ test('homepage contains footer', function () {
     $response = $this->get('/');
 
     $response->assertSee('Petr Král');
-    $response->assertSee('Built with');
+    $response->assertSee('PHP Developer');
 });
