@@ -28,6 +28,11 @@ final class ProjectsPage extends Component
         $this->projects = $this->fetchRepositories();
     }
 
+    public function render(): View
+    {
+        return view('livewire.guest.projects-page');
+    }
+
     /**
      * @return array<int, array{
      *     name: string,
@@ -41,98 +46,150 @@ final class ProjectsPage extends Component
     private function fetchRepositories(): array
     {
         return Cache::remember('github_repositories_pekral_v3', 3600 * 24 * 31, function (): array {
-            $response = Http::timeout(10)->get('https://api.github.com/users/pekral/repos', [
-                'type' => 'public',
-                'sort' => 'updated',
-                'per_page' => 10,
-            ]);
+            $repositories = $this->fetchGitHubRepositories();
 
-            if (! $response->successful()) {
-                return [];
-            }
-
-            $repositories = $response->json();
-
-            if (! is_array($repositories)) {
-                return [];
-            }
-
-            $projects = [];
-
-            foreach ($repositories as $repo) {
-                if (! is_array($repo)) {
-                    continue;
-                }
-
-                $repoName = $repo['name'] ?? '';
-                $composerData = $this->fetchComposerData($repoName);
-
-                if ($composerData['description'] === '') {
-                    continue;
-                }
-
-                $projects[] = [
-                    'name' => $repoName,
-                    'description' => $repo['description'] ?? '',
-                    'url' => $repo['html_url'] ?? '',
-                    'language' => $repo['language'] ?? 'Other',
-                    'composerDescription' => $composerData['description'],
-                    'phpVersion' => $composerData['phpVersion'],
-                ];
-            }
-
-            return $projects;
+            return $this->mapRepositoriesToProjects($repositories);
         });
     }
 
     /**
-     * @return array{
+     * @return list<mixed>
+     */
+    private function fetchGitHubRepositories(): array
+    {
+        $response = Http::timeout(10)->get('https://api.github.com/users/pekral/repos', [
+            'per_page' => 10,
+            'sort' => 'updated',
+            'type' => 'public',
+        ]);
+
+        if (! $response->successful()) {
+            return [];
+        }
+
+        $repositories = $response->json();
+
+        return is_array($repositories) ? array_values($repositories) : [];
+    }
+
+    /**
+     * @param  list<mixed>  $repositories
+     * @return array<int, array{
+     *     name: string,
      *     description: string,
+     *     url: string,
+     *     language: string,
+     *     composerDescription: string,
      *     phpVersion: string
-     * }
+     * }>
+     */
+    private function mapRepositoriesToProjects(array $repositories): array
+    {
+        $projects = [];
+
+        foreach ($repositories as $repo) {
+            $project = $this->mapRepositoryToProject($repo);
+
+            if ($project !== null) {
+                $projects[] = $project;
+            }
+        }
+
+        return $projects;
+    }
+
+    /**
+     * @return array{
+     *     name: string,
+     *     description: string,
+     *     url: string,
+     *     language: string,
+     *     composerDescription: string,
+     *     phpVersion: string
+     * }|null
+     */
+    private function mapRepositoryToProject(mixed $repo): ?array
+    {
+        if (! is_array($repo)) {
+            return null;
+        }
+
+        $repoName = is_string($repo['name'] ?? null) ? $repo['name'] : '';
+        $composerData = $this->fetchComposerData($repoName);
+
+        if ($composerData['description'] === '') {
+            return null;
+        }
+
+        return [
+            'composerDescription' => $composerData['description'],
+            'description' => is_string($repo['description'] ?? null) ? $repo['description'] : '',
+            'language' => is_string($repo['language'] ?? null) ? $repo['language'] : 'Other',
+            'name' => $repoName,
+            'phpVersion' => $composerData['phpVersion'],
+            'url' => is_string($repo['html_url'] ?? null) ? $repo['html_url'] : '',
+        ];
+    }
+
+    /**
+     * @return array{description: string, phpVersion: string}
      */
     private function fetchComposerData(string $repoName): array
     {
-        $emptyResult = [
-            'description' => '',
-            'phpVersion' => '',
-        ];
+        $emptyResult = ['description' => '', 'phpVersion' => ''];
 
         if ($repoName === '') {
             return $emptyResult;
         }
 
-        $response = Http::timeout(5)->get(
-            "https://raw.githubusercontent.com/pekral/{$repoName}/main/composer.json"
-        );
+        $composerJson = $this->fetchComposerJson($repoName);
 
-        if (! $response->successful()) {
-            $response = Http::timeout(5)->get(
-                "https://raw.githubusercontent.com/pekral/{$repoName}/master/composer.json"
-            );
-        }
-
-        if (! $response->successful()) {
+        if ($composerJson === null) {
             return $emptyResult;
         }
 
-        $composerJson = $response->json();
-
-        if (! is_array($composerJson)) {
-            return $emptyResult;
-        }
-
-        $phpVersion = '';
-        $require = $composerJson['require'] ?? [];
-
-        if (is_array($require) && isset($require['php'])) {
-            $phpVersion = $this->parsePhpVersion((string) $require['php']);
-        }
+        $description = $composerJson['description'] ?? '';
 
         return [
-            'description' => $composerJson['description'] ?? '',
-            'phpVersion' => $phpVersion,
+            'description' => is_string($description) ? $description : '',
+            'phpVersion' => $this->extractPhpVersion($composerJson),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function fetchComposerJson(string $repoName): ?array
+    {
+        $branches = ['main', 'master'];
+
+        foreach ($branches as $branch) {
+            $url = sprintf('https://raw.githubusercontent.com/pekral/%s/%s/composer.json', $repoName, $branch);
+            $response = Http::timeout(5)->get($url);
+
+            if ($response->successful()) {
+                /** @var array<string, mixed>|null $json */
+                $json = $response->json();
+
+                return is_array($json) ? $json : null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $composerJson
+     */
+    private function extractPhpVersion(array $composerJson): string
+    {
+        $require = $composerJson['require'] ?? [];
+
+        if (is_array($require) && isset($require['php']) && is_string($require['php'])) {
+            return $this->parsePhpVersion($require['php']);
+        }
+
+        return '';
     }
 
     private function parsePhpVersion(string $constraint): string
@@ -142,10 +199,5 @@ final class ProjectsPage extends Component
         }
 
         return '';
-    }
-
-    public function render(): View
-    {
-        return view('livewire.guest.projects-page');
     }
 }

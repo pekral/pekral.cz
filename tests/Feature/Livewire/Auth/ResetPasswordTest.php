@@ -1,25 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
 });
 
-it('renders reset password component', function () {
+it('renders reset password component', function (): void {
     $token = Password::createToken($this->user);
     $response = $this->get(route('password.reset', $token));
-    
+
     $response->assertStatus(200);
     $response->assertSeeLivewire('auth.reset-password');
 });
 
-it('resets password with valid token and data', function () {
+it('resets password with valid token and data', function (): void {
     $token = Password::createToken($this->user);
     $newPassword = 'newpassword123';
 
@@ -34,7 +36,7 @@ it('resets password with valid token and data', function () {
     expect(Hash::check($newPassword, $this->user->password))->toBeTrue();
 });
 
-it('validates required fields', function () {
+it('validates required fields', function (): void {
     $token = Password::createToken($this->user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
@@ -45,7 +47,7 @@ it('validates required fields', function () {
         ->assertHasErrors(['email' => 'required', 'password' => 'required']);
 });
 
-it('validates email format', function () {
+it('validates email format', function (): void {
     $token = Password::createToken($this->user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
@@ -56,7 +58,7 @@ it('validates email format', function () {
         ->assertHasErrors(['email' => 'email']);
 });
 
-it('validates password confirmation', function () {
+it('validates password confirmation', function (): void {
     $token = Password::createToken($this->user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
@@ -67,7 +69,7 @@ it('validates password confirmation', function () {
         ->assertHasErrors(['password' => 'confirmed']);
 });
 
-it('validates password requirements', function () {
+it('validates password requirements', function (): void {
     $token = Password::createToken($this->user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
@@ -78,7 +80,7 @@ it('validates password requirements', function () {
         ->assertHasErrors(['password']);
 });
 
-it('fails with invalid token', function () {
+it('fails with invalid token', function (): void {
     Livewire::test('auth.reset-password', ['token' => 'invalid-token'])
         ->set('email', 'test@example.com')
         ->set('password', 'newpassword123')

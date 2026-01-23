@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
+        "larastan/larastan": "^3.9",
         "laravel/boost": "^1.8.10",
         "laravel/pail": "^1.2.4",
         "laravel/pint": "^1.27.0",
@@ -25,7 +26,12 @@
         "mockery/mockery": "^1.6.12",
         "nunomaduro/collision": "^8.8.3",
         "pekral/cursor-rules": "dev-master",
+        "pekral/phpcs-rules": "dev-master",
+        "pekral/rector-rules": "dev-master",
         "pestphp/pest": "^4.3.1",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-mockery": "^2.0",
         "roave/security-advisories": "dev-latest"
     },
     "autoload": {
@@ -63,6 +69,58 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "analyse": [
+            "echo \"🔍 Running PHPStan static analysis...\"",
+            "vendor/bin/phpstan analyse --memory-limit=2G"
+        ],
+        "check": [
+            "echo \"🚀 Running full quality check...\"",
+            "@phpcs-check",
+            "@pint-check",
+            "@rector-check",
+            "@analyse",
+            "@security-audit",
+            "@test:coverage"
+        ],
+        "fix": [
+            "echo \"🔧 Running all fixes...\"",
+            "@rector-fix",
+            "@phpcs-fix",
+            "@pint-fix",
+            "echo \"✅ All fixes completed!\""
+        ],
+        "phpcs-check": [
+            "echo \"✅ Running PHP CodeSniffer check...\"",
+            "vendor/bin/phpcs --standard=ruleset.xml app/ tests/"
+        ],
+        "phpcs-fix": [
+            "echo \"🔧 Running PHP CodeSniffer fix...\"",
+            "vendor/bin/phpcbf --standard=ruleset.xml app/ tests/ || true"
+        ],
+        "pint-check": [
+            "echo \"🎨 Running Laravel Pint check...\"",
+            "vendor/bin/pint app/ tests/ --test"
+        ],
+        "pint-fix": [
+            "echo \"🎨 Running Laravel Pint fixes...\"",
+            "vendor/bin/pint app/ tests/"
+        ],
+        "rector-check": [
+            "echo \"🔄 Running Rector check (dry-run)...\"",
+            "vendor/bin/rector process --dry-run"
+        ],
+        "rector-fix": [
+            "echo \"🔄 Running Rector fixes...\"",
+            "vendor/bin/rector process"
+        ],
+        "security-audit": [
+            "echo \"🔒 Running Composer security audit...\"",
+            "composer audit --format=summary"
+        ],
+        "test:coverage": [
+            "echo \"📊 Running coverage tests...\"",
+            "php -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off vendor/bin/pest --coverage"
         ]
     },
     "extra": {
@@ -76,7 +134,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "minimum-stability": "stable",

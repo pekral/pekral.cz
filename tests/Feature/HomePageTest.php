@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-test('homepage loads successfully', function () {
+test('homepage loads successfully', function (): void {
     $response = $this->get('/');
 
     $response->assertStatus(200);
 });
 
-test('homepage contains person section', function () {
+test('homepage contains person section', function (): void {
     $response = $this->get('/');
 
     $response->assertSee('Petr Král');
@@ -16,7 +16,7 @@ test('homepage contains person section', function () {
     $response->assertSee('Chlumec nad Cidlinou, Czech Republic');
 });
 
-test('homepage contains navigation', function () {
+test('homepage contains navigation', function (): void {
     $response = $this->get('/');
 
     $response->assertSee('pekral');
@@ -26,7 +26,7 @@ test('homepage contains navigation', function () {
     $response->assertSee('contact');
 });
 
-test('homepage contains footer', function () {
+test('homepage contains footer', function (): void {
     $response = $this->get('/');
 
     $response->assertSee('Petr Král');

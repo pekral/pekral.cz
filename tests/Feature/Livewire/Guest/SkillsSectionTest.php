@@ -5,17 +5,17 @@ declare(strict_types=1);
 use App\Livewire\Guest\SkillsSection;
 use Livewire\Livewire;
 
-it('renders skills section component', function () {
+it('renders skills section component', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertStatus(200);
 });
 
-it('displays section title', function () {
+it('displays section title', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertSee('Skills');
 });
 
-it('displays languages section', function () {
+it('displays languages section', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertSee('Languages')
         ->assertSee('PHP')
@@ -23,7 +23,7 @@ it('displays languages section', function () {
         ->assertSee('TypeScript');
 });
 
-it('displays frameworks section', function () {
+it('displays frameworks section', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertSee('Frameworks')
         ->assertSee('Laravel')
@@ -31,7 +31,7 @@ it('displays frameworks section', function () {
         ->assertSee('React');
 });
 
-it('displays tools section', function () {
+it('displays tools section', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertSee('Tools')
         ->assertSee('Git')
@@ -39,7 +39,7 @@ it('displays tools section', function () {
         ->assertSee('PHPUnit');
 });
 
-it('displays practices section', function () {
+it('displays practices section', function (): void {
     Livewire::test(SkillsSection::class)
         ->assertSee('Practices')
         ->assertSee('Clean Code')

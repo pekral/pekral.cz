@@ -1,24 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create([
         'password' => Hash::make('oldpassword'),
     ]);
     $this->actingAs($this->user);
 });
 
-it('renders password component', function () {
+it('renders password component', function (): void {
     $response = $this->get(route('settings.password'));
-    
+
     $response->assertStatus(200);
     $response->assertSeeLivewire('settings.password');
 });
 
-it('updates password with valid data', function () {
+it('updates password with valid data', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', 'oldpassword')
         ->set('password', 'newpassword123')
@@ -31,7 +33,7 @@ it('updates password with valid data', function () {
     expect(Hash::check('newpassword123', $this->user->password))->toBeTrue();
 });
 
-it('validates required fields', function () {
+it('validates required fields', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', '')
         ->set('password', '')
@@ -40,7 +42,7 @@ it('validates required fields', function () {
         ->assertHasErrors(['current_password' => 'required', 'password' => 'required']);
 });
 
-it('validates current password', function () {
+it('validates current password', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', 'wrongpassword')
         ->set('password', 'newpassword123')
@@ -49,7 +51,7 @@ it('validates current password', function () {
         ->assertHasErrors(['current_password' => 'current_password']);
 });
 
-it('validates password confirmation', function () {
+it('validates password confirmation', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', 'oldpassword')
         ->set('password', 'newpassword123')
@@ -58,7 +60,7 @@ it('validates password confirmation', function () {
         ->assertHasErrors(['password' => 'confirmed']);
 });
 
-it('validates password length', function () {
+it('validates password length', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', 'oldpassword')
         ->set('password', '123')
@@ -67,7 +69,7 @@ it('validates password length', function () {
         ->assertHasErrors(['password']);
 });
 
-it('clears form after successful update', function () {
+it('clears form after successful update', function (): void {
     Livewire::test('settings.password')
         ->set('current_password', 'oldpassword')
         ->set('password', 'newpassword123')

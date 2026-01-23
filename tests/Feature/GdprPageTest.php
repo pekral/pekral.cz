@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-test('gdpr page loads successfully', function () {
+test('gdpr page loads successfully', function (): void {
     $response = $this->get('/gdpr');
 
     $response->assertStatus(200);
 });
 
-test('gdpr page contains title', function () {
+test('gdpr page contains title', function (): void {
     $response = $this->get('/gdpr');
 
     $response->assertSee('Zásady ochrany osobních údajů (GDPR)');
 });
 
-test('gdpr page contains contact information', function () {
+test('gdpr page contains contact information', function (): void {
     $response = $this->get('/gdpr');
 
     $response->assertSee('Petr Král');
@@ -22,7 +22,7 @@ test('gdpr page contains contact information', function () {
     $response->assertSee('kral.petr.88 [at] gmail.com');
 });
 
-test('gdpr page contains required sections', function () {
+test('gdpr page contains required sections', function (): void {
     $response = $this->get('/gdpr');
 
     $response->assertSee('Správce osobních údajů');
@@ -35,7 +35,7 @@ test('gdpr page contains required sections', function () {
     $response->assertSee('Kontakt');
 });
 
-test('gdpr page contains back link', function () {
+test('gdpr page contains back link', function (): void {
     $response = $this->get('/gdpr');
 
     $response->assertSee('Zpět na hlavní stránku');

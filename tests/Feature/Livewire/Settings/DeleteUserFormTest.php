@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
-it('renders delete user form component', function () {
+it('renders delete user form component', function (): void {
     $response = $this->get(route('settings.profile'));
-    
+
     $response->assertStatus(200);
     $response->assertSeeLivewire('settings.delete-user-form');
 });
 
-it('deletes user account with valid password', function () {
+it('deletes user account with valid password', function (): void {
     $this->user->update(['password' => bcrypt('password123')]);
 
     Livewire::test('settings.delete-user-form')
@@ -29,14 +31,14 @@ it('deletes user account with valid password', function () {
     expect(User::find($this->user->id))->toBeNull();
 });
 
-it('validates required password field', function () {
+it('validates required password field', function (): void {
     Livewire::test('settings.delete-user-form')
         ->set('password', '')
         ->call('deleteUser')
         ->assertHasErrors(['password' => 'required']);
 });
 
-it('fails with invalid password', function () {
+it('fails with invalid password', function (): void {
     $this->user->update(['password' => bcrypt('password123')]);
 
     Livewire::test('settings.delete-user-form')
@@ -44,5 +46,3 @@ it('fails with invalid password', function () {
         ->call('deleteUser')
         ->assertHasErrors(['password' => 'current_password']);
 });
-
-

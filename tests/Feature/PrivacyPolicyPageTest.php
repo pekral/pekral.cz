@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-test('privacy policy page loads successfully', function () {
+test('privacy policy page loads successfully', function (): void {
     $response = $this->get('/privacy-policy');
 
     $response->assertStatus(200);
 });
 
-test('privacy policy page contains title', function () {
+test('privacy policy page contains title', function (): void {
     $response = $this->get('/privacy-policy');
 
     $response->assertSee('Privacy Policy (GDPR)');
 });
 
-test('privacy policy page contains contact information', function () {
+test('privacy policy page contains contact information', function (): void {
     $response = $this->get('/privacy-policy');
 
     $response->assertSee('Petr Král');
@@ -22,7 +22,7 @@ test('privacy policy page contains contact information', function () {
     $response->assertSee('kral.petr.88 [at] gmail.com');
 });
 
-test('privacy policy page contains required sections', function () {
+test('privacy policy page contains required sections', function (): void {
     $response = $this->get('/privacy-policy');
 
     $response->assertSee('Data Controller');
@@ -35,7 +35,7 @@ test('privacy policy page contains required sections', function () {
     $response->assertSee('Contact');
 });
 
-test('privacy policy page contains back link', function () {
+test('privacy policy page contains back link', function (): void {
     $response = $this->get('/privacy-policy');
 
     $response->assertSee('Back to homepage');

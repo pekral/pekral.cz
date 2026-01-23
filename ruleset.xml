@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<ruleset name="Pekral.cz PHPCS Rules">
+    <description>Custom PHPCS rules for pekral.cz Laravel application</description>
+
+    <!-- Include pekral/phpcs-rules -->
+    <rule ref="vendor/pekral/phpcs-rules/ruleset.xml"/>
+
+    <!-- Exclude rules that conflict with Laravel Pint -->
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing"/>
+        <properties>
+            <property name="spacesCountAroundEqualsSign" value="0"/>
+        </properties>
+    </rule>
+
+    <!-- Pint handles class braces differently -->
+    <rule ref="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces">
+        <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.NoEmptyLineAfterOpeningBrace"/>
+        <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.NoEmptyLineBeforeClosingBrace"/>
+        <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.MultipleEmptyLinesAfterOpeningBrace"/>
+        <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces.MultipleEmptyLinesBeforeClosingBrace"/>
+    </rule>
+
+    <!-- Pint removes parentheses on new without arguments -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.NewWithParentheses">
+        <exclude name="SlevomatCodingStandard.ControlStructures.NewWithParentheses.MissingParentheses"/>
+    </rule>
+
+    <!-- Pint handles trait spacing differently -->
+    <rule ref="SlevomatCodingStandard.Classes.TraitUseSpacing">
+        <exclude name="SlevomatCodingStandard.Classes.TraitUseSpacing.IncorrectLinesCountBeforeFirstUse"/>
+        <exclude name="SlevomatCodingStandard.Classes.TraitUseSpacing.IncorrectLinesCountBetweenUses"/>
+    </rule>
+
+    <!-- Pint uses different alignment for arrays -->
+    <rule ref="SlevomatCodingStandard.Whitespaces.DuplicateSpaces">
+        <exclude name="SlevomatCodingStandard.Whitespaces.DuplicateSpaces.DuplicateSpaces"/>
+    </rule>
+
+    <!-- Exclude vendor directory -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>storage/*</exclude-pattern>
+    <exclude-pattern>public/*</exclude-pattern>
+    <exclude-pattern>resources/views/*</exclude-pattern>
+    <exclude-pattern>*.blade.php</exclude-pattern>
+
+    <!-- Exclude specific rules for Laravel conventions -->
+    <rule ref="SlevomatCodingStandard.Classes.ForbiddenPublicProperty.ForbiddenPublicProperty">
+        <exclude-pattern>app/Livewire/*</exclude-pattern>
+    </rule>
+</ruleset>

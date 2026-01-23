@@ -1,35 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
         'email_verified_at' => null,
     ]);
 });
 
-it('renders verify email component for unverified user', function () {
+it('renders verify email component for unverified user', function (): void {
     $this->actingAs($this->user);
-    
+
     $response = $this->get(route('verification.notice'));
-    
+
     $response->assertStatus(200);
     $response->assertSeeLivewire('auth.verify-email');
 });
 
-it('handles verified user correctly', function () {
+it('handles verified user correctly', function (): void {
     $this->user->update(['email_verified_at' => now()]);
     $this->actingAs($this->user);
-    
+
     Livewire::test('auth.verify-email')
         ->call('sendVerification')
         ->assertHasNoErrors();
 });
 
-it('sends verification email', function () {
+it('sends verification email', function (): void {
     $this->actingAs($this->user);
     Notification::fake();
 
@@ -38,9 +40,9 @@ it('sends verification email', function () {
         ->assertHasNoErrors();
 });
 
-it('shows verification link sent message', function () {
+it('shows verification link sent message', function (): void {
     $this->actingAs($this->user);
-    
+
     session(['status' => 'verification-link-sent']);
 
     Livewire::test('auth.verify-email')

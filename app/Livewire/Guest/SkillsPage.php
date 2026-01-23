@@ -13,6 +13,13 @@ final class SkillsPage extends Component
      * @var array<string, array<int, array{name: string, logo?: string, icon?: string}>>
      */
     public array $skills = [
+        'frameworks' => [
+            ['name' => 'Laravel', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg'],
+            ['name' => 'Symfony', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/symfony/symfony-original.svg'],
+            ['name' => 'React', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'],
+            ['name' => 'Vue.js', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg'],
+            ['name' => 'Tailwind CSS', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg'],
+        ],
         'languages' => [
             ['name' => 'PHP', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg'],
             ['name' => 'JavaScript', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg'],
@@ -21,12 +28,13 @@ final class SkillsPage extends Component
             ['name' => 'HTML', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg'],
             ['name' => 'CSS', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg'],
         ],
-        'frameworks' => [
-            ['name' => 'Laravel', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg'],
-            ['name' => 'Symfony', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/symfony/symfony-original.svg'],
-            ['name' => 'React', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg'],
-            ['name' => 'Vue.js', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg'],
-            ['name' => 'Tailwind CSS', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg'],
+        'practices' => [
+            ['name' => 'Clean Code', 'icon' => '✨'],
+            ['name' => 'SOLID', 'icon' => '🧱'],
+            ['name' => 'DDD', 'icon' => '🏗️'],
+            ['name' => 'TDD', 'icon' => '🧪'],
+            ['name' => 'CI/CD', 'icon' => '🔄'],
+            ['name' => 'Rector', 'icon' => '🤖'],
         ],
         'tools' => [
             ['name' => 'Git', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg'],
@@ -41,14 +49,6 @@ final class SkillsPage extends Component
             ['name' => 'PHPUnit', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/phpunit/phpunit-original.svg'],
             ['name' => 'PHPStan', 'icon' => '🔍'],
             ['name' => 'Pint', 'icon' => '🎨'],
-        ],
-        'practices' => [
-            ['name' => 'Clean Code', 'icon' => '✨'],
-            ['name' => 'SOLID', 'icon' => '🧱'],
-            ['name' => 'DDD', 'icon' => '🏗️'],
-            ['name' => 'TDD', 'icon' => '🧪'],
-            ['name' => 'CI/CD', 'icon' => '🔄'],
-            ['name' => 'Rector', 'icon' => '🤖'],
         ],
     ];
 

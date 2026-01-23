@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->userData = [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -14,14 +15,14 @@ beforeEach(function () {
     ];
 });
 
-it('renders register component', function () {
+it('renders register component', function (): void {
     $response = $this->get(route('register'));
-    
+
     $response->assertStatus(200);
     $response->assertSeeLivewire('auth.register');
 });
 
-it('registers new user with valid data', function () {
+it('registers new user with valid data', function (): void {
     Livewire::test('auth.register')
         ->set('name', $this->userData['name'])
         ->set('email', $this->userData['email'])
@@ -35,7 +36,7 @@ it('registers new user with valid data', function () {
     expect(Auth::user()->email)->toBe($this->userData['email']);
 });
 
-it('validates required fields', function () {
+it('validates required fields', function (): void {
     Livewire::test('auth.register')
         ->set('name', '')
         ->set('email', '')
@@ -45,7 +46,7 @@ it('validates required fields', function () {
         ->assertHasErrors(['name' => 'required', 'email' => 'required', 'password' => 'required']);
 });
 
-it('validates email format', function () {
+it('validates email format', function (): void {
     Livewire::test('auth.register')
         ->set('name', $this->userData['name'])
         ->set('email', 'invalid-email')
@@ -55,7 +56,7 @@ it('validates email format', function () {
         ->assertHasErrors(['email' => 'email']);
 });
 
-it('validates password confirmation', function () {
+it('validates password confirmation', function (): void {
     Livewire::test('auth.register')
         ->set('name', $this->userData['name'])
         ->set('email', $this->userData['email'])
@@ -65,7 +66,7 @@ it('validates password confirmation', function () {
         ->assertHasErrors(['password' => 'confirmed']);
 });
 
-it('validates password length', function () {
+it('validates password length', function (): void {
     Livewire::test('auth.register')
         ->set('name', $this->userData['name'])
         ->set('email', $this->userData['email'])
@@ -75,7 +76,7 @@ it('validates password length', function () {
         ->assertHasErrors(['password']);
 });
 
-it('prevents duplicate email registration', function () {
+it('prevents duplicate email registration', function (): void {
     User::factory()->create(['email' => $this->userData['email']]);
 
     Livewire::test('auth.register')

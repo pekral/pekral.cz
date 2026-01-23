@@ -1,0 +1,18 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-mockery/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+    treatPhpDocTypesAsCertain: false
+
+    bootstrapFiles:
+        - vendor/autoload.php
+
+    excludePaths:
+        - vendor
+        - tests
+
