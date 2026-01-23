@@ -19,26 +19,24 @@ Route::get('/projects', function () {
     return view('projects');
 })->name('projects');
 
-Route::view('gdpr', 'gdpr')->name('gdpr');
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 
 // Robots.txt
 Route::get('robots.txt', function () {
     $robots = "User-agent: *\n";
     $robots .= "Allow: /\n\n";
-    $robots .= "# Povolit indexování hlavních stránek\n";
+    $robots .= "# Allow indexing of main pages\n";
     $robots .= "Allow: /\n";
     $robots .= "Allow: /about\n";
     $robots .= "Allow: /skills\n";
     $robots .= "Allow: /projects\n";
-    $robots .= "Allow: /gdpr\n";
     $robots .= "Allow: /privacy-policy\n\n";
-    $robots .= "# Zakázat indexování citlivých oblastí\n";
+    $robots .= "# Disallow indexing of sensitive areas\n";
     $robots .= "Disallow: /dashboard\n";
     $robots .= "Disallow: /settings/\n";
     $robots .= "Disallow: /admin/\n";
     $robots .= "Disallow: /api/\n\n";
-    $robots .= "# Zakázat indexování systémových souborů\n";
+    $robots .= "# Disallow indexing of system files\n";
     $robots .= "Disallow: /storage/\n";
     $robots .= "Disallow: /vendor/\n";
     $robots .= "Disallow: /bootstrap/\n";
@@ -51,7 +49,7 @@ Route::get('robots.txt', function () {
     $robots .= "Disallow: /*.sqlite\n\n";
     $robots .= "# Sitemap\n";
     $robots .= 'Sitemap: '.url('/sitemap.xml')."\n\n";
-    $robots .= "# Crawl delay pro šetrné procházení\n";
+    $robots .= "# Crawl delay for polite crawling\n";
     $robots .= "Crawl-delay: 1\n";
 
     return response($robots, 200, [
@@ -85,12 +83,6 @@ Route::get('sitemap.xml', function () {
             'lastmod' => now()->format('Y-m-d'),
             'changefreq' => 'weekly',
             'priority' => '0.8',
-        ],
-        [
-            'loc' => url('/gdpr'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'yearly',
-            'priority' => '0.3',
         ],
         [
             'loc' => url('/privacy-policy'),

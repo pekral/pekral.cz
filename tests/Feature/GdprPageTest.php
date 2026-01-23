@@ -2,41 +2,41 @@
 
 declare(strict_types=1);
 
-test('gdpr page loads successfully', function (): void {
-    $response = $this->get('/gdpr');
+test('privacy policy page loads successfully', function (): void {
+    $response = $this->get('/privacy-policy');
 
     $response->assertStatus(200);
 });
 
-test('gdpr page contains title', function (): void {
-    $response = $this->get('/gdpr');
+test('privacy policy page contains title', function (): void {
+    $response = $this->get('/privacy-policy');
 
-    $response->assertSee('Zásady ochrany osobních údajů (GDPR)');
+    $response->assertSee('Privacy Policy (GDPR)');
 });
 
-test('gdpr page contains contact information', function (): void {
-    $response = $this->get('/gdpr');
+test('privacy policy page contains contact information', function (): void {
+    $response = $this->get('/privacy-policy');
 
     $response->assertSee('Petr Král');
     $response->assertSee('19326343');
     $response->assertSee('kral.petr.88 [at] gmail.com');
 });
 
-test('gdpr page contains required sections', function (): void {
-    $response = $this->get('/gdpr');
+test('privacy policy page contains required sections', function (): void {
+    $response = $this->get('/privacy-policy');
 
-    $response->assertSee('Správce osobních údajů');
-    $response->assertSee('Jaké osobní údaje zpracováváme');
-    $response->assertSee('Účel zpracování osobních údajů');
-    $response->assertSee('Právní základ zpracování');
+    $response->assertSee('Data Controller');
+    $response->assertSee('Personal Data We Process');
+    $response->assertSee('Purpose of Personal Data Processing');
+    $response->assertSee('Legal Basis for Processing');
     $response->assertSee('Google Analytics');
-    $response->assertSee('Doba uchovávání osobních údajů');
-    $response->assertSee('Vaše práva');
-    $response->assertSee('Kontakt');
+    $response->assertSee('Data Retention Period');
+    $response->assertSee('Your Rights');
+    $response->assertSee('Contact');
 });
 
-test('gdpr page contains back link', function (): void {
-    $response = $this->get('/gdpr');
+test('privacy policy page contains back link', function (): void {
+    $response = $this->get('/privacy-policy');
 
-    $response->assertSee('Zpět na hlavní stránku');
+    $response->assertSee('Back to homepage');
 });

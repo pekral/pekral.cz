@@ -22,7 +22,7 @@
                         <li><a href="{{ route('about') }}" class="text-muted-foreground hover:text-primary transition-colors">About Me</a></li>
                         <li><a href="{{ route('skills') }}" class="text-muted-foreground hover:text-primary transition-colors">Technical Skills</a></li>
                         <li><a href="{{ route('projects') }}" class="text-muted-foreground hover:text-primary transition-colors">Open Source Projects</a></li>
-                        <li><a href="{{ route('gdpr') }}" class="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="{{ route('privacy-policy') }}" class="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
                     </ul>
                 </nav>
             </div>

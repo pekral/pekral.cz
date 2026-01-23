@@ -4,7 +4,7 @@
         'about' => 'About Petr Král | Senior PHP Developer & Laravel Programmer',
         'skills' => 'PHP Developer Skills | Laravel, Symfony, Open Source | Petr Král',
         'projects' => 'Open Source PHP Projects | Laravel Developer Petr Král',
-        'gdpr' => 'Privacy Policy | Petr Král - PHP Developer',
+        'privacy-policy' => 'Privacy Policy | Petr Král - PHP Developer',
         default => 'Petr Král | PHP & Laravel Developer'
     };
 
@@ -13,7 +13,7 @@
         'about' => 'Meet Petr Král - a passionate PHP developer and Laravel programmer with over 20 years of experience. Open source contributor, backend architect, and advocate for clean code practices.',
         'skills' => 'Technical skills of Petr Král, PHP developer: Laravel, Symfony, PHP 8, REST API development, MySQL, PostgreSQL, Docker. Experienced programmer focused on open source and best practices.',
         'projects' => 'Open source PHP projects by developer Petr Král. Laravel applications, PHP libraries, Rector rules, and developer tools. Active contributor to the PHP and open source community.',
-        'gdpr' => 'Privacy policy for the portfolio website of Petr Král, Senior PHP Developer and Laravel programmer.',
+        'privacy-policy' => 'Privacy policy for the portfolio website of Petr Král, Senior PHP Developer and Laravel programmer.',
         default => 'Petr Král - Senior PHP Developer and Laravel programmer specializing in open source, API development, and scalable backend solutions.'
     };
 @endphp
