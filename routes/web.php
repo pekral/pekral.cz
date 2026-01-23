@@ -21,93 +21,78 @@ Route::get('/projects', function () {
 
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 
-// Robots.txt
 Route::get('robots.txt', function () {
-    $robots = "User-agent: *\n";
-    $robots .= "Allow: /\n\n";
-    $robots .= "# Allow indexing of main pages\n";
-    $robots .= "Allow: /\n";
-    $robots .= "Allow: /about\n";
-    $robots .= "Allow: /skills\n";
-    $robots .= "Allow: /projects\n";
-    $robots .= "Allow: /privacy-policy\n\n";
-    $robots .= "# Disallow indexing of sensitive areas\n";
-    $robots .= "Disallow: /dashboard\n";
-    $robots .= "Disallow: /settings/\n";
-    $robots .= "Disallow: /admin/\n";
-    $robots .= "Disallow: /api/\n\n";
-    $robots .= "# Disallow indexing of system files\n";
-    $robots .= "Disallow: /storage/\n";
-    $robots .= "Disallow: /vendor/\n";
-    $robots .= "Disallow: /bootstrap/\n";
-    $robots .= "Disallow: /config/\n";
-    $robots .= "Disallow: /database/\n";
-    $robots .= "Disallow: /resources/\n";
-    $robots .= "Disallow: /tests/\n";
-    $robots .= "Disallow: /*.env\n";
-    $robots .= "Disallow: /*.log\n";
-    $robots .= "Disallow: /*.sqlite\n\n";
-    $robots .= "# Sitemap\n";
-    $robots .= 'Sitemap: '.url('/sitemap.xml')."\n\n";
-    $robots .= "# Crawl delay for polite crawling\n";
-    $robots .= "Crawl-delay: 1\n";
+    $sitemapUrl = url('/sitemap.xml');
+
+    $robots = <<<ROBOTS
+        # robots.txt for pekral.cz
+
+        User-agent: *
+        Allow: /
+        Disallow: /dashboard
+        Disallow: /settings
+        Disallow: /livewire
+        Disallow: /verify-email
+
+        # Sitemap location
+        Sitemap: {$sitemapUrl}
+        ROBOTS;
 
     return response($robots, 200, [
-        'Content-Type' => 'text/plain',
+        'Content-Type' => 'text/plain; charset=UTF-8',
+        'X-Robots-Tag' => 'noindex',
     ]);
 })->name('robots');
 
-// Sitemap
 Route::get('sitemap.xml', function () {
-    $urls = [
-        [
-            'loc' => url('/'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'monthly',
-            'priority' => '1.0',
-        ],
-        [
-            'loc' => url('/about'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'monthly',
-            'priority' => '0.8',
-        ],
-        [
-            'loc' => url('/skills'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'monthly',
-            'priority' => '0.8',
-        ],
-        [
-            'loc' => url('/projects'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'weekly',
-            'priority' => '0.8',
-        ],
-        [
-            'loc' => url('/privacy-policy'),
-            'lastmod' => now()->format('Y-m-d'),
-            'changefreq' => 'yearly',
-            'priority' => '0.3',
-        ],
+    $pages = [
+        ['path' => '/', 'priority' => '1.0', 'changefreq' => 'monthly'],
+        ['path' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['path' => '/skills', 'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['path' => '/projects', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['path' => '/privacy-policy', 'priority' => '0.3', 'changefreq' => 'yearly'],
     ];
 
-    $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    $urls = collect($pages)->map(function (array $page): array {
+        $viewFile = match ($page['path']) {
+            '/' => resource_path('views/welcome2.blade.php'),
+            '/about' => resource_path('views/about.blade.php'),
+            '/skills' => resource_path('views/skills.blade.php'),
+            '/projects' => resource_path('views/projects.blade.php'),
+            '/privacy-policy' => resource_path('views/gdpr-en.blade.php'),
+            default => null,
+        };
 
-    foreach ($urls as $url) {
-        $xml .= '  <url>'."\n";
-        $xml .= '    <loc>'.htmlspecialchars($url['loc']).'</loc>'."\n";
-        $xml .= '    <lastmod>'.$url['lastmod'].'</lastmod>'."\n";
-        $xml .= '    <changefreq>'.$url['changefreq'].'</changefreq>'."\n";
-        $xml .= '    <priority>'.$url['priority'].'</priority>'."\n";
-        $xml .= '  </url>'."\n";
-    }
+        $lastmod = $viewFile && file_exists($viewFile)
+            ? date('Y-m-d', filemtime($viewFile))
+            : now()->format('Y-m-d');
 
-    $xml .= '</urlset>';
+        return [
+            'loc' => url($page['path']),
+            'lastmod' => $lastmod,
+            'changefreq' => $page['changefreq'],
+            'priority' => $page['priority'],
+        ];
+    });
+
+    $urlEntries = $urls->map(fn (array $url): string => <<<XML
+            <url>
+                <loc>{$url['loc']}</loc>
+                <lastmod>{$url['lastmod']}</lastmod>
+                <changefreq>{$url['changefreq']}</changefreq>
+                <priority>{$url['priority']}</priority>
+            </url>
+        XML)->implode("\n");
+
+    $xml = <<<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        {$urlEntries}
+        </urlset>
+        XML;
 
     return response($xml, 200, [
-        'Content-Type' => 'application/xml',
+        'Content-Type' => 'application/xml; charset=UTF-8',
     ]);
 })->name('sitemap');
 
