@@ -1,0 +1,27 @@
+name: Deploy to Forge
+
+on:
+  workflow_run:
+    workflows: ["Checkers"]
+    types:
+      - completed
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Trigger Forge deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Trigger Laravel Forge deploy
+        run: |
+          response=$(curl -s -w "%{http_code}" -X GET "https://forge.laravel.com/servers/848474/sites/2817817/deploy/http?token=${{ secrets.FORGE_TOKEN }}")
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "Forge deploy triggered successfully (HTTP $http_code)"
+          else
+            echo "::error::Forge deploy request failed with HTTP $http_code"
+            exit 1
+          fi

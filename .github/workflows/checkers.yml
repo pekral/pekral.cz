@@ -1,4 +1,4 @@
-name: Pull request – quality checks and Cursor code review
+name: Checkers
 
 on:
   pull_request:
@@ -169,56 +169,3 @@ jobs:
 
       - name: Run security audit
         run: composer security-audit
-
-  normalize-check:
-    name: "Check composer.json is normalized (PHP ${{ matrix.php-version }})"
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        php-version: ['8.4', '8.5']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
-          coverage: pcov
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
-
-      - name: Check composer normalize
-        run: composer composer-normalize-check
-
-  cursor-code-review:
-    name: "Run Cursor AI code review on pull request"
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened' || github.event.action == 'ready_for_review') && (github.base_ref == 'master' || github.base_ref == 'main')
-    needs:
-      - phpcs-check
-      - pint-check
-      - rector-check
-      - phpstan-analysis
-      - coverage-tests
-      - audit-check
-      - normalize-check
-    permissions:
-      contents: read
-      pull-requests: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Install Cursor CLI
-        run: |
-          curl https://cursor.com/install -fsS | bash
-          echo "$HOME/.cursor/bin" >> $GITHUB_PATH
