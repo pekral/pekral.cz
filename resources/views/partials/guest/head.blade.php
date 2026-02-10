@@ -81,6 +81,7 @@
     'description' => 'Senior PHP programmer and Laravel developer with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
     'url' => url('/'),
     'image' => [
+        '@context' => 'https://schema.org',
         '@type' => 'ImageObject',
         'url' => asset('assets/profile-photo.jpg'),
         'width' => 460,
@@ -88,12 +89,14 @@
     ],
     'email' => 'mailto:kral.petr.88@gmail.com',
     'address' => [
+        '@context' => 'https://schema.org',
         '@type' => 'PostalAddress',
         'addressLocality' => 'Chlumec nad Cidlinou',
         'addressRegion' => 'Královéhradecký kraj',
         'addressCountry' => 'CZ'
     ],
     'nationality' => [
+        '@context' => 'https://schema.org',
         '@type' => 'Country',
         'name' => 'Czech Republic'
     ],
@@ -121,16 +124,19 @@
         'Test-Driven Development'
     ],
     'hasOccupation' => [
+        '@context' => 'https://schema.org',
         '@type' => 'Occupation',
         'name' => 'PHP & Laravel Developer',
         'description' => 'Senior PHP programmer specializing in Laravel development and open source contributions',
         'occupationLocation' => [
+            '@context' => 'https://schema.org',
             '@type' => 'Country',
             'name' => 'Czech Republic'
         ],
         'skills' => 'PHP, Laravel, Open Source, Symfony, REST API, MySQL, PostgreSQL, Docker, Git, Clean Code'
     ],
     'alumniOf' => [
+        '@context' => 'https://schema.org',
         '@type' => 'EducationalOrganization',
         'name' => 'Self-taught Developer'
     ]
@@ -147,6 +153,7 @@
     'name' => 'Petr Král - Senior PHP Developer',
     'description' => 'Personal portfolio and blog of Petr Král, Senior PHP Developer with 20+ years of experience.',
     'publisher' => [
+        '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'
     ],
     'inLanguage' => 'en-US'
@@ -163,9 +170,11 @@
     'name' => $pageTitle,
     'description' => $pageDescription,
     'isPartOf' => [
+        '@context' => 'https://schema.org',
         '@id' => url('/') . '#website'
     ],
     'about' => [
+        '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'
     ],
     'inLanguage' => 'en-US'

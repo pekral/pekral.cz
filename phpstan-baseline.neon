@@ -325,6 +325,18 @@ parameters:
 			path: tests/Feature/Livewire/Guest/NavigationTest.php
 
 		-
+			message: '#^Cannot call method call\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Guest/NavigationTest.php
+
+		-
+			message: '#^Cannot call method assertSet\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Guest/NavigationTest.php
+
+		-
 			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
 			identifier: method.nonObject
 			count: 9

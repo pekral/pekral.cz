@@ -9,6 +9,7 @@ use Livewire\Component;
 
 final class Navigation extends Component
 {
+
     public bool $menuOpen = false;
 
     /**
