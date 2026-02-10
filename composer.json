@@ -67,7 +67,7 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
       "analyse": "vendor/bin/phpstan analyse --memory-limit=4G",
-      "build": "composer fix && composer check",
+      "build": "vendor/bin/cursor-rules install --force && composer fix && composer check",
       "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
       "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
