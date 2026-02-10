@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Providers;
 
@@ -9,6 +9,7 @@ use Livewire\Volt\Volt;
 
 class VoltServiceProvider extends ServiceProvider
 {
+
     /**
      * Register services.
      */
@@ -27,4 +28,5 @@ class VoltServiceProvider extends ServiceProvider
             resource_path('views/pages'),
         ]);
     }
+
 }

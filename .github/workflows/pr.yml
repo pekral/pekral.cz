@@ -1,24 +1,26 @@
-name: Pull Request Quality Checks
+name: Pull request – quality checks and Cursor code review
 
 on:
   pull_request:
-    branches: [ master, main, develop ]
+    branches: [ master, main ]
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [ master, main, develop ]
+    branches: [ master, main ]
+
+# PHP versions to test against
 
 jobs:
   phpcs-check:
-    name: "🔍 PHP CodeSniffer (PHP ${{ matrix.php-version }})"
+    name: "Run PHP CodeSniffer – coding standards (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -26,19 +28,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
@@ -47,17 +36,16 @@ jobs:
         run: composer phpcs-check
 
   pint-check:
-    name: "🎨 Laravel Pint (PHP ${{ matrix.php-version }})"
+    name: "Run Laravel Pint – code style (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -65,19 +53,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
@@ -86,17 +61,16 @@ jobs:
         run: composer pint-check
 
   rector-check:
-    name: "🔄 Rector (PHP ${{ matrix.php-version }})"
+    name: "Run Rector – refactoring rules (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -104,19 +78,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
@@ -125,17 +86,16 @@ jobs:
         run: composer rector-check
 
   phpstan-analysis:
-    name: "🔎 PHPStan Analysis (PHP ${{ matrix.php-version }})"
+    name: "Run PHPStan – static analysis (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -143,19 +103,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
@@ -164,17 +111,26 @@ jobs:
         run: composer analyse
 
   coverage-tests:
-    name: "📊 Coverage Tests (PHP ${{ matrix.php-version }})"
+    name: "Run tests with code coverage (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
+
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8021:8000
+        env:
+          AWS_ACCESS_KEY_ID: "fakeMyKeyId"
+          AWS_SECRET_ACCESS_KEY: "fakeSecretAccessKey"
+          AWS_DEFAULT_REGION: "us-east-1"
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -183,55 +139,23 @@ jobs:
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
-
-      - name: Install Composer dependencies
+      - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
-
-      - name: Install Node dependencies
-        run: npm ci
-
-      - name: Copy Environment File
-        run: cp .env.example .env
-
-      - name: Generate Application Key
-        run: php artisan key:generate
-
-      - name: Build Assets
-        run: npm run build
 
       - name: Run coverage tests
         run: composer test:coverage
 
   audit-check:
-    name: "🔒 Security Audit (PHP ${{ matrix.php-version }})"
+    name: "Run Composer security audit (PHP ${{ matrix.php-version }})"
     runs-on: ubuntu-latest
-    environment: Testing
 
     strategy:
       matrix:
-        php-version: ['8.4']
+        php-version: ['8.4', '8.5']
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -239,22 +163,62 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: pcov
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php-version }}-
-            ${{ runner.os }}-php-
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run security audit
         run: composer security-audit
+
+  normalize-check:
+    name: "Check composer.json is normalized (PHP ${{ matrix.php-version }})"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['8.4', '8.5']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: pcov, dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Check composer normalize
+        run: composer composer-normalize-check
+
+  cursor-code-review:
+    name: "Run Cursor AI code review on pull request"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened' || github.event.action == 'ready_for_review') && (github.base_ref == 'master' || github.base_ref == 'main')
+    needs:
+      - phpcs-check
+      - pint-check
+      - rector-check
+      - phpstan-analysis
+      - coverage-tests
+      - audit-check
+      - normalize-check
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> $GITHUB_PATH

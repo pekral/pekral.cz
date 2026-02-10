@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -11,6 +11,7 @@ use Livewire\Component;
 
 final class ProjectsPage extends Component
 {
+
     /**
      * @var array<int, array{
      *     name: string,
@@ -45,7 +46,7 @@ final class ProjectsPage extends Component
      */
     private function fetchRepositories(): array
     {
-        return Cache::remember('github_repositories_pekral_v3', 3600 * 24 * 31, function (): array {
+        return Cache::remember('github_repositories_pekral_v3', 3_600 * 24 * 31, function (): array {
             $repositories = $this->fetchGitHubRepositories();
 
             return $this->mapRepositoriesToProjects($repositories);
@@ -63,7 +64,7 @@ final class ProjectsPage extends Component
             'type' => 'public',
         ]);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             return [];
         }
 
@@ -73,7 +74,7 @@ final class ProjectsPage extends Component
     }
 
     /**
-     * @param  list<mixed>  $repositories
+     * @param list<mixed> $repositories
      * @return array<int, array{
      *     name: string,
      *     description: string,
@@ -110,7 +111,7 @@ final class ProjectsPage extends Component
      */
     private function mapRepositoryToProject(mixed $repo): ?array
     {
-        if (! is_array($repo)) {
+        if (!is_array($repo)) {
             return null;
         }
 
@@ -179,7 +180,7 @@ final class ProjectsPage extends Component
     }
 
     /**
-     * @param  array<string, mixed>  $composerJson
+     * @param array<string, mixed> $composerJson
      */
     private function extractPhpVersion(array $composerJson): string
     {
@@ -200,4 +201,5 @@ final class ProjectsPage extends Component
 
         return '';
     }
+
 }

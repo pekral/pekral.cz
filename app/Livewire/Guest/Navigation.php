@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,6 +9,7 @@ use Livewire\Component;
 
 final class Navigation extends Component
 {
+
     /**
      * @return array<int, array{
      *     name: string,
@@ -39,4 +40,5 @@ final class Navigation extends Component
             'links' => $this->getLinks(),
         ]);
     }
+
 }

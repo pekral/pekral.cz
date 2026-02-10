@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 test('privacy policy page loads successfully', function (): void {
     $response = $this->get('/privacy-policy');

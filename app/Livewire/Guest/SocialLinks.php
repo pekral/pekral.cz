@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,7 +9,10 @@ use Livewire\Component;
 
 final class SocialLinks extends Component
 {
-    /** @var array<int, array{name: string, url: string, icon: string}> */
+
+    /**
+     * @var array<int, array{name: string, url: string, icon: string}>
+     */
     public array $links = [
         [
             'icon' => 'github',
@@ -32,4 +35,5 @@ final class SocialLinks extends Component
     {
         return view('livewire.guest.social-links');
     }
+
 }

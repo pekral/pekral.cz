@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use App\Livewire\Guest\ProjectsPage;
 use Illuminate\Support\Facades\Cache;
@@ -44,7 +44,7 @@ it('displays back link', function (): void {
 
     Livewire::test(ProjectsPage::class)
         ->assertSee('Back to home')
-        ->assertSeeHtml('href="'.route('home').'"');
+        ->assertSeeHtml('href="' . route('home') . '"');
 });
 
 it('displays projects list from github', function (): void {
@@ -211,4 +211,65 @@ it('displays php version from composer.json', function (): void {
     Livewire::test(ProjectsPage::class)
         ->assertSee('php-package')
         ->assertSee('8.2');
+});
+
+it('filters out non-array repository items from github response', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'valid-repo',
+                'description' => 'Valid repo',
+                'html_url' => 'https://github.com/pekral/valid-repo',
+                'language' => 'PHP',
+            ],
+            'invalid-non-array-item',
+        ], 200),
+        'raw.githubusercontent.com/pekral/valid-repo/main/composer.json' => Http::response([
+            'description' => 'Valid repo description',
+        ], 200),
+    ]);
+
+    Livewire::test(ProjectsPage::class)
+        ->assertSee('valid-repo')
+        ->assertSee('Valid repo description');
+});
+
+it('filters out repos with empty name', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => '',
+                'description' => 'No name repo',
+                'html_url' => 'https://github.com/pekral/empty',
+                'language' => 'PHP',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(ProjectsPage::class)
+        ->assertStatus(200)
+        ->assertDontSee('No name repo');
+});
+
+it('handles composer php constraint without version pattern', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'no-php-version-repo',
+                'description' => 'Repo without parseable PHP version',
+                'html_url' => 'https://github.com/pekral/no-php-version-repo',
+                'language' => 'PHP',
+            ],
+        ], 200),
+        'raw.githubusercontent.com/pekral/no-php-version-repo/main/composer.json' => Http::response([
+            'description' => 'Description only',
+            'require' => [
+                'php' => 'dev-master',
+            ],
+        ], 200),
+    ]);
+
+    Livewire::test(ProjectsPage::class)
+        ->assertSee('no-php-version-repo')
+        ->assertSee('Description only');
 });

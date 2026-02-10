@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,7 +9,10 @@ use Livewire\Component;
 
 final class AboutPage extends Component
 {
-    /** @var array<int, array{role: string, company: string, period: string, description: string}> */
+
+    /**
+     * @var array<int, array{role: string, company: string, period: string, description: string}>
+     */
     public array $experiences = [
         [
             'company' => 'Self-employed',
@@ -20,7 +23,7 @@ final class AboutPage extends Component
         [
             'company' => 'ECOMAIL.CZ',
             'description' => 'Building and maintaining the #1 email marketing platform in Czech Republic and Slovakia. '
-                .'Participating in tech conferences like Laravel Live Denmark and Web Summit.',
+                . 'Participating in tech conferences like Laravel Live Denmark and Web Summit.',
             'period' => 'Jan 2018 – May 2023',
             'role' => 'PHP Lead Developer',
         ],
@@ -68,7 +71,9 @@ final class AboutPage extends Component
         ],
     ];
 
-    /** @var array<int, string> */
+    /**
+     * @var array<int, string>
+     */
     public array $focus = [
         'Laravel & PHP development for scalable web applications',
         'Clean code, SOLID principles and code quality',
@@ -81,4 +86,5 @@ final class AboutPage extends Component
     {
         return view('livewire.guest.about-page');
     }
+
 }

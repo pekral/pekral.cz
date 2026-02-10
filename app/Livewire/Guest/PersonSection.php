@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -10,8 +10,10 @@ use Livewire\Component;
 
 class PersonSection extends Component
 {
+
     public function render(): Factory|View
     {
         return view('livewire.guest.person-section');
     }
+
 }

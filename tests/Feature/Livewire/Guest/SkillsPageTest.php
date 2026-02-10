@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use App\Livewire\Guest\SkillsPage;
 use Livewire\Livewire;
@@ -18,7 +18,7 @@ it('displays page title', function (): void {
 it('displays back link', function (): void {
     Livewire::test(SkillsPage::class)
         ->assertSee('Back to home')
-        ->assertSeeHtml('href="'.route('home').'"');
+        ->assertSeeHtml('href="' . route('home') . '"');
 });
 
 it('displays languages section', function (): void {

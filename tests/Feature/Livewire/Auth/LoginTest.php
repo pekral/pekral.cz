@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
@@ -94,5 +94,5 @@ it('clears rate limit after successful login', function (): void {
         ->call('login');
 
     // Rate limit should be cleared
-    expect(RateLimiter::tooManyAttempts('test@example.com|'.request()->ip(), 5))->toBeFalse();
+    expect(RateLimiter::tooManyAttempts('test@example.com|' . request()->ip(), 5))->toBeFalse();
 });

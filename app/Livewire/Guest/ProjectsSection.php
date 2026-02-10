@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,7 +9,10 @@ use Livewire\Component;
 
 final class ProjectsSection extends Component
 {
-    /** @var array<int, array{name: string, description: string, url: string, language: string}> */
+
+    /**
+     * @var array<int, array{name: string, description: string, url: string, language: string}>
+     */
     public array $projects = [
         [
             'description' => 'Custom Rector rules for automated code refactoring and PHP upgrades.',
@@ -35,4 +38,5 @@ final class ProjectsSection extends Component
     {
         return view('livewire.guest.projects-section');
     }
+
 }

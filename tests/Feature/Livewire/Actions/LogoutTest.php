@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use App\Livewire\Actions\Logout;
 use App\Models\User;
@@ -15,7 +15,7 @@ beforeEach(function (): void {
 it('logs out authenticated user', function (): void {
     expect(Auth::check())->toBeTrue();
 
-    $logout = new Logout;
+    $logout = new Logout();
     $response = $logout();
 
     expect(Auth::check())->toBeFalse();
@@ -23,7 +23,7 @@ it('logs out authenticated user', function (): void {
 });
 
 it('invalidates session', function (): void {
-    $logout = new Logout;
+    $logout = new Logout();
     $logout();
 
     // Session is invalidated, so we can't access it directly
@@ -33,7 +33,7 @@ it('invalidates session', function (): void {
 it('regenerates session token', function (): void {
     $originalToken = Session::token();
 
-    $logout = new Logout;
+    $logout = new Logout();
     $logout();
 
     expect(Session::token())->not->toBe($originalToken);

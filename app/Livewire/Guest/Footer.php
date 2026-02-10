@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,8 +9,10 @@ use Livewire\Component;
 
 final class Footer extends Component
 {
+
     public function render(): View
     {
         return view('livewire.guest.footer');
     }
+
 }

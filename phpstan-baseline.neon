@@ -1,0 +1,691 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/ExampleTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/ExampleTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/GdprPageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 13
+			path: tests/Feature/GdprPageTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/GdprPageTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/HomePageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 10
+			path: tests/Feature/HomePageTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/HomePageTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Livewire/Actions/LogoutTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Http\\RedirectResponse\|Illuminate\\Routing\\Redirector\:\:getTargetUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Actions/LogoutTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertRedirect\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ConfirmPasswordTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ForgotPasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ForgotPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ForgotPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ForgotPasswordTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/LoginTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/LoginTest.php
+
+		-
+			message: '#^Cannot access property \$email on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/LoginTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/LoginTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/LoginTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$userData\.$#'
+			identifier: property.notFound
+			count: 20
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access offset ''email'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 6
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access offset ''name'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 6
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access offset ''password'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access offset ''password_confirmation'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access property \$email on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot access property \$name on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/RegisterTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 9
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Cannot access property \$password on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Cannot call method refresh\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Parameter \#1 \$user of static method Illuminate\\Support\\Facades\\Password\:\:createToken\(\) expects Illuminate\\Contracts\\Auth\\CanResetPassword, mixed given\.$#'
+			identifier: argument.type
+			count: 6
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Parameter \#2 \$hashedValue of static method Illuminate\\Support\\Facades\\Hash\:\:check\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Feature/Livewire/Auth/ResetPasswordTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 6
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Cannot call method update\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Auth/VerifyEmailTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: tests/Feature/Livewire/Guest/AboutPageTest.php
+
+		-
+			message: '#^Cannot call method assertSeeHtml\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Guest/AboutPageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 5
+			path: tests/Feature/Livewire/Guest/FooterTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Guest/HeroSectionTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/Livewire/Guest/NavigationTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 9
+			path: tests/Feature/Livewire/Guest/ProjectsPageTest.php
+
+		-
+			message: '#^Cannot call method assertSeeHtml\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Guest/ProjectsPageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Guest/ProjectsSectionTest.php
+
+		-
+			message: '#^Cannot call method assertSeeHtml\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Guest/ProjectsSectionTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 8
+			path: tests/Feature/Livewire/Guest/SkillsPageTest.php
+
+		-
+			message: '#^Cannot call method assertSeeHtml\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Guest/SkillsPageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 12
+			path: tests/Feature/Livewire/Guest/SkillsSectionTest.php
+
+		-
+			message: '#^Cannot call method assertSeeHtml\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Guest/SocialLinksTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/AppearanceTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Cannot access property \$id on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Cannot call method assertRedirect\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Cannot call method update\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/Livewire/Settings/DeleteUserFormTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Cannot access property \$password on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Cannot call method assertDispatched\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Cannot call method refresh\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Parameter \#2 \$hashedValue of static method Illuminate\\Support\\Facades\\Hash\:\:check\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Feature/Livewire/Settings/PasswordTest.php
+
+		-
+			message: '#^Access to an undefined property PHPUnit\\Framework\\TestCase\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 9
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot access property \$email on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot access property \$email_verified_at on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot access property \$name on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method assertDispatched\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method assertSeeLivewire\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method assertSet\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method refresh\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Cannot call method update\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/Livewire/Settings/ProfileTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/PrivacyPolicyPageTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 13
+			path: tests/Feature/PrivacyPolicyPageTest.php
+
+		-
+			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/PrivacyPolicyPageTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/RobotsTest.php
+
+		-
+			message: '#^Cannot call method assertHeader\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/RobotsTest.php
+
+		-
+			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 7
+			path: tests/Feature/RobotsTest.php
+
+		-
+			message: '#^Cannot call method assertSuccessful\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/RobotsTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Cannot access property \$url on SimpleXMLElement\|false\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Cannot call method assertDontSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Cannot call method assertHeader\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Cannot call method assertSuccessful\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Cannot call method getContent\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Parameter \#1 \$data of function simplexml_load_string expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Feature/SitemapTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/VerifyEmailControllerTest.php
+
+		-
+			message: '#^Cannot call method assertRedirect\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/VerifyEmailControllerTest.php
+
+		-
+			message: '#^Cannot call method get\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/Feature/VerifyEmailControllerTest.php
+
+		-
+			message: '#^Cannot call method hasVerifiedEmail\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/VerifyEmailControllerTest.php

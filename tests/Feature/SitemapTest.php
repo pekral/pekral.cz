@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 test('sitemap returns valid xml response', function (): void {
     $response = $this->get('/sitemap.xml');
@@ -14,11 +14,11 @@ test('sitemap contains all public pages', function (): void {
 
     $content = $response->getContent();
 
-    expect($content)->toContain('<loc>'.url('/').'</loc>');
-    expect($content)->toContain('<loc>'.url('/about').'</loc>');
-    expect($content)->toContain('<loc>'.url('/skills').'</loc>');
-    expect($content)->toContain('<loc>'.url('/projects').'</loc>');
-    expect($content)->toContain('<loc>'.url('/privacy-policy').'</loc>');
+    expect($content)->toContain('<loc>' . url('/') . '</loc>');
+    expect($content)->toContain('<loc>' . url('/about') . '</loc>');
+    expect($content)->toContain('<loc>' . url('/skills') . '</loc>');
+    expect($content)->toContain('<loc>' . url('/projects') . '</loc>');
+    expect($content)->toContain('<loc>' . url('/privacy-policy') . '</loc>');
 });
 
 test('sitemap does not contain private pages', function (): void {

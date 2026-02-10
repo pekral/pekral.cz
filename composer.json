@@ -10,27 +10,27 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "laravel/framework": "^12.48.1",
+        "laravel/framework": "^12.50.0",
         "laravel/tinker": "^2.11.0",
-        "livewire/flux": "^2.11.1",
-        "livewire/volt": "^1.10.1",
+        "livewire/flux": "^2.12.0",
+        "livewire/volt": "^1.10.2",
         "spatie/laravel-cookie-consent": "^3.3.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
         "larastan/larastan": "^3.9",
         "laravel/boost": "^1.8.10",
-        "laravel/pail": "^1.2.4",
+        "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27.0",
         "laravel/sail": "^1.52",
         "mockery/mockery": "^1.6.12",
         "nunomaduro/collision": "^8.8.3",
-        "pekral/cursor-rules": "dev-master",
-        "pekral/phpcs-rules": "dev-master",
-        "pekral/rector-rules": "dev-master",
-        "pestphp/pest": "^4.3.1",
-        "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "pekral/cursor-rules": "^0.3.1",
+        "pekral/phpcs-rules": "^0.4.6",
+        "pekral/rector-rules": "^0.4.7",
+        "pestphp/pest": "^4.3.2",
+        "phpstan/phpstan": "^2.1.38",
+        "phpstan/phpstan-deprecation-rules": "^2.0.3",
         "phpstan/phpstan-mockery": "^2.0",
         "roave/security-advisories": "dev-latest"
     },
@@ -66,62 +66,18 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
-        "test": [
-            "@php artisan config:clear --ansi",
-            "@php artisan test"
-        ],
-        "analyse": [
-            "echo \"🔍 Running PHPStan static analysis...\"",
-            "vendor/bin/phpstan analyse --memory-limit=2G"
-        ],
-        "check": [
-            "echo \"🚀 Running full quality check...\"",
-            "@phpcs-check",
-            "@pint-check",
-            "@rector-check",
-            "@analyse",
-            "@security-audit",
-            "@test:coverage"
-        ],
-        "fix": [
-            "echo \"🔧 Running all fixes...\"",
-            "@rector-fix",
-            "@phpcs-fix",
-            "@pint-fix",
-            "echo \"✅ All fixes completed!\""
-        ],
-        "phpcs-check": [
-            "echo \"✅ Running PHP CodeSniffer check...\"",
-            "vendor/bin/phpcs --standard=ruleset.xml app/ tests/"
-        ],
-        "phpcs-fix": [
-            "echo \"🔧 Running PHP CodeSniffer fix...\"",
-            "vendor/bin/phpcbf --standard=ruleset.xml app/ tests/ || true"
-        ],
-        "pint-check": [
-            "echo \"🎨 Running Laravel Pint check...\"",
-            "vendor/bin/pint app/ tests/ --test"
-        ],
-        "pint-fix": [
-            "echo \"🎨 Running Laravel Pint fixes...\"",
-            "vendor/bin/pint app/ tests/"
-        ],
-        "rector-check": [
-            "echo \"🔄 Running Rector check (dry-run)...\"",
-            "vendor/bin/rector process --dry-run"
-        ],
-        "rector-fix": [
-            "echo \"🔄 Running Rector fixes...\"",
-            "vendor/bin/rector process"
-        ],
-        "security-audit": [
-            "echo \"🔒 Running Composer security audit...\"",
-            "composer audit --format=summary"
-        ],
-        "test:coverage": [
-            "echo \"📊 Running coverage tests...\"",
-            "php -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off vendor/bin/pest --coverage"
-        ]
+      "analyse": "vendor/bin/phpstan analyse --memory-limit=4G",
+      "build": "composer fix && composer check",
+      "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
+      "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
+      "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
+      "phpcs-fix": "vendor/bin/phpcbf --standard=ruleset.xml app/ tests/ || true",
+      "pint-check": "vendor/bin/pint app/ tests/ --test --parallel",
+      "pint-fix": "vendor/bin/pint app/ tests/ --parallel",
+      "rector-check": "vendor/bin/rector process --dry-run",
+      "rector-fix": "vendor/bin/rector process",
+      "security-audit": "composer audit",
+      "test:coverage": "php -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off -dpcov.exclude=\"~vendor~\" vendor/bin/pest --coverage --min=100"
     },
     "extra": {
         "laravel": {

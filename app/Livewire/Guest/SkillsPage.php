@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
@@ -9,6 +9,7 @@ use Livewire\Component;
 
 final class SkillsPage extends Component
 {
+
     /**
      * @var array<string, array<int, array{name: string, logo?: string, icon?: string}>>
      */
@@ -56,4 +57,5 @@ final class SkillsPage extends Component
     {
         return view('livewire.guest.skills-page');
     }
+
 }

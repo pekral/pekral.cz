@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 test('robots returns valid text response', function (): void {
     $response = $this->get('/robots.txt');
@@ -28,7 +28,7 @@ test('robots disallows private areas', function (): void {
 test('robots contains sitemap reference', function (): void {
     $response = $this->get('/robots.txt');
 
-    $response->assertSee('Sitemap: '.url('/sitemap.xml'));
+    $response->assertSee('Sitemap: ' . url('/sitemap.xml'));
 });
 
 test('robots has noindex header to prevent indexing itself', function (): void {

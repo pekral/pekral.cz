@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use App\Livewire\Guest\Navigation;
 use Livewire\Livewire;
@@ -20,22 +20,22 @@ it('displays all navigation links', function (): void {
 
 it('contains home link', function (): void {
     Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="'.route('home').'"');
+        ->assertSeeHtml('href="' . route('home') . '"');
 });
 
 it('contains about link with route', function (): void {
     Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="'.route('about').'"');
+        ->assertSeeHtml('href="' . route('about') . '"');
 });
 
 it('contains skills link with route', function (): void {
     Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="'.route('skills').'"');
+        ->assertSeeHtml('href="' . route('skills') . '"');
 });
 
 it('contains projects link with route', function (): void {
     Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="'.route('projects').'"');
+        ->assertSeeHtml('href="' . route('projects') . '"');
 });
 
 it('contains obfuscated email component', function (): void {

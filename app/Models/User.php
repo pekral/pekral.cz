@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -12,9 +12,9 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
+
     /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-
     use Notifiable;
 
     /**
@@ -62,4 +62,5 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
 }
