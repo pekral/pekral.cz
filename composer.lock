@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "220177023f4b6ab9eb51da39de841445",
+    "content-hash": "cd75ea67a2ada32faa28ef03189d15e0",
     "packages": [
         {
             "name": "brick/math",
@@ -7679,40 +7679,45 @@
         },
         {
             "name": "pekral/cursor-rules",
-            "version": "0.3.1",
+            "version": "0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/cursor-rules.git",
-                "reference": "84bbf490b112d598cbf9dd03b6832ebcf7a9440c"
+                "reference": "08e51eed270c55c94a650341df0cee00fd8f2ed0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/84bbf490b112d598cbf9dd03b6832ebcf7a9440c",
-                "reference": "84bbf490b112d598cbf9dd03b6832ebcf7a9440c",
+                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/08e51eed270c55c94a650341df0cee00fd8f2ed0",
+                "reference": "08e51eed270c55c94a650341df0cee00fd8f2ed0",
                 "shasum": ""
             },
+            "require": {
+                "composer-plugin-api": "^2.0"
+            },
             "require-dev": {
-                "ergebnis/composer-normalize": "^2.49.0",
-                "laravel/pint": "^1.27.0",
-                "pekral/phpcs-rules": "^0.4.6",
+                "composer/composer": "^2.9.5",
+                "ergebnis/composer-normalize": "^2.50.0",
+                "laravel/pint": "^1.27.1",
+                "pekral/phpcs-rules": "^0.4.7",
                 "pekral/phpstan-rules": "^0.4.5",
-                "pekral/rector-rules": "^0.4.7",
-                "pestphp/pest": "^4.3.2",
+                "pekral/rector-rules": "^0.4.8",
+                "pestphp/pest": "^4.4.1",
                 "pestphp/pest-plugin": "^4.0",
                 "pestphp/pest-plugin-type-coverage": "^4.0.3",
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^2.1.38",
-                "phpstan/phpstan-deprecation-rules": "^2.0.3",
+                "phpstan/phpstan": "^2.1.39",
+                "phpstan/phpstan-deprecation-rules": "^2.0.4",
                 "phpstan/phpstan-mockery": "^2.0",
-                "phpstan/phpstan-phpunit": "^2.0.12",
+                "phpstan/phpstan-phpunit": "^2.0.16",
                 "roave/security-advisories": "dev-latest",
                 "squizlabs/php_codesniffer": "^4.0.1"
             },
             "bin": [
                 "bin/cursor-rules"
             ],
-            "type": "library",
+            "type": "composer-plugin",
             "extra": {
+                "class": "Pekral\\CursorRules\\ComposerPlugin",
                 "cursor-rules": {
                     "source": "vendor/pekral/cursor-rules/.cursor/rules",
                     "target": ".cursor/rules"
@@ -7755,7 +7760,7 @@
                 "issues": "https://github.com/pekral/cursor-rules/issues",
                 "source": "https://github.com/pekral/cursor-rules"
             },
-            "time": "2026-02-03T20:34:58+00:00"
+            "time": "2026-02-17T17:40:35+00:00"
         },
         {
             "name": "pekral/phpcs-rules",
