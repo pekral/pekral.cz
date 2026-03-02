@@ -10,27 +10,27 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "laravel/framework": "^12.50.0",
-        "laravel/tinker": "^2.11.0",
-        "livewire/flux": "^2.12.0",
-        "livewire/volt": "^1.10.2",
-        "spatie/laravel-cookie-consent": "^3.3.3"
+        "laravel/framework": "^12.53.0",
+        "laravel/tinker": "^2.11.1",
+        "livewire/flux": "^2.12.2",
+        "livewire/volt": "^1.10.3",
+        "spatie/laravel-cookie-consent": "^3.4.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
-        "larastan/larastan": "^3.9",
-        "laravel/boost": "^1.8.10",
-        "laravel/pail": "^1.2.5",
-        "laravel/pint": "^1.27.0",
-        "laravel/sail": "^1.52",
+        "larastan/larastan": "^3.9.3",
+        "laravel/boost": "^1.8.11",
+        "laravel/pail": "^1.2.6",
+        "laravel/pint": "^1.27.1",
+        "laravel/sail": "^1.53",
         "mockery/mockery": "^1.6.12",
-        "nunomaduro/collision": "^8.8.3",
+        "nunomaduro/collision": "^8.9.1",
         "pekral/cursor-rules": "^0.5.1",
-        "pekral/phpcs-rules": "^0.4.6",
-        "pekral/rector-rules": "^0.4.7",
-        "pestphp/pest": "^4.3.2",
-        "phpstan/phpstan": "^2.1.38",
-        "phpstan/phpstan-deprecation-rules": "^2.0.3",
+        "pekral/phpcs-rules": "^0.4.8",
+        "pekral/rector-rules": "^0.4.8",
+        "pestphp/pest": "^4.4.1",
+        "phpstan/phpstan": "^2.1.40",
+        "phpstan/phpstan-deprecation-rules": "^2.0.4",
         "phpstan/phpstan-mockery": "^2.0",
         "roave/security-advisories": "dev-latest"
     },
@@ -89,9 +89,10 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pekral/cursor-rules": true,
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",
