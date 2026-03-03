@@ -23,7 +23,7 @@ test('blog post page loads for existing slug', function (): void {
     $response->assertSuccessful();
     $response->assertSee('Vibe coding with AI');
     $response->assertSee('Back to blog');
-    $response->assertSee('Kopírovat odkaz');
+    $response->assertSee('Copy link');
     $response->assertSee('workflow');
 });
 

@@ -22,11 +22,11 @@
                         type="button"
                         data-copy-link
                         class="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                        title="Kopírovat odkaz"
+                        title="Copy link"
                     >
-                        Kopírovat odkaz
+                        Copy link
                     </button>
-                    <span data-copy-feedback class="hidden text-primary font-medium" aria-live="polite">Zkopírováno</span>
+                    <span data-copy-feedback class="hidden text-primary font-medium" aria-live="polite">Copied</span>
                 </p>
                 @if($article->description)
                     <p class="text-muted-foreground mt-3">
