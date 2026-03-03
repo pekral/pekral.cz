@@ -39,7 +39,7 @@
                 </div>
             </div>
 
-            {{-- Laravel & PHP Development Section --}}
+            {{-- PHP & building with Laravel Section --}}
             <div class="pt-4 border-t border-border">
                 <div class="terminal-line mb-4">
                     <span class="terminal-prompt">$</span>

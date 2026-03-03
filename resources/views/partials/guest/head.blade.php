@@ -62,9 +62,9 @@
     'name' => 'Petr Kr?l',
     'givenName' => 'Petr',
     'familyName' => 'Kr?l',
-    'jobTitle' => 'PHP & Laravel Developer',
+    'jobTitle' => 'PHP Developer building with Laravel',
     'alternateName' => 'Senior PHP Programmer',
-    'description' => 'Senior PHP programmer and Laravel developer with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
+    'description' => 'Senior PHP programmer building projects with Laravel, with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
     'url' => url('/'),
     'image' => [
         '@context' => 'https://schema.org',
@@ -93,7 +93,7 @@
     ],
     'knowsAbout' => [
         'PHP Development',
-        'Laravel Framework',
+        'Building applications with Laravel',
         'Open Source Software',
         'Backend Programming',
         'Symfony Framework',
@@ -112,8 +112,8 @@
     'hasOccupation' => [
         '@context' => 'https://schema.org',
         '@type' => 'Occupation',
-        'name' => 'PHP & Laravel Developer',
-        'description' => 'Senior PHP programmer specializing in Laravel development and open source contributions',
+        'name' => 'PHP Developer building with Laravel',
+        'description' => 'Senior PHP programmer building applications with Laravel and open source contributions',
         'occupationLocation' => [
             '@context' => 'https://schema.org',
             '@type' => 'Country',
