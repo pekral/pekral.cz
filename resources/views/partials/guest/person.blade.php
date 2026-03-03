@@ -57,7 +57,7 @@
 
                 <!-- Bio -->
                 <p class="font-mono text-sm text-[#9ca3af] leading-relaxed max-w-2xl">
-                    Experienced PHP developer passionate about clean code, automated refactoring with Rector, and building scalable web applications. Contributing to the PHP ecosystem and sharing knowledge with the developer community.
+                    Experienced PHP developer building projects with Laravel, passionate about clean code, automated refactoring with Rector, and scalable web applications. Contributing to the PHP ecosystem and sharing knowledge with the developer community.
                 </p>
 
                 <!-- Divider -->

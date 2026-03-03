@@ -37,8 +37,8 @@
                             </svg>
                         </div>
                     </div>
-                    <div><h3 class="text-xl font-semibold text-text-primary mb-3">Laravel Framework</h3>
-                        <p class="text-text-secondary leading-relaxed">Expertní znalosti <strong>Laravel</strong> frameworku
+                    <div><h3 class="text-xl font-semibold text-text-primary mb-3">Stavění na Laravelu</h3>
+                        <p class="text-text-secondary leading-relaxed">Expertní znalosti práce s <strong>Laravel</strong> frameworkem
                             - od základů až po pokročilé funkce jako jsou Eloquent ORM, artisan commands a
                             package development. Vytvářím <strong>webové prezentace</strong> a <strong>SaaS řešení</strong>.</p></div>
                 </div>

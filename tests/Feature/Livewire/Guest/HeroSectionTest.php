@@ -21,7 +21,7 @@ it('displays role', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(HeroSection::class);
     $component->assertSee('PHP Developer');
-    $component->assertSee('Laravel Programmer');
+    $component->assertSee('building with Laravel');
 });
 
 it('displays location', function (): void {
@@ -34,7 +34,7 @@ it('displays bio text', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(HeroSection::class);
     $component->assertSee('Senior PHP Developer');
-    $component->assertSee('Laravel programmer');
+    $component->assertSee('with Laravel');
     $component->assertSee('open source contributor');
 });
 
