@@ -23,7 +23,7 @@ it('displays languages section', function (): void {
     $component->assertSee('Languages');
     $component->assertSee('PHP');
     $component->assertSee('JavaScript');
-    $component->assertSee('TypeScript');
+    $component->assertSee('SQL');
 });
 
 it('displays frameworks section', function (): void {
@@ -32,7 +32,7 @@ it('displays frameworks section', function (): void {
     $component->assertSee('Frameworks');
     $component->assertSee('Laravel');
     $component->assertSee('Symfony');
-    $component->assertSee('React');
+    $component->assertSee('Vue.js');
 });
 
 it('displays tools section', function (): void {
@@ -41,6 +41,7 @@ it('displays tools section', function (): void {
     $component->assertSee('Tools');
     $component->assertSee('Git');
     $component->assertSee('Docker');
+    $component->assertSee('Rector');
     $component->assertSee('PHPUnit');
 });
 
