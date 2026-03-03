@@ -2,5 +2,9 @@
 <ruleset name="Arch App Services PHPCS Rules">
     <description>Custom PHPCS rules for Arch App Services package</description>
     <!-- Include pekral/phpcs-rules -->
-    <rule ref="vendor/pekral/phpcs-rules/ruleset.xml"/>
+    <rule ref="vendor/pekral/phpcs-rules/ruleset.xml">
+        <!-- @var $this in Pest closures documents bound test case; no assignment. -->
+        <exclude name="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.MissingVariable"/>
+        <exclude name="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.NoAssignment"/>
+    </rule>
 </ruleset>

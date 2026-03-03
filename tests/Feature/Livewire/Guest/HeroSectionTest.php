@@ -6,34 +6,40 @@ use App\Livewire\Guest\HeroSection;
 use Livewire\Livewire;
 
 it('renders hero section component', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertStatus(200);
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertStatus(200);
 });
 
 it('displays profile name', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertSee('Petr Král');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSee('Petr Král');
 });
 
 it('displays role', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertSee('PHP Developer')
-        ->assertSee('Laravel Programmer');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSee('PHP Developer');
+    $component->assertSee('Laravel Programmer');
 });
 
 it('displays location', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertSee('Chlumec nad Cidlinou, Czech Republic');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSee('Chlumec nad Cidlinou, Czech Republic');
 });
 
 it('displays bio text', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertSee('Senior PHP Developer')
-        ->assertSee('Laravel programmer')
-        ->assertSee('open source contributor');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSee('Senior PHP Developer');
+    $component->assertSee('Laravel programmer');
+    $component->assertSee('open source contributor');
 });
 
 it('displays terminal window', function (): void {
-    Livewire::test(HeroSection::class)
-        ->assertSee('petr@portfolio');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSee('petr@portfolio');
 });

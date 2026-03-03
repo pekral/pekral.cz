@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create();
     Auth::login($this->user);
 });
@@ -16,6 +17,7 @@ it('logs out authenticated user', function (): void {
     expect(Auth::check())->toBeTrue();
 
     $logout = new Logout();
+    /** @var \Illuminate\Http\RedirectResponse $response */
     $response = $logout();
 
     expect(Auth::check())->toBeFalse();

@@ -25,7 +25,9 @@ test('all public page routes return success or redirect', function (): void {
     ];
 
     foreach ($publicRoutes as [$method, $uri, $name]) {
+        /** @var \Tests\TestCase $this */
         $response = $this->get($uri);
+        /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
         $status = $response->getStatusCode();
 
         expect($status)->not->toBe(404, sprintf('Route [%s] (%s) must not return 404', $name, $uri));
@@ -41,7 +43,9 @@ test('guest auth routes return success or redirect', function (): void {
     ];
 
     foreach ($guestRoutes as [$method, $uri, $name]) {
+        /** @var \Tests\TestCase $this */
         $response = $this->get($uri);
+        /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
         $status = $response->getStatusCode();
 
         expect($status)->not->toBe(404, sprintf('Route [%s] (%s) must not return 404', $name, $uri));
@@ -59,7 +63,9 @@ test('auth-required routes redirect to login when guest', function (): void {
     ];
 
     foreach ($protectedRoutes as [$method, $uri, $name]) {
+        /** @var \Tests\TestCase $this */
         $response = $this->get($uri);
+        /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
         $status = $response->getStatusCode();
 
         expect($status)->not->toBe(404, sprintf('Route [%s] (%s) must not return 404', $name, $uri));
@@ -67,8 +73,9 @@ test('auth-required routes redirect to login when guest', function (): void {
 });
 
 test('settings redirect route works', function (): void {
+    /** @var \Tests\TestCase $this */
     $response = $this->get('/settings');
-
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertRedirect();
     expect($response->getStatusCode())->not->toBe(404);
 });

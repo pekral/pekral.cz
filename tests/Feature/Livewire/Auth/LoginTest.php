@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
         'password' => bcrypt('password'),
@@ -17,10 +18,10 @@ beforeEach(function (): void {
 });
 
 it('renders login component', function (): void {
+    /** @var \Tests\TestCase $this */
     $response = $this->get(route('login'));
-
-    $response->assertStatus(200);
-    $response->assertSeeLivewire('auth.login');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertStatus(200)->assertSeeLivewire('auth.login');
 });
 
 it('logs in user with valid credentials', function (): void {
@@ -32,7 +33,9 @@ it('logs in user with valid credentials', function (): void {
         ->assertRedirect(route('dashboard'));
 
     expect(Auth::check())->toBeTrue();
-    expect(Auth::user()->email)->toBe('test@example.com');
+    $user = Auth::user();
+    assert($user !== null);
+    expect($user->email)->toBe('test@example.com');
 });
 
 it('fails login with invalid credentials', function (): void {

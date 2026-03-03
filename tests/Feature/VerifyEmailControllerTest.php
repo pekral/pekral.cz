@@ -19,10 +19,13 @@ it('verifies email and redirects to dashboard', function (): void {
         ],
     );
 
+    /** @var \Tests\TestCase $this */
     $response = $this->actingAs($user)->get($verificationUrl);
-
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertRedirect(route('dashboard', absolute: false) . '?verified=1');
-    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
+    $freshUser = $user->fresh();
+    assert($freshUser !== null);
+    expect($freshUser->hasVerifiedEmail())->toBeTrue();
 });
 
 it('redirects already verified user to dashboard', function (): void {
@@ -39,7 +42,8 @@ it('redirects already verified user to dashboard', function (): void {
         ],
     );
 
+    /** @var \Tests\TestCase $this */
     $response = $this->actingAs($user)->get($verificationUrl);
-
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertRedirect(route('dashboard', absolute: false) . '?verified=1');
 });
