@@ -711,13 +711,13 @@ parameters:
 		-
 			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
 			identifier: method.notFound
-			count: 7
+			count: 8
 			path: tests/Feature/Blog/BlogRoutesTest.php
 
 		-
 			message: '#^Cannot call method assert\w+\(\) on mixed\.$#'
 			identifier: method.nonObject
-			count: 16
+			count: 17
 			path: tests/Feature/Blog/BlogRoutesTest.php
 
 		-
