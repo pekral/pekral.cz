@@ -27,79 +27,23 @@
         </x-terminal>
     </section>
 
-    {{-- Languages Section --}}
-    <section class="animate-fade-in-delay-1 mb-12">
-        <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> {{ __('guest.skills.languages') }}
-        </h2>
-        <div class="flex flex-wrap gap-3">
-            @foreach($skills['languages'] as $skill)
-                <span class="skill-tag">
-                    @if(isset($skill['logo']))
-                        <img src="{{ $skill['logo'] }}" alt="{{ $skill['name'] }}" class="w-4 h-4 mr-2" loading="lazy">
-                    @elseif(isset($skill['icon']))
-                        <span class="mr-2">{{ $skill['icon'] }}</span>
-                    @endif
-                    {{ $skill['name'] }}
-                </span>
-            @endforeach
-        </div>
-    </section>
-
-    {{-- Frameworks Section --}}
-    <section class="animate-fade-in-delay-2 mb-12">
-        <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> {{ __('guest.skills.frameworks') }}
-        </h2>
-        <div class="flex flex-wrap gap-3">
-            @foreach($skills['frameworks'] as $skill)
-                <span class="skill-tag">
-                    @if(isset($skill['logo']))
-                        <img src="{{ $skill['logo'] }}" alt="{{ $skill['name'] }}" class="w-4 h-4 mr-2" loading="lazy">
-                    @elseif(isset($skill['icon']))
-                        <span class="mr-2">{{ $skill['icon'] }}</span>
-                    @endif
-                    {{ $skill['name'] }}
-                </span>
-            @endforeach
-        </div>
-    </section>
-
-    {{-- Tools Section --}}
-    <section class="animate-fade-in-delay-2 mb-12">
-        <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> {{ __('guest.skills.tools') }}
-        </h2>
-        <div class="flex flex-wrap gap-3">
-            @foreach($skills['tools'] as $skill)
-                <span class="skill-tag">
-                    @if(isset($skill['logo']))
-                        <img src="{{ $skill['logo'] }}" alt="{{ $skill['name'] }}" class="w-4 h-4 mr-2" loading="lazy">
-                    @elseif(isset($skill['icon']))
-                        <span class="mr-2">{{ $skill['icon'] }}</span>
-                    @endif
-                    {{ $skill['name'] }}
-                </span>
-            @endforeach
-        </div>
-    </section>
-
-    {{-- Practices Section --}}
-    <section class="animate-fade-in-delay-3">
-        <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> {{ __('guest.skills.practices') }}
-        </h2>
-        <div class="flex flex-wrap gap-3">
-            @foreach($skills['practices'] as $skill)
-                <span class="skill-tag">
-                    @if(isset($skill['logo']))
-                        <img src="{{ $skill['logo'] }}" alt="{{ $skill['name'] }}" class="w-4 h-4 mr-2" loading="lazy">
-                    @elseif(isset($skill['icon']))
-                        <span class="mr-2">{{ $skill['icon'] }}</span>
-                    @endif
-                    {{ $skill['name'] }}
-                </span>
-            @endforeach
-        </div>
-    </section>
+    @foreach($this->getSkillsByCategory() as $categoryKey => $categorySkills)
+        <section class="animate-fade-in-delay-{{ $loop->iteration }} {{ $loop->last ? '' : 'mb-12' }}">
+            <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
+                <span class="text-primary">#</span> {{ __('guest.skills.' . $categoryKey) }}
+            </h2>
+            <div class="flex flex-wrap gap-3">
+                @foreach($categorySkills as $skill)
+                    <span class="skill-tag">
+                        @if(isset($skill['logo']))
+                            <img src="{{ $skill['logo'] }}" alt="{{ $skill['name'] }}" class="w-4 h-4 mr-2" loading="lazy">
+                        @elseif(isset($skill['icon']))
+                            <span class="mr-2">{{ $skill['icon'] }}</span>
+                        @endif
+                        {{ $skill['name'] }}
+                    </span>
+                @endforeach
+            </div>
+        </section>
+    @endforeach
 </div>

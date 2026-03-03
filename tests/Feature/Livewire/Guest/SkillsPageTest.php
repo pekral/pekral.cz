@@ -55,3 +55,29 @@ it('displays practices section', function (): void {
     $component->assertSee('Clean Code');
     $component->assertSee('SOLID');
 });
+
+it('displays skills in category order languages then frameworks then tools then practices', function (): void {
+    $component = Livewire::test(SkillsPage::class);
+    $html = $component->html();
+    $langPos = strpos($html, 'Languages');
+    $fwPos = strpos($html, 'Frameworks');
+    $toolsPos = strpos($html, 'Tools');
+    $practicesPos = strpos($html, 'Practices');
+    expect($langPos)->not->toBeFalse()
+        ->and($fwPos)->not->toBeFalse()
+        ->and($toolsPos)->not->toBeFalse()
+        ->and($practicesPos)->not->toBeFalse();
+    $lang = (int) $langPos;
+    $fw = (int) $fwPos;
+    $tools = (int) $toolsPos;
+    $practices = (int) $practicesPos;
+    expect($lang)->toBeLessThan($fw)
+        ->and($fw)->toBeLessThan($tools)
+        ->and($tools)->toBeLessThan($practices);
+});
+
+it('returns skills by category in defined order', function (): void {
+    $page = new SkillsPage();
+    $skillsByCategory = $page->getSkillsByCategory();
+    expect(array_keys($skillsByCategory))->toBe(SkillsPage::CATEGORY_ORDER);
+});

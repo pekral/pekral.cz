@@ -10,6 +10,8 @@ use Livewire\Component;
 final class SkillsPage extends Component
 {
 
+    public const array CATEGORY_ORDER = ['languages', 'frameworks', 'tools', 'practices'];
+
     /**
      * @var array<string, array<int, array{name: string, logo?: string, icon?: string}>>
      */
@@ -52,6 +54,22 @@ final class SkillsPage extends Component
             ['name' => 'Pint', 'icon' => '🎨'],
         ],
     ];
+
+    /**
+     * @return array<string, array<int, array{name: string, logo?: string, icon?: string}>>
+     */
+    public function getSkillsByCategory(): array
+    {
+        $ordered = [];
+
+        foreach (self::CATEGORY_ORDER as $key) {
+            if (isset($this->skills[$key])) {
+                $ordered[$key] = $this->skills[$key];
+            }
+        }
+
+        return $ordered;
+    }
 
     public function render(): View
     {
