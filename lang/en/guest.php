@@ -51,6 +51,11 @@ return [
         'php_community' => 'PHP programming community',
         'see_more' => 'Want to see more of my work as a :php_developer? Explore all my :open_source repositories on GitHub.',
         'open_source' => 'open source',
+        'section_items' => [
+            'rector-rules' => 'Custom Rector rules for automated code refactoring and PHP upgrades.',
+            'arch-app-services' => 'Simple architecture for PHP services with clean separation of concerns.',
+            'cursor-rules' => 'Preferred rules for generating code in the Cursor editor.',
+        ],
     ],
     'skills' => [
         'title' => 'Skills',
@@ -75,6 +80,24 @@ return [
         'connect_heading' => 'Connect',
         'connect_linkedin' => 'Connect with me on LinkedIn. I have 400+ followers and 320+ connections in the tech industry. Let\'s network!',
         'connect_github' => 'Check out my open-source contributions and personal projects on GitHub.',
+        'experiences' => [
+            0 => ['role' => 'PHP Developer', 'company' => 'Self-employed', 'period' => 'May 2023 – Present', 'description' => 'Building custom web applications and consulting on PHP/Laravel projects.'],
+            1 => ['role' => 'PHP Lead Developer', 'company' => 'ECOMAIL.CZ', 'period' => 'Jan 2018 – May 2023', 'description' => 'Building and maintaining the #1 email marketing platform in Czech Republic and Slovakia. Participating in tech conferences like Laravel Live Denmark and Web Summit.'],
+            2 => ['role' => 'Senior PHP Developer', 'company' => 'Slevomat', 'period' => 'Dec 2016 – Dec 2017', 'description' => 'Building web services and backend systems for one of the largest Czech e-commerce platforms.'],
+            3 => ['role' => 'Senior PHP Developer', 'company' => 'Hanaboso s.r.o.', 'period' => 'Apr 2016 – Dec 2016', 'description' => 'Designing and implementing backend modules, code refactoring and application optimization.'],
+            4 => ['role' => 'Backend Leader Developer', 'company' => 'el nino parfum, s.r.o.', 'period' => 'Mar 2015 – Mar 2016', 'description' => 'Development and maintenance of backend application for customer data management.'],
+            5 => ['role' => 'PHP Developer', 'company' => 'eBRÁNA', 'period' => 'Sep 2012 – Mar 2015', 'description' => 'Developing information systems and web service tools for end customers.'],
+            6 => ['role' => 'PHP Developer', 'company' => 'MALL.cz', 'period' => 'Dec 2011 – Aug 2012', 'description' => 'Programming frontend shop modules, code refactoring and backend scripts.'],
+            7 => ['role' => 'PHP Developer', 'company' => 'Memos Software', 'period' => 'Mar 2011 – Nov 2011', 'description' => 'Working on WordPress and PrestaShop projects.'],
+            8 => ['role' => 'PHP Developer', 'company' => 'Cis.cz', 'period' => 'Aug 2008 – Feb 2011', 'description' => 'Creating web presentations, implementing e-shop modules, SEO, CSS, JavaScript.'],
+        ],
+        'focus' => [
+            'Laravel & PHP development for scalable web applications',
+            'Clean code, SOLID principles and code quality',
+            'Backend architecture and API development',
+            'Automated testing and continuous integration',
+            'Performance optimization and refactoring',
+        ],
     ],
     'hero' => [
         'name' => 'Petr Král',
@@ -99,5 +122,10 @@ return [
     'gdpr' => [
         'title' => 'Privacy Policy (GDPR)',
         'back_to_homepage' => 'Back to homepage',
+    ],
+    'locale' => [
+        'switch_to_cz' => 'Switch to Czech',
+        'switch_to_en' => 'Switch to English',
+        'language' => 'Language',
     ],
 ];

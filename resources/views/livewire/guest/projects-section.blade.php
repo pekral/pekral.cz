@@ -1,6 +1,6 @@
 <section id="projects" class="animate-fade-in-delay-3">
     <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-        <span class="text-primary">#</span> Projects
+        <span class="text-primary">#</span> {{ __('guest.projects.title') }}
     </h2>
 
     <div class="grid gap-4">
@@ -44,7 +44,7 @@
             <circle cx="6" cy="18" r="3"></circle>
             <path d="M18 9a9 9 0 0 1-9 9"></path>
         </svg>
-        View all repositories
+        {{ __('guest.projects.view_all_repositories') }}
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
             <polyline points="15 3 21 3 21 9"></polyline>

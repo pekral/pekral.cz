@@ -4,7 +4,7 @@
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
         </svg>
-        Back to home
+        {{ __('guest.common.back_to_home') }}
     </a>
 
     {{-- Hero Section --}}
@@ -17,13 +17,13 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> About Petr Král - PHP Developer & Laravel Programmer
+                        <span class="text-primary">#</span> {{ __('guest.about.hero_title') }}
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        I'm a <strong class="text-foreground">Senior PHP Developer</strong> and <strong class="text-foreground">Laravel programmer</strong> based in Czech Republic. I've been working as a <strong class="text-foreground">backend developer</strong> for over <span class="text-primary font-semibold">20 years</span>, building everything from startups to large-scale platforms.
+                        {!! __('guest.about.paragraph_1') !!}
                     </p>
                     <p class="text-muted-foreground leading-relaxed">
-                        My experience as a <strong class="text-foreground">PHP programmer</strong> includes e-commerce platforms, email marketing systems, and custom web applications. As an active <strong class="text-foreground">open source contributor</strong>, I specialize in <span class="text-primary font-semibold">Laravel development</span>, REST API programming, and scalable backend solutions.
+                        {!! __('guest.about.paragraph_2') !!}
                     </p>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 <rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
             </svg>
-            <span><span class="text-primary">#</span> Developer Experience & Career</span>
+            <span><span class="text-primary">#</span> {{ __('guest.about.experience_heading') }}</span>
         </h2>
 
         <div class="relative">
@@ -77,7 +77,7 @@
     {{-- Focus Section --}}
     <section class="animate-fade-in-delay-2 mb-16">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> What I Focus On
+            <span class="text-primary">#</span> {{ __('guest.about.focus_heading') }}
         </h2>
 
         <div class="grid gap-4">
@@ -96,7 +96,7 @@
     {{-- Connect Section --}}
     <section class="animate-fade-in-delay-3">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> Connect
+            <span class="text-primary">#</span> {{ __('guest.about.connect_heading') }}
         </h2>
 
         <div class="grid gap-4">
@@ -109,7 +109,7 @@
                     </svg>
                     <div>
                         <p class="text-muted-foreground text-sm mb-4">
-                            Connect with me on LinkedIn. I have 400+ followers and 320+ connections in the tech industry. Let's network!
+                            {{ __('guest.about.connect_linkedin') }}
                         </p>
                         <a href="https://www.linkedin.com/in/petr-kr%C3%A1l-60223752/"
                            target="_blank"
@@ -129,7 +129,7 @@
                     </svg>
                     <div>
                         <p class="text-muted-foreground text-sm mb-4">
-                            Check out my open-source contributions and personal projects on GitHub.
+                            {{ __('guest.about.connect_github') }}
                         </p>
                         <a href="https://github.com/pekral"
                            target="_blank"

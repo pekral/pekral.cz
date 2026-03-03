@@ -16,6 +16,31 @@
                         {{ __('guest.nav.' . $link['name']) }}
                     </a>
                 @endforeach
+                <flux:dropdown position="bottom" align="end" class="flex items-center">
+                    <flux:button
+                        variant="ghost"
+                        size="sm"
+                        icon="language"
+                        class="!p-2"
+                        aria-label="{{ __('guest.locale.language') }}"
+                    />
+                    <flux:menu>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'cs')"
+                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
+                        </flux:menu.item>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'en')"
+                            aria-label="{{ __('guest.locale.switch_to_en') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
                 <x-obfuscated-email
                     email="kral.petr.88@gmail.com"
                     class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors"
@@ -40,6 +65,31 @@
                         {{ __('guest.nav.' . $link['name']) }}
                     </a>
                 @endforeach
+                <flux:dropdown position="bottom" align="start" class="flex items-center">
+                    <flux:button
+                        variant="ghost"
+                        size="sm"
+                        icon="language"
+                        class="!p-2"
+                        aria-label="{{ __('guest.locale.language') }}"
+                    />
+                    <flux:menu>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'cs')"
+                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
+                        </flux:menu.item>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'en')"
+                            aria-label="{{ __('guest.locale.switch_to_en') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
                 <div wire:click="closeMenu">
                     <x-obfuscated-email
                         email="kral.petr.88@gmail.com"

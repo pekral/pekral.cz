@@ -1,10 +1,10 @@
 <section id="skills" class="animate-fade-in-delay-2">
     <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-        <span class="text-primary">#</span> Skills
+        <span class="text-primary">#</span> {{ __('guest.skills.title') }}
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        @foreach(['languages' => 'Languages', 'frameworks' => 'Frameworks', 'tools' => 'Tools', 'practices' => 'Practices'] as $key => $title)
+        @foreach(['languages' => __('guest.skills.languages'), 'frameworks' => __('guest.skills.frameworks'), 'tools' => __('guest.skills.tools'), 'practices' => __('guest.skills.practices')] as $key => $title)
             <div>
                 <h3 class="text-sm text-muted-foreground mb-3 font-mono">{{ $title }}</h3>
                 <div class="flex flex-wrap gap-2">

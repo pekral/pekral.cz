@@ -51,6 +51,11 @@ return [
         'php_community' => 'komunitu PHP vývojářů',
         'see_more' => 'Chcete vidět víc mé práce jako :php_developer? Prozkoumejte všechna má :open_source repozitáře na GitHubu.',
         'open_source' => 'open source',
+        'section_items' => [
+            'rector-rules' => 'Vlastní Rector pravidla pro automatické refaktorování a upgrade PHP.',
+            'arch-app-services' => 'Jednoduchá architektura pro PHP služby s čistým oddělením odpovědností.',
+            'cursor-rules' => 'Preferovaná pravidla pro generování kódu v editoru Cursor.',
+        ],
     ],
     'skills' => [
         'title' => 'Dovednosti',
@@ -75,6 +80,24 @@ return [
         'connect_heading' => 'Spojení',
         'connect_linkedin' => 'Spojte se se mnou na LinkedInu. Mám 400+ sledujících a 320+ spojení v tech oboru. Pojďme síťovat!',
         'connect_github' => 'Prohlédněte si mé open-source příspěvky a osobní projekty na GitHubu.',
+        'experiences' => [
+            0 => ['role' => 'PHP vývojář', 'company' => 'OSVČ', 'period' => 'květen 2023 – dosud', 'description' => 'Tvorba webových aplikací na míru a konzultace v PHP/Laravel projektech.'],
+            1 => ['role' => 'PHP Lead Developer', 'company' => 'ECOMAIL.CZ', 'period' => 'leden 2018 – květen 2023', 'description' => 'Vývoj a údržba největší e-mailové marketingové platformy v ČR a na Slovensku. Účast na konferencích Laravel Live Denmark a Web Summit.'],
+            2 => ['role' => 'Senior PHP Developer', 'company' => 'Slevomat', 'period' => 'prosinec 2016 – prosinec 2017', 'description' => 'Vývoj webových služeb a backendových systémů pro jednu z největších českých e-commerce platforem.'],
+            3 => ['role' => 'Senior PHP Developer', 'company' => 'Hanaboso s.r.o.', 'period' => 'duben 2016 – prosinec 2016', 'description' => 'Návrh a implementace backendových modulů, refaktorování kódu a optimalizace aplikací.'],
+            4 => ['role' => 'Backend Leader Developer', 'company' => 'el nino parfum, s.r.o.', 'period' => 'březen 2015 – březen 2016', 'description' => 'Vývoj a údržba backendové aplikace pro správu zákaznických dat.'],
+            5 => ['role' => 'PHP Developer', 'company' => 'eBRÁNA', 'period' => 'září 2012 – březen 2015', 'description' => 'Vývoj informačních systémů a nástrojů pro webové služby pro koncové zákazníky.'],
+            6 => ['role' => 'PHP Developer', 'company' => 'MALL.cz', 'period' => 'prosinec 2011 – srpen 2012', 'description' => 'Programování frontendových modulů e-shopu, refaktorování kódu a backendové skripty.'],
+            7 => ['role' => 'PHP Developer', 'company' => 'Memos Software', 'period' => 'březen 2011 – listopad 2011', 'description' => 'Práce na projektech WordPress a PrestaShop.'],
+            8 => ['role' => 'PHP Developer', 'company' => 'Cis.cz', 'period' => 'srpen 2008 – únor 2011', 'description' => 'Tvorba webových prezentací, implementace modulů e-shopu, SEO, CSS, JavaScript.'],
+        ],
+        'focus' => [
+            'Laravel a PHP vývoj pro škálovatelné webové aplikace',
+            'Čistý kód, SOLID principy a kvalita kódu',
+            'Backendová architektura a vývoj API',
+            'Automatizované testování a průběžná integrace',
+            'Optimalizace výkonu a refaktorování',
+        ],
     ],
     'hero' => [
         'name' => 'Petr Král',
@@ -99,5 +122,10 @@ return [
     'gdpr' => [
         'title' => 'Zásady ochrany osobních údajů (GDPR)',
         'back_to_homepage' => 'Zpět na úvodní stránku',
+    ],
+    'locale' => [
+        'switch_to_cz' => 'Přepnout na češtinu',
+        'switch_to_en' => 'Přepnout na angličtinu',
+        'language' => 'Jazyk',
     ],
 ];

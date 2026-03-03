@@ -10,18 +10,23 @@ use Livewire\Component;
 final class HeroSection extends Component
 {
 
-    public string $name = 'Petr Král';
+    public string $name;
 
-    public string $role = 'PHP Developer';
+    public string $role;
 
-    public string $location = 'Chlumec nad Cidlinou, Czech Republic';
+    public string $location;
 
-    public string $bio = 'I\'m a Senior PHP Developer and Laravel programmer with over 20 years of experience '
-        . 'building web applications. As a passionate open source contributor, I focus on clean code, backend '
-        . 'architecture, and developer tooling. Currently self-employed, I specialize in Laravel development, '
-        . 'REST API programming, and scalable PHP solutions.';
+    public string $bio;
 
     public string $profileImage = '/assets/profile-photo.jpg';
+
+    public function mount(): void
+    {
+        $this->name = __('guest.hero.name');
+        $this->role = __('guest.hero.role');
+        $this->location = __('guest.hero.location');
+        $this->bio = __('guest.hero.bio');
+    }
 
     public function render(): View
     {

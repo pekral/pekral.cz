@@ -36,7 +36,8 @@ test('sitemap has valid xml structure', function (): void {
     $content = $response->getContent();
 
     expect($content)->toContain('<?xml version="1.0" encoding="UTF-8"?>');
-    expect($content)->toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect($content)->toContain('urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
+    expect($content)->toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect($content)->toContain('</urlset>');
 });
 

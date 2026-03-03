@@ -4,7 +4,7 @@
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
         </svg>
-        Back to home
+        {{ __('guest.common.back_to_home') }}
     </a>
 
     {{-- Hero Section --}}
@@ -17,10 +17,10 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> PHP Developer Skills & Technologies
+                        <span class="text-primary">#</span> {{ __('guest.skills.hero_title') }}
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        As a <strong class="text-foreground">PHP developer</strong> and <strong class="text-foreground">Laravel programmer</strong> with over 20 years of experience, I've mastered the <strong class="text-foreground">PHP ecosystem</strong>, modern JavaScript, and best development practices for building <strong class="text-foreground">open source</strong> and enterprise applications.
+                        {!! __('guest.skills.hero_description', ['php_developer' => '<strong class="text-foreground">' . __('guest.skills.php_developer') . '</strong>', 'laravel_programmer' => '<strong class="text-foreground">' . __('guest.skills.laravel_programmer') . '</strong>', 'php_ecosystem' => '<strong class="text-foreground">' . __('guest.skills.php_ecosystem') . '</strong>', 'open_source' => '<strong class="text-foreground">' . __('guest.skills.open_source') . '</strong>']) !!}
                     </p>
                 </div>
             </div>
@@ -30,7 +30,7 @@
     {{-- Languages Section --}}
     <section class="animate-fade-in-delay-1 mb-12">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> Languages
+            <span class="text-primary">#</span> {{ __('guest.skills.languages') }}
         </h2>
         <div class="flex flex-wrap gap-3">
             @foreach($skills['languages'] as $skill)
@@ -49,7 +49,7 @@
     {{-- Frameworks Section --}}
     <section class="animate-fade-in-delay-2 mb-12">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> Frameworks
+            <span class="text-primary">#</span> {{ __('guest.skills.frameworks') }}
         </h2>
         <div class="flex flex-wrap gap-3">
             @foreach($skills['frameworks'] as $skill)
@@ -68,7 +68,7 @@
     {{-- Tools Section --}}
     <section class="animate-fade-in-delay-2 mb-12">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> Tools
+            <span class="text-primary">#</span> {{ __('guest.skills.tools') }}
         </h2>
         <div class="flex flex-wrap gap-3">
             @foreach($skills['tools'] as $skill)
@@ -87,7 +87,7 @@
     {{-- Practices Section --}}
     <section class="animate-fade-in-delay-3">
         <h2 class="text-xl font-semibold text-foreground mb-6 font-mono">
-            <span class="text-primary">#</span> Practices
+            <span class="text-primary">#</span> {{ __('guest.skills.practices') }}
         </h2>
         <div class="flex flex-wrap gap-3">
             @foreach($skills['practices'] as $skill)

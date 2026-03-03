@@ -10,33 +10,33 @@ use Livewire\Component;
 final class ProjectsSection extends Component
 {
 
-    /**
-     * @var array<int, array{name: string, description: string, url: string, language: string}>
-     */
-    public array $projects = [
-        [
-            'description' => 'Custom Rector rules for automated code refactoring and PHP upgrades.',
-            'language' => 'PHP',
-            'name' => 'rector-rules',
-            'url' => 'https://github.com/pekral/rector-rules',
-        ],
-        [
-            'description' => 'Simple architecture for PHP services with clean separation of concerns.',
-            'language' => 'PHP',
-            'name' => 'arch-app-services',
-            'url' => 'https://github.com/pekral/arch-app-services',
-        ],
-        [
-            'description' => 'Preferred rules for generating code in the Cursor editor.',
-            'language' => 'Markdown',
-            'name' => 'cursor-rules',
-            'url' => 'https://github.com/pekral/cursor-rules',
-        ],
+    private const array PROJECTS = [
+        ['name' => 'rector-rules', 'url' => 'https://github.com/pekral/rector-rules', 'language' => 'PHP'],
+        ['name' => 'arch-app-services', 'url' => 'https://github.com/pekral/arch-app-services', 'language' => 'PHP'],
+        ['name' => 'cursor-rules', 'url' => 'https://github.com/pekral/cursor-rules', 'language' => 'Markdown'],
     ];
+
+    /**
+     * @return array<int, array{name: string, description: string, url: string, language: string}>
+     */
+    public function getProjects(): array
+    {
+        return array_map(
+            fn (array $p): array => [
+                'description' => __('guest.projects.section_items.' . $p['name']),
+                'language' => $p['language'],
+                'name' => $p['name'],
+                'url' => $p['url'],
+            ],
+            self::PROJECTS,
+        );
+    }
 
     public function render(): View
     {
-        return view('livewire.guest.projects-section');
+        return view('livewire.guest.projects-section', [
+            'projects' => $this->getProjects(),
+        ]);
     }
 
 }
