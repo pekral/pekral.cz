@@ -13,13 +13,38 @@
             <div class="hidden md:flex items-center gap-6">
                 @foreach($links as $link)
                     <a href="{{ $link['route'] }}" class="text-sm text-muted-foreground hover:text-primary transition-colors font-mono link-underline" wire:navigate>
-                        {{ $link['name'] }}
+                        {{ __('guest.nav.' . $link['name']) }}
                     </a>
                 @endforeach
+                <flux:dropdown position="bottom" align="end" class="flex items-center">
+                    <flux:button
+                        variant="ghost"
+                        size="sm"
+                        icon="globe-alt"
+                        class="!p-2"
+                        aria-label="{{ __('guest.locale.language') }}"
+                    />
+                    <flux:menu>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'cs')"
+                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
+                        </flux:menu.item>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'en')"
+                            aria-label="{{ __('guest.locale.switch_to_en') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
                 <x-obfuscated-email
                     email="kral.petr.88@gmail.com"
                     class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors"
-                >contact</x-obfuscated-email>
+                >{{ __('guest.nav.contact') }}</x-obfuscated-email>
             </div>
 
             <flux:button
@@ -37,14 +62,39 @@
             <div class="md:hidden flex flex-col gap-4 pt-4 pb-2 border-t border-border mt-2">
                 @foreach($links as $link)
                     <a href="{{ $link['route'] }}" class="text-sm text-muted-foreground hover:text-primary transition-colors font-mono link-underline" wire:click="closeMenu" wire:navigate>
-                        {{ $link['name'] }}
+                        {{ __('guest.nav.' . $link['name']) }}
                     </a>
                 @endforeach
+                <flux:dropdown position="bottom" align="start" class="flex items-center">
+                    <flux:button
+                        variant="ghost"
+                        size="sm"
+                        icon="globe-alt"
+                        class="!p-2"
+                        aria-label="{{ __('guest.locale.language') }}"
+                    />
+                    <flux:menu>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'cs')"
+                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
+                        </flux:menu.item>
+                        <flux:menu.item
+                            :href="route('locale.switch', 'en')"
+                            aria-label="{{ __('guest.locale.switch_to_en') }}"
+                        >
+                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
+                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
                 <div wire:click="closeMenu">
                     <x-obfuscated-email
                         email="kral.petr.88@gmail.com"
                         class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors inline-block"
-                    >contact</x-obfuscated-email>
+                    >{{ __('guest.nav.contact') }}</x-obfuscated-email>
                 </div>
             </div>
         @endif

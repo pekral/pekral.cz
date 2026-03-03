@@ -6,7 +6,7 @@
                     {{-- Header --}}
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold text-foreground mb-2 font-mono">
-                            <span class="text-primary">#</span> Privacy Policy (GDPR)
+                            <span class="text-primary">#</span> {{ __('guest.gdpr.title') }}
                         </h1>
                         <p class="text-muted-foreground text-sm">
                             Last updated: {{ date('F j, Y') }}
@@ -300,7 +300,7 @@
                                 <path d="m12 19-7-7 7-7"></path>
                                 <path d="M19 12H5"></path>
                             </svg>
-                            Back to homepage
+                            {{ __('guest.gdpr.back_to_homepage') }}
                         </a>
                     </div>
                 </div>

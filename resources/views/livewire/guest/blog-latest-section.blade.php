@@ -1,7 +1,7 @@
 @if($articles->isNotEmpty())
     <section class="mt-16" aria-labelledby="latest-from-blog-heading">
         <h2 id="latest-from-blog-heading" class="text-2xl md:text-3xl font-bold text-foreground font-mono">
-            <span class="text-primary">#</span> Latest from the blog
+            <span class="text-primary">#</span> {{ __('guest.blog.latest_from_blog') }}
         </h2>
 
         <ul class="mt-6 space-y-6">
@@ -25,7 +25,7 @@
                                 <p class="mt-1 text-xs text-muted-foreground font-mono">
                                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                                     <span aria-hidden="true"> · </span>
-                                    <span>{{ $article->readingTimeMinutes }} min read</span>
+                                    <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>
                                 </p>
                                 @if($article->description)
                                     <p class="text-sm text-muted-foreground mt-2 line-clamp-2">
@@ -40,7 +40,7 @@
         </ul>
 
         <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 mt-6 text-sm text-primary hover:underline font-mono">
-            View all articles
+            {{ __('guest.blog.view_all_articles') }}
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"></path>
                 <path d="m12 5 7 7-7 7"></path>

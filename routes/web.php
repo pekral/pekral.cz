@@ -9,6 +9,16 @@ Route::get('/', function () {
     return view('welcome2');
 })->name('home');
 
+Route::get('/locale/{locale}', function (string $locale) {
+    $supported = config('app.supported_locales', ['en', 'cs']);
+    if (!in_array($locale, $supported, true)) {
+        abort(400, 'Unsupported locale');
+    }
+    session()->put('locale', $locale);
+
+    return redirect()->back();
+})->name('locale.switch')->whereIn('locale', ['en', 'cs']);
+
 Route::get('/about', function () {
     return view('about');
 })->name('about');
@@ -51,6 +61,9 @@ Route::get('robots.txt', function () {
 })->name('robots');
 
 Route::get('sitemap.xml', function () {
+    $supportedLocales = config('app.supported_locales', ['en', 'cs']);
+    $defaultLocale = config('app.locale', 'en');
+
     $pages = [
         ['path' => '/', 'priority' => '1.0', 'changefreq' => 'monthly'],
         ['path' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],
@@ -60,7 +73,7 @@ Route::get('sitemap.xml', function () {
         ['path' => '/privacy-policy', 'priority' => '0.3', 'changefreq' => 'yearly'],
     ];
 
-    $staticUrls = collect($pages)->map(function (array $page): array {
+    $staticUrls = collect($pages)->map(function (array $page) use ($supportedLocales, $defaultLocale): array {
         $viewFile = match ($page['path']) {
             '/' => resource_path('views/welcome2.blade.php'),
             '/about' => resource_path('views/about.blade.php'),
@@ -75,11 +88,15 @@ Route::get('sitemap.xml', function () {
             ? date('Y-m-d', filemtime($viewFile))
             : now()->format('Y-m-d');
 
+        $loc = url($page['path']);
+
         return [
-            'loc' => url($page['path']),
+            'loc' => $loc,
             'lastmod' => $lastmod,
             'changefreq' => $page['changefreq'],
             'priority' => $page['priority'],
+            'alternates' => $supportedLocales,
+            'default_locale' => $defaultLocale,
         ];
     });
 
@@ -89,22 +106,41 @@ Route::get('sitemap.xml', function () {
         'lastmod' => $article->date->format('Y-m-d'),
         'changefreq' => 'monthly',
         'priority' => '0.8',
+        'alternates' => $supportedLocales,
+        'default_locale' => $defaultLocale,
     ])->all();
 
     $urls = array_merge($staticUrls->all(), $blogArticleUrls);
 
-    $urlEntries = collect($urls)->map(fn (array $url): string => <<<XML
+    $urlEntries = collect($urls)->map(function (array $url): string {
+        $loc = $url['loc'];
+        $locEscaped = e($loc);
+        $defaultLocale = $url['default_locale'] ?? 'en';
+        $alternates = $url['alternates'] ?? [];
+
+        $alternateLinks = [];
+        foreach ($alternates as $locale) {
+            $alternateLinks[] = '<xhtml:link rel="alternate" hreflang="' . $locale . '" href="' . $locEscaped . '" />';
+        }
+        $alternateLinks[] = '<xhtml:link rel="alternate" hreflang="x-default" href="' . $locEscaped . '" />';
+
+        $alternatesXml = $alternateLinks !== []
+            ? "\n                " . implode("\n                ", $alternateLinks) . "\n            "
+            : '';
+
+        return <<<XML
             <url>
-                <loc>{$url['loc']}</loc>
+                <loc>{$loc}</loc>
                 <lastmod>{$url['lastmod']}</lastmod>
                 <changefreq>{$url['changefreq']}</changefreq>
-                <priority>{$url['priority']}</priority>
+                <priority>{$url['priority']}</priority>{$alternatesXml}
             </url>
-        XML)->implode("\n");
+        XML;
+    })->implode("\n");
 
     $xml = <<<XML
         <?xml version="1.0" encoding="UTF-8"?>
-        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
         {$urlEntries}
         </urlset>
         XML;

@@ -4,7 +4,7 @@
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
         </svg>
-        Back to home
+        {{ __('guest.common.back_to_home') }}
     </a>
 
     {{-- Hero Section --}}
@@ -17,10 +17,16 @@
             <div class="terminal-output ml-4 mt-2">
                 <div class="space-y-4">
                     <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                        <span class="text-primary">#</span> Open Source PHP Projects
+                        <span class="text-primary">#</span> {{ __('guest.projects.open_source_php_projects') }}
                     </h1>
                     <p class="text-muted-foreground leading-relaxed">
-                        As a <strong class="text-foreground">PHP developer</strong> and <strong class="text-foreground">open source contributor</strong>, I maintain several <strong class="text-foreground">PHP libraries</strong> and <strong class="text-foreground">Laravel packages</strong>. My projects focus on code quality, automated refactoring, and developer tooling for the <strong class="text-foreground">PHP programming</strong> community.
+                        {{ __('guest.projects.hero_description', [
+                            'php_developer' => __('guest.projects.php_developer'),
+                            'open_source_contributor' => __('guest.projects.open_source_contributor'),
+                            'php_libraries' => __('guest.projects.php_libraries'),
+                            'laravel_packages' => __('guest.projects.laravel_packages'),
+                            'php_community' => __('guest.projects.php_community'),
+                        ]) }}
                     </p>
                 </div>
             </div>
@@ -90,13 +96,16 @@
                 </svg>
                 <div>
                     <p class="text-muted-foreground text-sm mb-4">
-                        Want to see more of my work as a <strong class="text-foreground">PHP developer</strong>? Explore all my <strong class="text-foreground">open source</strong> repositories on GitHub.
+                        {!! __('guest.projects.see_more', [
+                            'php_developer' => '<strong class="text-foreground">' . __('guest.projects.php_developer') . '</strong>',
+                            'open_source' => '<strong class="text-foreground">' . __('guest.projects.open_source') . '</strong>',
+                        ]) !!}
                     </p>
                     <a href="https://github.com/pekral?tab=repositories"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                        View all open source PHP projects
+                        {{ __('guest.projects.view_all_open_source') }}
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                             <polyline points="15 3 21 3 21 9"></polyline>

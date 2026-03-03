@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.guest.head')
 </head>
@@ -18,5 +18,6 @@
     <livewire:guest.footer />
 
     @include('cookie-consent::index')
+    @fluxScripts
 </body>
 </html>

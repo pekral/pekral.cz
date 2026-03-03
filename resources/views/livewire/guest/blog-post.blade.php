@@ -4,7 +4,7 @@
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
         </svg>
-        Back to blog
+        {{ __('guest.blog.back_to_blog') }}
     </a>
 
     @if($article)
@@ -16,17 +16,17 @@
                 <p class="mt-2 text-sm text-muted-foreground font-mono flex flex-wrap items-center gap-x-1 gap-y-1">
                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                     <span aria-hidden="true"> · </span>
-                    <span>{{ $article->readingTimeMinutes }} min read</span>
+                    <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>
                     <span aria-hidden="true"> · </span>
                     <button
                         type="button"
                         data-copy-link
                         class="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-                        title="Copy link"
+                        title="{{ __('guest.blog.copy_link') }}"
                     >
-                        Copy link
+                        {{ __('guest.blog.copy_link') }}
                     </button>
-                    <span data-copy-feedback class="hidden text-primary font-medium" aria-live="polite">Copied</span>
+                    <span data-copy-feedback class="hidden text-primary font-medium" aria-live="polite">{{ __('guest.blog.copied') }}</span>
                 </p>
                 @if($article->description)
                     <p class="text-muted-foreground mt-3">
