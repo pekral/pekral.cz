@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 use App\Livewire\Guest\ProjectsPage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
@@ -100,7 +101,9 @@ it('displays composer description from composer.json', function (): void {
         ->assertSee('Composer package description');
 });
 
-it('excludes toilet-app and pekral.cz repositories from the list', function (): void {
+it('excludes repositories from config projects.excluded_repositories', function (): void {
+    Config::set('projects.excluded_repositories', ['toilet-app', 'pekral.cz']);
+
     Http::fake([
         'api.github.com/users/pekral/repos*' => Http::response([
             [
@@ -134,6 +137,36 @@ it('excludes toilet-app and pekral.cz repositories from the list', function (): 
         ->assertDontSee('pekral.cz')
         ->assertSee('rector-rules')
         ->assertSee('Custom Rector rules');
+});
+
+it('excludes custom repository when set in config', function (): void {
+    Config::set('projects.excluded_repositories', ['custom-excluded-repo']);
+
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'custom-excluded-repo',
+                'description' => 'Excluded via config',
+                'html_url' => 'https://github.com/pekral/custom-excluded-repo',
+                'language' => 'PHP',
+            ],
+            [
+                'name' => 'visible-repo',
+                'description' => 'Visible repo',
+                'html_url' => 'https://github.com/pekral/visible-repo',
+                'language' => 'PHP',
+            ],
+        ], 200),
+        'raw.githubusercontent.com/pekral/custom-excluded-repo/*' => Http::response(['description' => 'Excluded'], 200),
+        'raw.githubusercontent.com/pekral/visible-repo/main/composer.json' => Http::response([
+            'description' => 'Visible repo description',
+        ], 200),
+    ]);
+
+    Livewire::test(ProjectsPage::class)
+        ->assertDontSee('custom-excluded-repo')
+        ->assertSee('visible-repo')
+        ->assertSee('Visible repo description');
 });
 
 it('filters out projects without composer description', function (): void {
