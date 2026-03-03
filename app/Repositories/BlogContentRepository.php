@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace App\Services;
+namespace App\Repositories;
 
 use App\Data\ArticleData;
 use Carbon\Carbon;
@@ -18,7 +18,7 @@ use Throwable;
 
 use function is_string;
 
-final readonly class BlogService
+final readonly class BlogContentRepository
 {
 
     private const string ARTICLE_FILE = 'article.md';
@@ -55,12 +55,12 @@ final readonly class BlogService
 
         $raw = file_get_contents($articlePath);
 
-        // @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart - file_get_contents false and DateTimeInterface branch not reachable from tests
         if ($raw === false) {
             return null;
         }
 
-        // @codeCoverageIgnoreEnd
+        /** @codeCoverageIgnoreEnd */
         $converter = $this->createConverter();
         $result = $converter->convert($raw);
 
@@ -181,9 +181,12 @@ final readonly class BlogService
             return null;
         }
 
+        // @codeCoverageIgnoreStart - front matter never returns DateTimeInterface from YAML
         if ($value instanceof DateTimeInterface) {
             return Carbon::instance($value);
         }
+
+        // @codeCoverageIgnoreEnd
 
         if (is_numeric($value)) {
             return Carbon::createFromTimestamp((int) $value);

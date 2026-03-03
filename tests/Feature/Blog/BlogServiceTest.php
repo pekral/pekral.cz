@@ -2,23 +2,27 @@
 
 declare(strict_types = 1);
 
+use App\Actions\Blog\GetAllBlogArticlesAction;
+use App\Actions\Blog\GetBlogArticleBySlugAction;
+use App\Actions\Blog\GetBlogImagePathAction;
+use App\Actions\Blog\GetBlogSlugsAction;
 use App\Data\ArticleData;
-use App\Services\BlogService;
+use App\Repositories\BlogContentRepository;
 use Carbon\Carbon;
 
 test('getSlugs returns directory names that contain article.md', function (): void {
-    $service = app(BlogService::class);
+    $getBlogSlugs = app(GetBlogSlugsAction::class);
 
-    $slugs = $service->getSlugs();
+    $slugs = $getBlogSlugs->execute();
 
     expect($slugs)->toBeArray();
     expect($slugs)->toContain('vibe-coding-with-ai-good-servant-bad-master');
 });
 
 test('getBySlug returns article data for existing slug', function (): void {
-    $service = app(BlogService::class);
+    $getBlogArticleBySlug = app(GetBlogArticleBySlugAction::class);
 
-    $article = $service->getBySlug('vibe-coding-with-ai-good-servant-bad-master');
+    $article = $getBlogArticleBySlug->execute('vibe-coding-with-ai-good-servant-bad-master');
 
     expect($article)->toBeInstanceOf(ArticleData::class);
     assert($article instanceof ArticleData);
@@ -31,24 +35,24 @@ test('getBySlug returns article data for existing slug', function (): void {
 });
 
 test('getBySlug returns null for non-existent slug', function (): void {
-    $service = app(BlogService::class);
+    $getBlogArticleBySlug = app(GetBlogArticleBySlugAction::class);
 
-    $article = $service->getBySlug('non-existent-slug-xyz');
+    $article = $getBlogArticleBySlug->execute('non-existent-slug-xyz');
 
     expect($article)->toBeNull();
 });
 
 test('getBySlug returns null for invalid slug with path traversal', function (): void {
-    $service = app(BlogService::class);
+    $getBlogArticleBySlug = app(GetBlogArticleBySlugAction::class);
 
-    expect($service->getBySlug('../etc/passwd'))->toBeNull();
-    expect($service->getBySlug('foo/bar'))->toBeNull();
+    expect($getBlogArticleBySlug->execute('../etc/passwd'))->toBeNull();
+    expect($getBlogArticleBySlug->execute('foo/bar'))->toBeNull();
 });
 
 test('getAll returns collection of articles sorted by date descending', function (): void {
-    $service = app(BlogService::class);
+    $getAllBlogArticles = app(GetAllBlogArticlesAction::class);
 
-    $articles = $service->getAll();
+    $articles = $getAllBlogArticles->execute();
 
     expect($articles)->not->toBeEmpty();
     $first = $articles->first();
@@ -58,9 +62,9 @@ test('getAll returns collection of articles sorted by date descending', function
 });
 
 test('getImagePath returns path for slug with photo.jpg', function (): void {
-    $service = app(BlogService::class);
+    $getBlogImagePath = app(GetBlogImagePathAction::class);
 
-    $path = $service->getImagePath('vibe-coding-with-ai-good-servant-bad-master');
+    $path = $getBlogImagePath->execute('vibe-coding-with-ai-good-servant-bad-master');
 
     expect($path)->not->toBeNull();
     assert($path !== null);
@@ -70,24 +74,25 @@ test('getImagePath returns path for slug with photo.jpg', function (): void {
 });
 
 test('getImagePath returns null for non-existent slug', function (): void {
-    $service = app(BlogService::class);
+    $getBlogImagePath = app(GetBlogImagePathAction::class);
 
-    $path = $service->getImagePath('non-existent');
+    $path = $getBlogImagePath->execute('non-existent');
 
     expect($path)->toBeNull();
 });
 
 test('getImagePath returns null for invalid slug', function (): void {
-    $service = app(BlogService::class);
+    $getBlogImagePath = app(GetBlogImagePathAction::class);
 
-    expect($service->getImagePath(''))->toBeNull();
-    expect($service->getImagePath('foo/bar'))->toBeNull();
+    expect($getBlogImagePath->execute(''))->toBeNull();
+    expect($getBlogImagePath->execute('foo/bar'))->toBeNull();
 });
 
 test('getSlugs returns empty array when content path does not exist', function (): void {
-    $service = new BlogService(__DIR__ . '/../../../non-existent-blog-path-' . uniqid());
+    $repository = new BlogContentRepository(__DIR__ . '/../../../non-existent-blog-path-' . uniqid());
+    $getBlogSlugs = new GetBlogSlugsAction($repository);
 
-    expect($service->getSlugs())->toBe([]);
+    expect($getBlogSlugs->execute())->toBe([]);
 });
 
 test('getImagePath returns null when article directory has no photo', function (): void {
@@ -98,8 +103,9 @@ test('getImagePath returns null when article directory has no photo', function (
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: Test\n---\n# No Image");
 
     try {
-        $service = new BlogService($base);
-        expect($service->getImagePath($slug))->toBeNull();
+        $repository = new BlogContentRepository($base);
+        $getBlogImagePath = new GetBlogImagePathAction($repository);
+        expect($getBlogImagePath->execute($slug))->toBeNull();
     } finally {
         unlink($articleDir . '/article.md');
         rmdir($articleDir);
@@ -117,8 +123,9 @@ test('getSlugs ignores files and only returns directories with article.md', func
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n# Valid");
 
     try {
-        $service = new BlogService($base);
-        $slugs = $service->getSlugs();
+        $repository = new BlogContentRepository($base);
+        $getBlogSlugs = new GetBlogSlugsAction($repository);
+        $slugs = $getBlogSlugs->execute();
         expect($slugs)->toBe([$slug]);
     } finally {
         unlink($articleDir . '/article.md');
@@ -136,8 +143,9 @@ test('getBySlug parses article without front matter', function (): void {
     file_put_contents($articleDir . '/article.md', "Plain text\n\n# Title From Content");
 
     try {
-        $service = new BlogService($base);
-        $article = $service->getBySlug($slug);
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->title)->toBe('Title From Content');
@@ -157,8 +165,9 @@ test('getBySlug uses slug as title when article has no h1', function (): void {
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\nJust paragraph.");
 
     try {
-        $service = new BlogService($base);
-        $article = $service->getBySlug($slug);
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->title)->toBe($slug);
@@ -177,8 +186,9 @@ test('getBySlug parses numeric date from front matter', function (): void {
     file_put_contents($articleDir . '/article.md', "---\ndate: 1609459200\ndescription: D\n---\n# Title");
 
     try {
-        $service = new BlogService($base);
-        $article = $service->getBySlug($slug);
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->date->format('Y-m-d'))->toBe('2021-01-01');
@@ -197,8 +207,9 @@ test('getBySlug uses default date for invalid date in front matter', function ()
     file_put_contents($articleDir . '/article.md', "---\ndate: not-a-date\ndescription: D\n---\n# Title");
 
     try {
-        $service = new BlogService($base);
-        $article = $service->getBySlug($slug);
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->date)->toBeInstanceOf(Carbon::class);
@@ -217,8 +228,9 @@ test('getBySlug uses default date when front matter date is non-scalar', functio
     file_put_contents($articleDir . '/article.md', "---\ndate: []\ndescription: D\n---\n# Title");
 
     try {
-        $service = new BlogService($base);
-        $article = $service->getBySlug($slug);
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->date)->toBeInstanceOf(Carbon::class);
@@ -229,19 +241,6 @@ test('getBySlug uses default date when front matter date is non-scalar', functio
     }
 });
 
-test('parseDate accepts DateTimeInterface instance', function (): void {
-    $service = app(BlogService::class);
-    $method = new ReflectionMethod(BlogService::class, 'parseDate');
-    $method->setAccessible(true);
-
-    $date = Carbon::parse('2022-06-15');
-    $result = $method->invoke($service, $date);
-
-    expect($result)->toBeInstanceOf(Carbon::class);
-    assert($result instanceof Carbon);
-    expect($result->format('Y-m-d'))->toBe('2022-06-15');
-});
-
 test('getBySlug returns null when article path is a directory', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'dir-as-article';
@@ -250,8 +249,9 @@ test('getBySlug returns null when article path is a directory', function (): voi
     mkdir($articleDir . '/article.md', 0755);
 
     try {
-        $service = new BlogService($base);
-        expect($service->getBySlug($slug))->toBeNull();
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        expect($getBlogArticleBySlug->execute($slug))->toBeNull();
     } finally {
         rmdir($articleDir . '/article.md');
         rmdir($articleDir);

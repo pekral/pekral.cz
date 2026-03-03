@@ -1,7 +1,7 @@
 <?php
 
+use App\Actions\Blog\GetAllBlogArticlesAction;
 use App\Http\Controllers\BlogImageController;
-use App\Services\BlogService;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -83,8 +83,8 @@ Route::get('sitemap.xml', function () {
         ];
     });
 
-    $blogService = app(BlogService::class);
-    $blogArticleUrls = $blogService->getAll()->map(fn ($article): array => [
+    $getAllBlogArticles = app(GetAllBlogArticlesAction::class);
+    $blogArticleUrls = $getAllBlogArticles->execute()->map(fn ($article): array => [
         'loc' => url('/blog/' . $article->slug),
         'lastmod' => $article->date->format('Y-m-d'),
         'changefreq' => 'monthly',

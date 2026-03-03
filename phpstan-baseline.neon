@@ -33,19 +33,25 @@ parameters:
 		-
 			message: '#^Call to an undefined method PHPUnit\\Framework\\TestCase\:\:get\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 6
 			path: tests/Feature/HomePageTest.php
 
 		-
 			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
 			identifier: method.nonObject
-			count: 10
+			count: 15
 			path: tests/Feature/HomePageTest.php
 
 		-
 			message: '#^Cannot call method assertStatus\(\) on mixed\.$#'
 			identifier: method.nonObject
 			count: 1
+			path: tests/Feature/HomePageTest.php
+
+		-
+			message: '#^Cannot call method assertSuccessful\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 2
 			path: tests/Feature/HomePageTest.php
 
 		-

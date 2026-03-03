@@ -3,6 +3,4 @@
     <description>Custom PHPCS rules for Arch App Services package</description>
     <!-- Include pekral/phpcs-rules -->
     <rule ref="vendor/pekral/phpcs-rules/ruleset.xml"/>
-    <!-- Exclude BlogService: codeCoverageIgnore must stay as line comments for pcov -->
-    <exclude-pattern>*/BlogService.php</exclude-pattern>
 </ruleset>
