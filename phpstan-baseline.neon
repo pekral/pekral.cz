@@ -717,5 +717,5 @@ parameters:
 		-
 			message: '#^Cannot call method assert\w+\(\) on mixed\.$#'
 			identifier: method.nonObject
-			count: 15
+			count: 16
 			path: tests/Feature/Blog/BlogRoutesTest.php

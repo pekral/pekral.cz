@@ -13,10 +13,20 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-foreground font-mono">
                     <span class="text-primary">#</span> {{ $article->title }}
                 </h1>
-                <p class="mt-2 text-sm text-muted-foreground font-mono">
+                <p class="mt-2 text-sm text-muted-foreground font-mono flex flex-wrap items-center gap-x-1 gap-y-1">
                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                     <span aria-hidden="true"> · </span>
                     <span>{{ $article->readingTimeMinutes }} min read</span>
+                    <span aria-hidden="true"> · </span>
+                    <button
+                        type="button"
+                        data-copy-link
+                        class="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                        title="Kopírovat odkaz"
+                    >
+                        Kopírovat odkaz
+                    </button>
+                    <span data-copy-feedback class="hidden text-primary font-medium" aria-live="polite">Zkopírováno</span>
                 </p>
                 @if($article->description)
                     <p class="text-muted-foreground mt-3">
@@ -41,3 +51,23 @@
         </article>
     @endif
 </div>
+
+@if($article)
+    <script>
+        (function () {
+            const btn = document.querySelector('[data-copy-link]');
+            const feedback = document.querySelector('[data-copy-feedback]');
+            if (!btn || !feedback || !navigator.clipboard) return;
+            btn.addEventListener('click', function () {
+                navigator.clipboard.writeText(window.location.href).then(function () {
+                    feedback.classList.remove('hidden');
+                    btn.classList.add('hidden');
+                    setTimeout(function () {
+                        feedback.classList.add('hidden');
+                        btn.classList.remove('hidden');
+                    }, 1500);
+                });
+            });
+        })();
+    </script>
+@endif
