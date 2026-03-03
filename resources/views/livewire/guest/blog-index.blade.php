@@ -53,5 +53,11 @@
                 </li>
             @endforeach
         </ul>
+
+        @if($articles->hasPages())
+            <div class="mt-10">
+                {{ $articles->links() }}
+            </div>
+        @endif
     @endif
 </div>

@@ -17,6 +17,12 @@ test('blog index lists articles', function (): void {
     $response->assertSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
 });
 
+test('blog index accepts page query parameter', function (): void {
+    $response = $this->get(route('blog.index') . '?page=1');
+
+    $response->assertSuccessful();
+});
+
 test('blog post page loads for existing slug', function (): void {
     $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
 
