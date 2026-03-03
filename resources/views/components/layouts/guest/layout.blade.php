@@ -18,5 +18,6 @@
     <livewire:guest.footer />
 
     @include('cookie-consent::index')
+    @fluxScripts
 </body>
 </html>

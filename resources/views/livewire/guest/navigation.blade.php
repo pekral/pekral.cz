@@ -20,7 +20,7 @@
                     <flux:button
                         variant="ghost"
                         size="sm"
-                        icon="language"
+                        icon="globe-alt"
                         class="!p-2"
                         aria-label="{{ __('guest.locale.language') }}"
                     />
@@ -69,7 +69,7 @@
                     <flux:button
                         variant="ghost"
                         size="sm"
-                        icon="language"
+                        icon="globe-alt"
                         class="!p-2"
                         aria-label="{{ __('guest.locale.language') }}"
                     />
