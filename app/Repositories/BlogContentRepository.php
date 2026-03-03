@@ -25,6 +25,10 @@ final readonly class BlogContentRepository
 
     private const string IMAGE_FILE = 'photo.jpg';
 
+    private const string FRONT_MATTER_REGEX = '/^---\R.*?\R---\R/s';
+
+    private const int DEFAULT_READING_WPM = 200;
+
     public function __construct(private string $contentPath) {}
 
     /**
@@ -47,7 +51,7 @@ final readonly class BlogContentRepository
             return null;
         }
 
-        $articlePath = $this->contentPath . '/' . $slug . '/' . self::ARTICLE_FILE;
+        $articlePath = $this->articleFilePath($slug);
 
         if (!is_readable($articlePath) || is_dir($articlePath)) {
             return null;
@@ -55,12 +59,10 @@ final readonly class BlogContentRepository
 
         $raw = file_get_contents($articlePath);
 
-        // @codeCoverageIgnoreStart - file_get_contents false and DateTimeInterface branch not reachable from tests
         if ($raw === false) {
             return null;
         }
 
-        /** @codeCoverageIgnoreEnd */
         $converter = $this->createConverter();
         $result = $converter->convert($raw);
 
@@ -72,32 +74,34 @@ final readonly class BlogContentRepository
      */
     public function getSlugs(): array
     {
-        $dirs = $this->scanContentDirectories();
-
-        if ($dirs === []) {
-            return [];
-        }
-
-        $slugs = [];
-
-        foreach ($dirs as $entry) {
-            if ($this->isArticleDirectory($entry)) {
-                $slugs[] = $entry;
-            }
-        }
-
-        return $slugs;
+        return collect($this->scanContentDirectories())
+            ->filter(fn (string $entry): bool => $this->isArticleDirectory($entry))
+            ->values()
+            ->all();
     }
 
+    /**
+     * @return string|null absolute path to photo.jpg or null if missing/invalid slug
+     */
     public function getImagePath(string $slug): ?string
     {
         if (!$this->isValidSlug($slug)) {
             return null;
         }
 
-        $path = $this->contentPath . '/' . $slug . '/' . self::IMAGE_FILE;
+        $path = $this->imageFilePath($slug);
 
         return is_readable($path) ? $path : null;
+    }
+
+    private function articleFilePath(string $slug): string
+    {
+        return $this->contentPath . '/' . $slug . '/' . self::ARTICLE_FILE;
+    }
+
+    private function imageFilePath(string $slug): string
+    {
+        return $this->contentPath . '/' . $slug . '/' . self::IMAGE_FILE;
     }
 
     /**
@@ -116,8 +120,7 @@ final readonly class BlogContentRepository
         $date = $this->parseDate($frontMatter['date'] ?? null) ?? Carbon::now();
         $descriptionRaw = $frontMatter['description'] ?? '';
         $description = is_string($descriptionRaw) ? $descriptionRaw : '';
-        $imagePath = $this->contentPath . '/' . $slug . '/' . self::IMAGE_FILE;
-        $hasImage = is_readable($imagePath);
+        $hasImage = is_readable($this->imageFilePath($slug));
         $readingTimeMinutes = $this->computeReadingTimeMinutes($htmlContent);
 
         return new ArticleData(
@@ -140,8 +143,8 @@ final readonly class BlogContentRepository
             return 1;
         }
 
-        $wpmConfig = config('blog.reading_words_per_minute', 200);
-        $wpm = is_numeric($wpmConfig) ? max(1, (int) $wpmConfig) : 200;
+        $wpmConfig = config('blog.reading_words_per_minute', self::DEFAULT_READING_WPM);
+        $wpm = is_numeric($wpmConfig) ? max(1, (int) $wpmConfig) : self::DEFAULT_READING_WPM;
         $minutes = (int) ceil($wordCount / $wpm);
 
         return max(1, $minutes);
@@ -167,15 +170,13 @@ final readonly class BlogContentRepository
             return false;
         }
 
-        $path = $this->contentPath . '/' . $entry;
+        $dirPath = $this->contentPath . '/' . $entry;
 
-        if (!is_dir($path)) {
+        if (!is_dir($dirPath)) {
             return false;
         }
 
-        $articlePath = $path . '/' . self::ARTICLE_FILE;
-
-        return is_readable($articlePath);
+        return is_readable($this->articleFilePath($entry));
     }
 
     private function createConverter(): MarkdownConverter
@@ -189,8 +190,8 @@ final readonly class BlogContentRepository
 
     private function extractMarkdownBody(string $raw): string
     {
-        if (preg_match('/^---\R.*?\R---\R/s', $raw, $m) === 1) {
-            return (string) preg_replace('/^---\R.*?\R---\R/s', '', $raw);
+        if (preg_match(self::FRONT_MATTER_REGEX, $raw) === 1) {
+            return (string) preg_replace(self::FRONT_MATTER_REGEX, '', $raw);
         }
 
         return $raw;
@@ -214,12 +215,9 @@ final readonly class BlogContentRepository
             return null;
         }
 
-        // @codeCoverageIgnoreStart - front matter never returns DateTimeInterface from YAML
         if ($value instanceof DateTimeInterface) {
             return Carbon::instance($value);
         }
-
-        // @codeCoverageIgnoreEnd
 
         if (is_numeric($value)) {
             return Carbon::createFromTimestamp((int) $value);

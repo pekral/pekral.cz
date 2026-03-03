@@ -32,8 +32,5 @@
         <include>
             <directory>app</directory>
         </include>
-        <exclude>
-            <file>app/Repositories/BlogContentRepository.php</file>
-        </exclude>
     </source>
 </phpunit>
