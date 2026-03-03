@@ -46,6 +46,7 @@ it('displays tools section', function (): void {
     $component->assertSee('Tools');
     $component->assertSee('Git');
     $component->assertSee('Docker');
+    $component->assertSee('Rector');
 });
 
 it('displays practices section', function (): void {
