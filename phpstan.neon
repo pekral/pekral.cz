@@ -18,3 +18,14 @@ parameters:
     bootstrapFiles:
         - vendor/autoload.php
 
+services:
+    - Pekral\Arch\PHPStan\Rules\NoEloquentStorageMethodsInActionsRule
+    - Pekral\Arch\PHPStan\Rules\NoDirectDatabaseQueriesInActionsRule
+    - Pekral\Arch\PHPStan\Rules\OnlyModelManagersCanPersistDataRule
+    - Pekral\Arch\PHPStan\Rules\NoLaravelHelpersForActionsRule
+    - Pekral\Arch\PHPStan\Rules\ServiceNamingConventionRule
+    - Pekral\Arch\PHPStan\Rules\ActionExecuteMethodRule
+    - Pekral\Arch\PHPStan\Rules\ModelNamingSuffixRule
+    - Pekral\Arch\PHPStan\Rules\ValidationRulesMethodNamingRule
+    - Pekral\Arch\PHPStan\Rules\ValidationRulesNoInstantiationRule
+
