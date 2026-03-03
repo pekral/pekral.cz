@@ -1,5 +1,8 @@
 {
   "preset": "empty",
+  "notName": [
+    "BlogService.php"
+  ],
   "rules": {
     "single_quote": {"strings_containing_single_quote_chars" : true},
     "php_unit_set_up_tear_down_visibility": true,

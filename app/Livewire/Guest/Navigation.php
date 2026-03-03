@@ -33,6 +33,10 @@ final class Navigation extends Component
                 'name' => 'projects',
                 'route' => route('projects'),
             ],
+            [
+                'name' => 'blog',
+                'route' => route('blog.index'),
+            ],
         ];
     }
 
