@@ -4,15 +4,16 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
-use App\Services\BlogService;
+use App\Actions\Blog\GetBlogImagePathAction;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class BlogImageController extends Controller
 {
-    public function show(BlogService $blogService, string $slug): BinaryFileResponse|Response
+
+    public function show(GetBlogImagePathAction $getBlogImagePath, string $slug): BinaryFileResponse|Response
     {
-        $path = $blogService->getImagePath($slug);
+        $path = $getBlogImagePath->execute($slug);
 
         if ($path === null) {
             abort(404);
@@ -22,4 +23,5 @@ final class BlogImageController extends Controller
             'Content-Type' => 'image/jpeg',
         ]);
     }
+
 }
