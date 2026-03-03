@@ -11,6 +11,7 @@ use Livewire\Component;
 
 final class ProjectsPage extends Component
 {
+    private const EXCLUDED_REPOSITORIES = ['pekral.cz', 'toilet-app'];
 
     /**
      * @var array<int, array{
@@ -116,6 +117,11 @@ final class ProjectsPage extends Component
         }
 
         $repoName = is_string($repo['name'] ?? null) ? $repo['name'] : '';
+
+        if (in_array($repoName, self::EXCLUDED_REPOSITORIES, true)) {
+            return null;
+        }
+
         $composerData = $this->fetchComposerData($repoName);
 
         if ($composerData['description'] === '') {

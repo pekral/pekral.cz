@@ -100,6 +100,42 @@ it('displays composer description from composer.json', function (): void {
         ->assertSee('Composer package description');
 });
 
+it('excludes toilet-app and pekral.cz repositories from the list', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'toilet-app',
+                'description' => 'Toilet app',
+                'html_url' => 'https://github.com/pekral/toilet-app',
+                'language' => 'PHP',
+            ],
+            [
+                'name' => 'pekral.cz',
+                'description' => 'Personal website',
+                'html_url' => 'https://github.com/pekral/pekral.cz',
+                'language' => 'PHP',
+            ],
+            [
+                'name' => 'rector-rules',
+                'description' => 'Rector rules',
+                'html_url' => 'https://github.com/pekral/rector-rules',
+                'language' => 'PHP',
+            ],
+        ], 200),
+        'raw.githubusercontent.com/pekral/toilet-app/*' => Http::response(['description' => 'Toilet app'], 200),
+        'raw.githubusercontent.com/pekral/pekral.cz/*' => Http::response(['description' => 'Personal site'], 200),
+        'raw.githubusercontent.com/pekral/rector-rules/main/composer.json' => Http::response([
+            'description' => 'Custom Rector rules',
+        ], 200),
+    ]);
+
+    Livewire::test(ProjectsPage::class)
+        ->assertDontSee('toilet-app')
+        ->assertDontSee('pekral.cz')
+        ->assertSee('rector-rules')
+        ->assertSee('Custom Rector rules');
+});
+
 it('filters out projects without composer description', function (): void {
     Http::fake([
         'api.github.com/users/pekral/repos*' => Http::response([
