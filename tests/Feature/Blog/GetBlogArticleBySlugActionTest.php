@@ -232,7 +232,6 @@ test('parseDate returns Carbon instance when value is DateTimeInterface', functi
     try {
         $repository = new BlogContentRepository($base);
         $parseDate = new ReflectionMethod($repository, 'parseDate');
-        $parseDate->setAccessible(true);
         $date = new DateTimeImmutable('2022-03-10 12:00:00');
         $result = $parseDate->invoke($repository, $date);
         expect($result)->toBeInstanceOf(Carbon::class);
