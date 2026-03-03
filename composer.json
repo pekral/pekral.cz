@@ -29,7 +29,7 @@
         "laravel/sail": "^1.53",
         "mockery/mockery": "^1.6.12",
         "nunomaduro/collision": "^8.9.1",
-        "pekral/cursor-rules": "^0.5.1",
+        "pekral/cursor-rules": "dev-master",
         "pekral/phpcs-rules": "^0.4.8",
         "pekral/rector-rules": "^0.4.8",
         "pestphp/pest": "^4.4.1",

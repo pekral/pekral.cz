@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c814c68cd1774fd21b4b99e55683feb5",
+    "content-hash": "3ae7adc18237dac3d1fdea3dd117f85e",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.371.3",
+            "version": "3.371.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d300ec1c861e52dc8f17ca3d75dc754da949f065"
+                "reference": "957f8a5ecc30670c95dfc37a9d04660899fc44e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d300ec1c861e52dc8f17ca3d75dc754da949f065",
-                "reference": "d300ec1c861e52dc8f17ca3d75dc754da949f065",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/957f8a5ecc30670c95dfc37a9d04660899fc44e0",
+                "reference": "957f8a5ecc30670c95dfc37a9d04660899fc44e0",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.371.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.371.4"
             },
-            "time": "2026-02-27T19:05:40+00:00"
+            "time": "2026-03-03T19:52:06+00:00"
         },
         {
             "name": "baopham/dynamodb",
@@ -8700,16 +8700,16 @@
         },
         {
             "name": "pekral/cursor-rules",
-            "version": "0.5.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/cursor-rules.git",
-                "reference": "08e51eed270c55c94a650341df0cee00fd8f2ed0"
+                "reference": "f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/08e51eed270c55c94a650341df0cee00fd8f2ed0",
-                "reference": "08e51eed270c55c94a650341df0cee00fd8f2ed0",
+                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d",
+                "reference": "f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d",
                 "shasum": ""
             },
             "require": {
@@ -8719,20 +8719,21 @@
                 "composer/composer": "^2.9.5",
                 "ergebnis/composer-normalize": "^2.50.0",
                 "laravel/pint": "^1.27.1",
-                "pekral/phpcs-rules": "^0.4.7",
+                "pekral/phpcs-rules": "^0.4.8",
                 "pekral/phpstan-rules": "^0.4.5",
                 "pekral/rector-rules": "^0.4.8",
                 "pestphp/pest": "^4.4.1",
                 "pestphp/pest-plugin": "^4.0",
                 "pestphp/pest-plugin-type-coverage": "^4.0.3",
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^2.1.39",
+                "phpstan/phpstan": "^2.1.40",
                 "phpstan/phpstan-deprecation-rules": "^2.0.4",
                 "phpstan/phpstan-mockery": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0.16",
                 "roave/security-advisories": "dev-latest",
                 "squizlabs/php_codesniffer": "^4.0.1"
             },
+            "default-branch": true,
             "bin": [
                 "bin/cursor-rules"
             ],
@@ -8781,7 +8782,7 @@
                 "issues": "https://github.com/pekral/cursor-rules/issues",
                 "source": "https://github.com/pekral/cursor-rules"
             },
-            "time": "2026-02-17T17:40:35+00:00"
+            "time": "2026-03-03T20:27:11+00:00"
         },
         {
             "name": "pekral/phpcs-rules",
@@ -10105,12 +10106,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "c1109f3f28a27aa19c894df25d682b5046dc1098"
+                "reference": "5a17df9a478a03dff7428a3172cf7204d4d017a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/c1109f3f28a27aa19c894df25d682b5046dc1098",
-                "reference": "c1109f3f28a27aa19c894df25d682b5046dc1098",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/5a17df9a478a03dff7428a3172cf7204d4d017a8",
+                "reference": "5a17df9a478a03dff7428a3172cf7204d4d017a8",
                 "shasum": ""
             },
             "conflict": {
@@ -10411,7 +10412,7 @@
                 "friendsoftypo3/openid": ">=4.5,<4.5.31|>=4.7,<4.7.16|>=6,<6.0.11|>=6.1,<6.1.6",
                 "froala/wysiwyg-editor": "<=4.3",
                 "frosh/adminer-platform": "<2.2.1",
-                "froxlor/froxlor": "<=2.2.5",
+                "froxlor/froxlor": "<=2.3.3",
                 "frozennode/administrator": "<=5.0.12",
                 "fuel/core": "<1.8.1",
                 "funadmin/funadmin": "<=7.1.0.0-RC4",
@@ -11124,7 +11125,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-02T22:09:25+00:00"
+            "time": "2026-03-03T18:18:18+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -12332,6 +12333,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "pekral/cursor-rules": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
