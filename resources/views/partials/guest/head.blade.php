@@ -1,31 +1,17 @@
 @php
-    $pageTitle = match(Route::currentRouteName()) {
-        'home' => 'Petr Král | PHP & Laravel Developer | Open Source Programmer',
-        'about' => 'About Petr Král | Senior PHP Developer & Laravel Programmer',
-        'skills' => 'PHP Developer Skills | Laravel, Symfony, Open Source | Petr Král',
-        'projects' => 'Open Source PHP Projects | Laravel Developer Petr Král',
-        'privacy-policy' => 'Privacy Policy | Petr Král - PHP Developer',
-        default => 'Petr Král | PHP & Laravel Developer'
-    };
-
-    $pageDescription = match(Route::currentRouteName()) {
-        'home' => 'Petr Král is a Senior PHP Developer and Laravel programmer with 20+ years of experience. Specializing in Laravel development, PHP backend programming, and open source contributions. Building scalable web applications and APIs.',
-        'about' => 'Meet Petr Král - a passionate PHP developer and Laravel programmer with over 20 years of experience. Open source contributor, backend architect, and advocate for clean code practices.',
-        'skills' => 'Technical skills of Petr Král, PHP developer: Laravel, Symfony, PHP 8, REST API development, MySQL, PostgreSQL, Docker. Experienced programmer focused on open source and best practices.',
-        'projects' => 'Open source PHP projects by developer Petr Král. Laravel applications, PHP libraries, Rector rules, and developer tools. Active contributor to the PHP and open source community.',
-        'privacy-policy' => 'Privacy policy for the portfolio website of Petr Král, Senior PHP Developer and Laravel programmer.',
-        default => 'Petr Král - Senior PHP Developer and Laravel programmer specializing in open source, API development, and scalable backend solutions.'
-    };
+    $routeName = Route::currentRouteName() ?? 'default';
+    $pageTitle = __('head.title.' . $routeName);
+    $pageDescription = __('head.description.' . $routeName);
 @endphp
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ $pageTitle }}</title>
 <meta name="description" content="{{ $pageDescription }}">
-<meta name="author" content="Petr Král">
-<meta name="keywords" content="Petr Král, PHP Developer, Laravel Developer, PHP Programmer, Open Source, Senior Developer, Backend Programmer, Symfony, REST API, Clean Code, Rector, Web Development, Czech Republic">
+<meta name="author" content="{{ __('head.meta.author') }}">
+<meta name="keywords" content="{{ __('head.meta.keywords') }}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-<meta name="language" content="en">
+<meta name="language" content="{{ app()->getLocale() }}">
 <meta name="geo.region" content="CZ">
 <meta name="geo.placename" content="Chlumec nad Cidlinou">
 
@@ -35,15 +21,15 @@
 <meta property="og:description" content="{{ $pageDescription }}">
 <meta property="og:type" content="{{ Route::currentRouteName() === 'home' ? 'profile' : 'website' }}">
 <meta property="og:url" content="{{ url()->current() }}">
-<meta property="og:site_name" content="Petr Král - Senior PHP Developer">
-<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="{{ __('head.meta.site_name') }}">
+<meta property="og:locale" content="{{ app()->getLocale() === 'cs' ? 'cs_CZ' : 'en_US' }}">
 <meta property="og:image" content="{{ asset('assets/profile-photo.jpg') }}">
 <meta property="og:image:width" content="460">
 <meta property="og:image:height" content="460">
-<meta property="og:image:alt" content="Petr Král - Senior PHP Developer specializing in Laravel and API development">
+<meta property="og:image:alt" content="{{ __('head.meta.image_alt') }}">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="profile:first_name" content="Petr">
-<meta property="profile:last_name" content="Král">
+<meta property="profile:last_name" content="Kr?l">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@kral_petr_88">
@@ -51,7 +37,7 @@
 <meta name="twitter:title" content="{{ $pageTitle }}">
 <meta name="twitter:description" content="{{ $pageDescription }}">
 <meta name="twitter:image" content="{{ asset('assets/profile-photo.jpg') }}">
-<meta name="twitter:image:alt" content="Petr Král - Senior PHP Developer">
+<meta name="twitter:image:alt" content="{{ __('head.meta.image_alt_short') }}">
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -73,9 +59,9 @@
     '@context' => 'https://schema.org',
     '@type' => 'Person',
     '@id' => url('/') . '#person',
-    'name' => 'Petr Král',
+    'name' => 'Petr Kr?l',
     'givenName' => 'Petr',
-    'familyName' => 'Král',
+    'familyName' => 'Kr?l',
     'jobTitle' => 'PHP & Laravel Developer',
     'alternateName' => 'Senior PHP Programmer',
     'description' => 'Senior PHP programmer and Laravel developer with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
@@ -92,7 +78,7 @@
         '@context' => 'https://schema.org',
         '@type' => 'PostalAddress',
         'addressLocality' => 'Chlumec nad Cidlinou',
-        'addressRegion' => 'Královéhradecký kraj',
+        'addressRegion' => 'Kr?lov?hradeck? kraj',
         'addressCountry' => 'CZ'
     ],
     'nationality' => [
@@ -102,7 +88,7 @@
     ],
     'sameAs' => [
         'https://github.com/pekral',
-        'https://www.linkedin.com/in/petr-král-60223752/',
+        'https://www.linkedin.com/in/petr-kr?l-60223752/',
         'https://x.com/kral_petr_88'
     ],
     'knowsAbout' => [
@@ -150,8 +136,8 @@
     '@type' => 'WebSite',
     '@id' => url('/') . '#website',
     'url' => url('/'),
-    'name' => 'Petr Král - Senior PHP Developer',
-    'description' => 'Personal portfolio and blog of Petr Král, Senior PHP Developer with 20+ years of experience.',
+    'name' => 'Petr Kr?l - Senior PHP Developer',
+    'description' => 'Personal portfolio and blog of Petr Kr?l, Senior PHP Developer with 20+ years of experience.',
     'publisher' => [
         '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'

@@ -4,20 +4,20 @@
             <path d="m12 19-7-7 7-7"></path>
             <path d="M19 12H5"></path>
         </svg>
-        Back to home
+        {{ __('guest.blog.back_to_home') }}
     </a>
 
     <section class="mb-12">
         <h1 class="text-2xl md:text-3xl font-bold text-foreground font-mono">
-            <span class="text-primary">#</span> Blog
+            <span class="text-primary">#</span> {{ __('guest.blog.title') }}
         </h1>
         <p class="text-muted-foreground mt-2">
-            Articles and notes in English.
+            {{ __('guest.blog.subtitle') }}
         </p>
     </section>
 
     @if($articles->isEmpty())
-        <p class="text-muted-foreground">No articles yet.</p>
+        <p class="text-muted-foreground">{{ __('guest.blog.no_articles') }}</p>
     @else
         <ul class="space-y-6">
             @foreach($articles as $article)
@@ -40,7 +40,7 @@
                                 <p class="mt-1 text-xs text-muted-foreground font-mono">
                                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                                     <span aria-hidden="true"> · </span>
-                                    <span>{{ $article->readingTimeMinutes }} min read</span>
+                                    <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>
                                 </p>
                                 @if($article->description)
                                     <p class="text-sm text-muted-foreground mt-2 line-clamp-2">

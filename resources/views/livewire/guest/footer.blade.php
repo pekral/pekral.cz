@@ -4,25 +4,25 @@
             {{-- About Column --}}
             <div>
                 <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
-                    <span class="text-primary">#</span> Petr Král
+                    <span class="text-primary">#</span> {{ __('guest.footer.author_name') }}
                 </h2>
                 <p class="text-sm text-muted-foreground leading-relaxed">
-                    <strong class="text-foreground">PHP Developer</strong> and <strong class="text-foreground">Laravel programmer</strong> with 20+ years of experience. <strong class="text-foreground">Open source contributor</strong> specializing in backend development and scalable solutions.
+                    {!! __('guest.footer.bio') !!}
                 </p>
             </div>
 
             {{-- Navigation Column --}}
             <div>
                 <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
-                    <span class="text-primary">#</span> Navigation
+                    <span class="text-primary">#</span> {{ __('guest.footer.nav_heading') }}
                 </h2>
                 <nav aria-label="Footer navigation">
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{{ route('home') }}" class="text-muted-foreground hover:text-primary transition-colors">Home</a></li>
-                        <li><a href="{{ route('about') }}" class="text-muted-foreground hover:text-primary transition-colors">About Me</a></li>
-                        <li><a href="{{ route('skills') }}" class="text-muted-foreground hover:text-primary transition-colors">Technical Skills</a></li>
-                        <li><a href="{{ route('projects') }}" class="text-muted-foreground hover:text-primary transition-colors">Open Source Projects</a></li>
-                        <li><a href="{{ route('privacy-policy') }}" class="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="{{ route('home') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.home') }}</a></li>
+                        <li><a href="{{ route('about') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.about_me') }}</a></li>
+                        <li><a href="{{ route('skills') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.technical_skills') }}</a></li>
+                        <li><a href="{{ route('projects') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.open_source_projects') }}</a></li>
+                        <li><a href="{{ route('privacy-policy') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.privacy_policy') }}</a></li>
                     </ul>
                 </nav>
             </div>
@@ -30,7 +30,7 @@
             {{-- Connect Column --}}
             <div>
                 <h2 class="text-sm font-semibold text-foreground mb-4 font-mono">
-                    <span class="text-primary">#</span> Connect
+                    <span class="text-primary">#</span> {{ __('guest.footer.connect') }}
                 </h2>
                 <ul class="space-y-2 text-sm">
                     <li>
@@ -39,7 +39,7 @@
                                 <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
                                 <path d="M9 18c-4.51 2-5-2-7-2"></path>
                             </svg>
-                            GitHub
+                            {{ __('guest.footer.github') }}
                         </a>
                     </li>
                     <li>
@@ -49,7 +49,7 @@
                                 <rect width="4" height="12" x="2" y="9"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
-                            LinkedIn
+                            {{ __('guest.footer.linkedin') }}
                         </a>
                     </li>
                     <li>
@@ -58,7 +58,7 @@
                                 <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
                                 <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
                             </svg>
-                            X (Twitter)
+                            {{ __('guest.footer.x_twitter') }}
                         </a>
                     </li>
                 </ul>
@@ -66,7 +66,7 @@
         </div>
 
         <div class="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground font-mono">
-            <p>© {{ date('Y') }} Petr Král - PHP Developer & Laravel Programmer</p>
+            <p>{{ __('guest.footer.copyright', ['year' => date('Y')]) }}</p>
         </div>
     </div>
 </footer>
