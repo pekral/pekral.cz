@@ -46,7 +46,7 @@ final class ProjectsPage extends Component
      */
     private function fetchRepositories(): array
     {
-        return Cache::remember('github_repositories_pekral_v3', 3_600 * 24 * 31, function (): array {
+        return Cache::remember('github_repositories_pekral_v4', 3_600 * 24 * 31, function (): array {
             $repositories = $this->fetchGitHubRepositories();
 
             return $this->mapRepositoriesToProjects($repositories);
@@ -116,6 +116,13 @@ final class ProjectsPage extends Component
         }
 
         $repoName = is_string($repo['name'] ?? null) ? $repo['name'] : '';
+
+        $excluded = config('projects.excluded_repositories', []);
+
+        if (is_array($excluded) && in_array($repoName, $excluded, true)) {
+            return null;
+        }
+
         $composerData = $this->fetchComposerData($repoName);
 
         if ($composerData['description'] === '') {

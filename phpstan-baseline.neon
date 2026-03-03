@@ -345,7 +345,13 @@ parameters:
 		-
 			message: '#^Cannot call method assertSee\(\) on mixed\.$#'
 			identifier: method.nonObject
-			count: 9
+			count: 13
+			path: tests/Feature/Livewire/Guest/ProjectsPageTest.php
+
+		-
+			message: '#^Cannot call method assertDontSee\(\) on mixed\.$#'
+			identifier: method.nonObject
+			count: 1
 			path: tests/Feature/Livewire/Guest/ProjectsPageTest.php
 
 		-
