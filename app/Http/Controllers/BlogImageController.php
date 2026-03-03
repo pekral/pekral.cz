@@ -10,12 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class BlogImageController extends Controller
 {
-
-    public function __construct(private readonly BlogService $blogService) {}
-
-    public function show(string $slug): BinaryFileResponse|Response
+    public function show(BlogService $blogService, string $slug): BinaryFileResponse|Response
     {
-        $path = $this->blogService->getImagePath($slug);
+        $path = $blogService->getImagePath($slug);
 
         if ($path === null) {
             abort(404);
@@ -25,5 +22,4 @@ final class BlogImageController extends Controller
             'Content-Type' => 'image/jpeg',
         ]);
     }
-
 }
