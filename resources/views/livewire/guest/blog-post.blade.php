@@ -13,9 +13,11 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-foreground font-mono">
                     <span class="text-primary">#</span> {{ $article->title }}
                 </h1>
-                <time datetime="{{ $article->date->toIso8601String() }}" class="text-sm text-muted-foreground font-mono block mt-2">
-                    {{ $article->date->format('F j, Y') }}
-                </time>
+                <p class="mt-2 text-sm text-muted-foreground font-mono">
+                    <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
+                    <span aria-hidden="true"> · </span>
+                    <span>{{ $article->readingTimeMinutes }} min read</span>
+                </p>
                 @if($article->description)
                     <p class="text-muted-foreground mt-3">
                         {{ $article->description }}

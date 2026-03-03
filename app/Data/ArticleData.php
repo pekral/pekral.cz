@@ -16,6 +16,7 @@ final readonly class ArticleData
         public string $description,
         public string $htmlContent,
         public bool $hasImage,
+        public int $readingTimeMinutes,
     ) {}
 
 }
