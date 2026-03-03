@@ -8,21 +8,28 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
 });
 
 it('renders reset password component', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response = $this->get(route('password.reset', $token));
 
-    $response->assertStatus(200);
-    $response->assertSeeLivewire('auth.reset-password');
+    $response->assertStatus(200)->assertSeeLivewire('auth.reset-password');
 });
 
 it('resets password with valid token and data', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
     $newPassword = 'newpassword123';
 
     Livewire::test('auth.reset-password', ['token' => $token])
@@ -32,12 +39,15 @@ it('resets password with valid token and data', function (): void {
         ->call('resetPassword')
         ->assertHasNoErrors();
 
-    $this->user->refresh();
-    expect(Hash::check($newPassword, $this->user->password))->toBeTrue();
+    $user->refresh();
+    expect(Hash::check($newPassword, $user->password))->toBeTrue();
 });
 
 it('validates required fields', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
         ->set('email', '')
@@ -48,7 +58,10 @@ it('validates required fields', function (): void {
 });
 
 it('validates email format', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
         ->set('email', 'invalid-email')
@@ -59,7 +72,10 @@ it('validates email format', function (): void {
 });
 
 it('validates password confirmation', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
         ->set('email', 'test@example.com')
@@ -70,7 +86,10 @@ it('validates password confirmation', function (): void {
 });
 
 it('validates password requirements', function (): void {
-    $token = Password::createToken($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $token = Password::createToken($user);
 
     Livewire::test('auth.reset-password', ['token' => $token])
         ->set('email', 'test@example.com')

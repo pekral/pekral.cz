@@ -25,8 +25,9 @@ it('renders projects page component', function (): void {
         'raw.githubusercontent.com/*' => Http::response([], 404),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertStatus(200);
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertStatus(200);
 });
 
 it('displays page title', function (): void {
@@ -34,8 +35,9 @@ it('displays page title', function (): void {
         'api.github.com/users/pekral/repos*' => Http::response([], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('Projects');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('Projects');
 });
 
 it('displays back link', function (): void {
@@ -43,9 +45,10 @@ it('displays back link', function (): void {
         'api.github.com/users/pekral/repos*' => Http::response([], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('Back to home')
-        ->assertSeeHtml('href="' . route('home') . '"');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('Back to home');
+    $component->assertSeeHtml('href="' . route('home') . '"');
 });
 
 it('displays projects list from github', function (): void {
@@ -72,11 +75,12 @@ it('displays projects list from github', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('rector-rules')
-        ->assertSee('arch-app-services')
-        ->assertSee('Custom Rector rules')
-        ->assertSee('Simple architecture');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('rector-rules');
+    $component->assertSee('arch-app-services');
+    $component->assertSee('Custom Rector rules');
+    $component->assertSee('Simple architecture');
 });
 
 it('displays composer description from composer.json', function (): void {
@@ -95,10 +99,11 @@ it('displays composer description from composer.json', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('my-package')
-        ->assertSee('GitHub description')
-        ->assertSee('Composer package description');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('my-package');
+    $component->assertSee('GitHub description');
+    $component->assertSee('Composer package description');
 });
 
 it('excludes repositories from config projects.excluded_repositories', function (): void {
@@ -132,11 +137,12 @@ it('excludes repositories from config projects.excluded_repositories', function 
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertDontSee('toilet-app')
-        ->assertDontSee('pekral.cz')
-        ->assertSee('rector-rules')
-        ->assertSee('Custom Rector rules');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertDontSee('toilet-app');
+    $component->assertDontSee('pekral.cz');
+    $component->assertSee('rector-rules');
+    $component->assertSee('Custom Rector rules');
 });
 
 it('excludes custom repository when set in config', function (): void {
@@ -163,10 +169,11 @@ it('excludes custom repository when set in config', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertDontSee('custom-excluded-repo')
-        ->assertSee('visible-repo')
-        ->assertSee('Visible repo description');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertDontSee('custom-excluded-repo');
+    $component->assertSee('visible-repo');
+    $component->assertSee('Visible repo description');
 });
 
 it('filters out projects without composer description', function (): void {
@@ -182,9 +189,10 @@ it('filters out projects without composer description', function (): void {
         'raw.githubusercontent.com/*' => Http::response([], 404),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertStatus(200)
-        ->assertDontSee('no-composer-repo');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertStatus(200);
+    $component->assertDontSee('no-composer-repo');
 });
 
 it('tries master branch if main branch fails', function (): void {
@@ -203,9 +211,10 @@ it('tries master branch if main branch fails', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('old-repo')
-        ->assertSee('Master branch composer description');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('old-repo');
+    $component->assertSee('Master branch composer description');
 });
 
 it('displays github link', function (): void {
@@ -213,8 +222,9 @@ it('displays github link', function (): void {
         'api.github.com/users/pekral/repos*' => Http::response([], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('View all open source PHP projects');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('View all open source PHP projects');
 });
 
 it('handles empty repositories list', function (): void {
@@ -222,9 +232,10 @@ it('handles empty repositories list', function (): void {
         'api.github.com/users/pekral/repos*' => Http::response([], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertStatus(200)
-        ->assertSee('Projects');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertStatus(200);
+    $component->assertSee('Projects');
 });
 
 it('handles github api error gracefully', function (): void {
@@ -232,9 +243,10 @@ it('handles github api error gracefully', function (): void {
         'api.github.com/users/pekral/repos*' => Http::response([], 500),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertStatus(200)
-        ->assertSee('Projects');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertStatus(200);
+    $component->assertSee('Projects');
 });
 
 it('caches repositories', function (): void {
@@ -252,11 +264,13 @@ it('caches repositories', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('cached-repo');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('cached-repo');
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('cached-repo');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component2 */
+    $component2 = Livewire::test(ProjectsPage::class);
+    $component2->assertSee('cached-repo');
 });
 
 it('displays php version from composer.json', function (): void {
@@ -277,9 +291,10 @@ it('displays php version from composer.json', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('php-package')
-        ->assertSee('8.2');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('php-package');
+    $component->assertSee('8.2');
 });
 
 it('filters out non-array repository items from github response', function (): void {
@@ -298,9 +313,10 @@ it('filters out non-array repository items from github response', function (): v
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('valid-repo')
-        ->assertSee('Valid repo description');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('valid-repo');
+    $component->assertSee('Valid repo description');
 });
 
 it('filters out repos with empty name', function (): void {
@@ -315,9 +331,10 @@ it('filters out repos with empty name', function (): void {
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertStatus(200)
-        ->assertDontSee('No name repo');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertStatus(200);
+    $component->assertDontSee('No name repo');
 });
 
 it('handles composer php constraint without version pattern', function (): void {
@@ -338,7 +355,8 @@ it('handles composer php constraint without version pattern', function (): void 
         ], 200),
     ]);
 
-    Livewire::test(ProjectsPage::class)
-        ->assertSee('no-php-version-repo')
-        ->assertSee('Description only');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('no-php-version-repo');
+    $component->assertSee('Description only');
 });

@@ -2,7 +2,6 @@ includes:
     - vendor/larastan/larastan/extension.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-mockery/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
     parallel:
@@ -19,6 +18,10 @@ parameters:
         - vendor/autoload.php
 
 services:
+    -
+        class: Tests\PHPStan\TestResponseLivewireMacroExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
     - Pekral\Arch\PHPStan\Rules\NoEloquentStorageMethodsInActionsRule
     - Pekral\Arch\PHPStan\Rules\NoDirectDatabaseQueriesInActionsRule
     - Pekral\Arch\PHPStan\Rules\OnlyModelManagersCanPersistDataRule

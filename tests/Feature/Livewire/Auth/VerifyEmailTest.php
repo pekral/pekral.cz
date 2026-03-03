@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
         'email_verified_at' => null,
@@ -14,17 +15,22 @@ beforeEach(function (): void {
 });
 
 it('renders verify email component for unverified user', function (): void {
-    $this->actingAs($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $this->actingAs($user);
 
     $response = $this->get(route('verification.notice'));
-
-    $response->assertStatus(200);
-    $response->assertSeeLivewire('auth.verify-email');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertStatus(200)->assertSeeLivewire('auth.verify-email');
 });
 
 it('handles verified user correctly', function (): void {
-    $this->user->update(['email_verified_at' => now()]);
-    $this->actingAs($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $user->update(['email_verified_at' => now()]);
+    $this->actingAs($user);
 
     Livewire::test('auth.verify-email')
         ->call('sendVerification')
@@ -32,7 +38,10 @@ it('handles verified user correctly', function (): void {
 });
 
 it('sends verification email', function (): void {
-    $this->actingAs($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $this->actingAs($user);
     Notification::fake();
 
     Livewire::test('auth.verify-email')
@@ -41,7 +50,10 @@ it('sends verification email', function (): void {
 });
 
 it('shows verification link sent message', function (): void {
-    $this->actingAs($this->user);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $this->actingAs($user);
 
     session(['status' => 'verification-link-sent']);
 

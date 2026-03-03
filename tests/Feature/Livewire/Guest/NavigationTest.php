@@ -6,61 +6,71 @@ use App\Livewire\Guest\Navigation;
 use Livewire\Livewire;
 
 it('renders navigation component', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertStatus(200)
-        ->assertSee('pekral');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertStatus(200);
+    $component->assertSee('pekral');
 });
 
 it('displays all navigation links', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSee('about')
-        ->assertSee('skills')
-        ->assertSee('projects');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSee('about');
+    $component->assertSee('skills');
+    $component->assertSee('projects');
 });
 
 it('contains home link', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="' . route('home') . '"');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSeeHtml('href="' . route('home') . '"');
 });
 
 it('contains about link with route', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="' . route('about') . '"');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSeeHtml('href="' . route('about') . '"');
 });
 
 it('contains skills link with route', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="' . route('skills') . '"');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSeeHtml('href="' . route('skills') . '"');
 });
 
 it('contains projects link with route', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSeeHtml('href="' . route('projects') . '"');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSeeHtml('href="' . route('projects') . '"');
 });
 
 it('contains obfuscated email component', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSee('contact');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSee('contact');
 });
 
 it('shows hamburger menu button for mobile', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSeeHtml('toggleMenu');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSeeHtml('toggleMenu');
 });
 
 it('toggles mobile menu open and closed', function (): void {
-    Livewire::test(Navigation::class)
-        ->assertSet('menuOpen', false)
-        ->call('toggleMenu')
-        ->assertSet('menuOpen', true)
-        ->call('toggleMenu')
-        ->assertSet('menuOpen', false);
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->assertSet('menuOpen', false);
+    $component->call('toggleMenu');
+    $component->assertSet('menuOpen', true);
+    $component->call('toggleMenu');
+    $component->assertSet('menuOpen', false);
 });
 
 it('closes mobile menu when closeMenu is called', function (): void {
-    Livewire::test(Navigation::class)
-        ->call('toggleMenu')
-        ->assertSet('menuOpen', true)
-        ->call('closeMenu')
-        ->assertSet('menuOpen', false);
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(Navigation::class);
+    $component->call('toggleMenu');
+    $component->assertSet('menuOpen', true);
+    $component->call('closeMenu');
+    $component->assertSet('menuOpen', false);
 });

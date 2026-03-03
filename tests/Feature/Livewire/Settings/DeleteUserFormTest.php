@@ -7,28 +7,33 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
 it('renders delete user form component', function (): void {
+    /** @var \Tests\TestCase $this */
     $response = $this->get(route('settings.profile'));
-
-    $response->assertStatus(200);
-    $response->assertSeeLivewire('settings.delete-user-form');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertStatus(200)->assertSeeLivewire('settings.delete-user-form');
 });
 
 it('deletes user account with valid password', function (): void {
-    $this->user->update(['password' => bcrypt('password123')]);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $user->update(['password' => bcrypt('password123')]);
 
-    Livewire::test('settings.delete-user-form')
-        ->set('password', 'password123')
-        ->call('deleteUser')
-        ->assertHasNoErrors()
-        ->assertRedirect('/');
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test('settings.delete-user-form');
+    $component->set('password', 'password123');
+    $component->call('deleteUser');
+    $component->assertHasNoErrors();
+    $component->assertRedirect('/');
 
     expect(Auth::check())->toBeFalse();
-    expect(User::find($this->user->id))->toBeNull();
+    expect(User::find($user->id))->toBeNull();
 });
 
 it('validates required password field', function (): void {
@@ -39,7 +44,10 @@ it('validates required password field', function (): void {
 });
 
 it('fails with invalid password', function (): void {
-    $this->user->update(['password' => bcrypt('password123')]);
+    /** @var \Tests\TestCase $this */
+    $user = $this->user;
+    assert($user !== null);
+    $user->update(['password' => bcrypt('password123')]);
 
     Livewire::test('settings.delete-user-form')
         ->set('password', 'wrongpassword')

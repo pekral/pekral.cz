@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
+    /** @var \Tests\TestCase $this */
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
         'password' => Hash::make('password123'),
@@ -15,18 +16,19 @@ beforeEach(function (): void {
 });
 
 it('renders confirm password component', function (): void {
+    /** @var \Tests\TestCase $this */
     $response = $this->get(route('password.confirm'));
-
-    $response->assertStatus(200);
-    $response->assertSeeLivewire('auth.confirm-password');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertStatus(200)->assertSeeLivewire('auth.confirm-password');
 });
 
 it('confirms password with valid credentials', function (): void {
-    Livewire::test('auth.confirm-password')
-        ->set('password', 'password123')
-        ->call('confirmPassword')
-        ->assertHasNoErrors()
-        ->assertRedirect(route('dashboard'));
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test('auth.confirm-password');
+    $component->set('password', 'password123');
+    $component->call('confirmPassword');
+    $component->assertHasNoErrors();
+    $component->assertRedirect(route('dashboard'));
 });
 
 it('validates required password field', function (): void {
