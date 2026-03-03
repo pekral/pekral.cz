@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Providers;
 
+use App\Services\BlogService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +15,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // No services to register
+        $contentPath = config('blog.content_path');
+        $this->app->singleton(
+            BlogService::class,
+            fn (): BlogService => new BlogService(is_string($contentPath) ? $contentPath : base_path('content/blog')),
+        );
     }
 
     /**

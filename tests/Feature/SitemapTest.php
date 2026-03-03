@@ -18,6 +18,7 @@ test('sitemap contains all public pages', function (): void {
     expect($content)->toContain('<loc>' . url('/about') . '</loc>');
     expect($content)->toContain('<loc>' . url('/skills') . '</loc>');
     expect($content)->toContain('<loc>' . url('/projects') . '</loc>');
+    expect($content)->toContain('<loc>' . url('/blog') . '</loc>');
     expect($content)->toContain('<loc>' . url('/privacy-policy') . '</loc>');
 });
 

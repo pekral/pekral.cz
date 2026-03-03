@@ -32,3 +32,20 @@ test('homepage contains footer', function (): void {
     $response->assertSee('Petr Král');
     $response->assertSee('PHP Developer');
 });
+
+test('homepage shows latest from the blog section when articles exist', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Latest from the blog');
+    $response->assertSee('View all articles');
+    $response->assertSee(route('blog.index'));
+});
+
+test('homepage shows at most three latest articles with links', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Vibe coding with AI');
+    $response->assertSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
+});

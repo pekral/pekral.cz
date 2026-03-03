@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BlogImageController;
+use App\Services\BlogService;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -20,6 +22,10 @@ Route::get('/projects', function () {
 })->name('projects');
 
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
+
+Route::get('/blog', fn () => view('blog'))->name('blog.index');
+Route::get('/blog/{slug}', fn (string $slug) => view('blog.show', ['slug' => $slug]))->name('blog.show');
+Route::get('/blog/{slug}/image', [BlogImageController::class, 'show'])->name('blog.image');
 
 Route::get('robots.txt', function () {
     $sitemapUrl = url('/sitemap.xml');
@@ -50,15 +56,17 @@ Route::get('sitemap.xml', function () {
         ['path' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['path' => '/skills', 'priority' => '0.8', 'changefreq' => 'monthly'],
         ['path' => '/projects', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['path' => '/blog', 'priority' => '0.9', 'changefreq' => 'weekly'],
         ['path' => '/privacy-policy', 'priority' => '0.3', 'changefreq' => 'yearly'],
     ];
 
-    $urls = collect($pages)->map(function (array $page): array {
+    $staticUrls = collect($pages)->map(function (array $page): array {
         $viewFile = match ($page['path']) {
             '/' => resource_path('views/welcome2.blade.php'),
             '/about' => resource_path('views/about.blade.php'),
             '/skills' => resource_path('views/skills.blade.php'),
             '/projects' => resource_path('views/projects.blade.php'),
+            '/blog' => resource_path('views/blog.blade.php'),
             '/privacy-policy' => resource_path('views/gdpr-en.blade.php'),
             default => null,
         };
@@ -75,7 +83,17 @@ Route::get('sitemap.xml', function () {
         ];
     });
 
-    $urlEntries = $urls->map(fn (array $url): string => <<<XML
+    $blogService = app(BlogService::class);
+    $blogArticleUrls = $blogService->getAll()->map(fn ($article): array => [
+        'loc' => url('/blog/' . $article->slug),
+        'lastmod' => $article->date->format('Y-m-d'),
+        'changefreq' => 'monthly',
+        'priority' => '0.8',
+    ])->all();
+
+    $urls = array_merge($staticUrls->all(), $blogArticleUrls);
+
+    $urlEntries = collect($urls)->map(fn (array $url): string => <<<XML
             <url>
                 <loc>{$url['loc']}</loc>
                 <lastmod>{$url['lastmod']}</lastmod>
@@ -100,7 +118,7 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth'])->group(function (): void {
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
@@ -108,4 +126,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
