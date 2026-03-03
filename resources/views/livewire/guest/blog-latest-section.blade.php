@@ -22,9 +22,12 @@
                                 <h3 class="font-mono text-foreground group-hover:text-primary transition-colors font-semibold">
                                     {{ $article->title }}
                                 </h3>
-                                <time datetime="{{ $article->date->toIso8601String() }}" class="text-xs text-muted-foreground font-mono block mt-1">
-                                    {{ $article->date->format('F j, Y') }}
-                                </time>
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground font-mono">
+                                    <time datetime="{{ $article->date->toIso8601String() }}">
+                                        {{ $article->date->format('F j, Y') }}
+                                    </time>
+                                    <span>{{ $article->readingTimeMinutes }} min read</span>
+                                </div>
                                 @if($article->description)
                                     <p class="text-sm text-muted-foreground mt-2 line-clamp-2">
                                         {{ $article->description }}

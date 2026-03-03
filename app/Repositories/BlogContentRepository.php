@@ -77,8 +77,25 @@ final readonly class BlogContentRepository
         $description = is_string($descriptionRaw) ? $descriptionRaw : '';
         $imagePath = $this->contentPath . '/' . $slug . '/' . self::IMAGE_FILE;
         $hasImage = is_readable($imagePath);
+        $readingTimeMinutes = $this->computeReadingTimeMinutes($htmlContent);
 
-        return new ArticleData(slug: $slug, title: $title, date: $date, description: $description, htmlContent: $htmlContent, hasImage: $hasImage);
+        return new ArticleData(slug: $slug, title: $title, date: $date, description: $description, htmlContent: $htmlContent, hasImage: $hasImage, readingTimeMinutes: $readingTimeMinutes);
+    }
+
+    private function computeReadingTimeMinutes(string $htmlContent): int
+    {
+        $text = strip_tags($htmlContent);
+        $wordCount = str_word_count($text, 0, '0123456789áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ');
+
+        if ($wordCount <= 0) {
+            return 1;
+        }
+
+        $wpmConfig = config('blog.reading_words_per_minute', 200);
+        $wpm = is_numeric($wpmConfig) ? max(1, (int) $wpmConfig) : 200;
+        $minutes = (int) ceil($wordCount / $wpm);
+
+        return max(1, $minutes);
     }
 
     /**

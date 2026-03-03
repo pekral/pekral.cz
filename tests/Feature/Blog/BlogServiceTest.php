@@ -32,6 +32,7 @@ test('getBySlug returns article data for existing slug', function (): void {
     expect($article->htmlContent)->toContain('<h1>');
     expect($article->date)->not->toBeNull();
     expect($article->hasImage)->toBeTrue();
+    expect($article->readingTimeMinutes)->toBeGreaterThan(0);
 });
 
 test('getBySlug returns null for non-existent slug', function (): void {
@@ -234,6 +235,49 @@ test('getBySlug uses default date when front matter date is non-scalar', functio
         expect($article)->not->toBeNull();
         assert($article instanceof ArticleData);
         expect($article->date)->toBeInstanceOf(Carbon::class);
+    } finally {
+        unlink($articleDir . '/article.md');
+        rmdir($articleDir);
+        rmdir($base);
+    }
+});
+
+test('getBySlug computes reading time from article content', function (): void {
+    $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
+    $slug = 'reading-time-article';
+    $articleDir = $base . '/' . $slug;
+    mkdir($articleDir, 0755, true);
+    $body = str_repeat('word ', 198) . 'end';
+    file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n# Title\n\n" . $body);
+
+    try {
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
+        expect($article)->not->toBeNull();
+        assert($article instanceof ArticleData);
+        expect($article->readingTimeMinutes)->toBe(1);
+    } finally {
+        unlink($articleDir . '/article.md');
+        rmdir($articleDir);
+        rmdir($base);
+    }
+});
+
+test('getBySlug returns minimum 1 minute reading time for empty content', function (): void {
+    $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
+    $slug = 'minimal-article';
+    $articleDir = $base . '/' . $slug;
+    mkdir($articleDir, 0755, true);
+    file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n# Title");
+
+    try {
+        $repository = new BlogContentRepository($base);
+        $getBlogArticleBySlug = new GetBlogArticleBySlugAction($repository);
+        $article = $getBlogArticleBySlug->execute($slug);
+        expect($article)->not->toBeNull();
+        assert($article instanceof ArticleData);
+        expect($article->readingTimeMinutes)->toBe(1);
     } finally {
         unlink($articleDir . '/article.md');
         rmdir($articleDir);
