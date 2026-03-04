@@ -16,6 +16,7 @@
 <meta name="geo.placename" content="Chlumec nad Cidlinou">
 
 <link rel="canonical" href="{{ url()->current() }}">
+<link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
 
 <meta property="og:title" content="{{ $pageTitle }}">
 <meta property="og:description" content="{{ $pageDescription }}">
