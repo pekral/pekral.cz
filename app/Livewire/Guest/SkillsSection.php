@@ -45,6 +45,7 @@ final class SkillsSection extends Component
             ['name' => 'PostgreSQL', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg'],
             ['name' => 'Rector', 'icon' => '🤖'],
             ['name' => 'PHPUnit', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/phpunit/phpunit-original.svg'],
+            ['name' => 'Pest', 'icon' => '🐛'],
             ['name' => 'PHPStan', 'icon' => '🔍'],
             ['name' => 'Pint', 'icon' => '🎨'],
         ],

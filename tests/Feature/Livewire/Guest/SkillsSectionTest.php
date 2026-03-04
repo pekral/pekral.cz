@@ -42,6 +42,7 @@ it('displays tools section', function (): void {
     $component->assertSee('Git');
     $component->assertSee('Docker');
     $component->assertSee('Rector');
+    $component->assertSee('Pest');
     $component->assertSee('PHPUnit');
 });
 

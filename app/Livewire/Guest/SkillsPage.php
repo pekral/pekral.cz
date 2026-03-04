@@ -46,6 +46,7 @@ final class SkillsPage extends Component
             ['name' => 'MySQL', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg'],
             ['name' => 'PostgreSQL', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg'],
             ['name' => 'Rector', 'icon' => '🤖'],
+            ['name' => 'Pest', 'icon' => '🐛'],
             ['name' => 'PHPUnit', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/phpunit/phpunit-original.svg'],
             ['name' => 'PHPStan', 'icon' => '🔍'],
             ['name' => 'Pint', 'icon' => '🎨'],
