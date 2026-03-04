@@ -45,6 +45,19 @@
                 </figure>
             @endif
 
+            @if(count($article->headings) > 0)
+                <nav aria-label="{{ __('guest.blog.toc_aria') }}" class="mb-8 p-4 rounded-lg bg-muted/50 border border-border">
+                    <p class="text-sm font-medium text-foreground font-mono mb-2">{{ __('guest.blog.toc_heading') }}</p>
+                    <ul class="space-y-1.5 text-sm font-mono text-muted-foreground">
+                        @foreach($article->headings as $heading)
+                            <li>
+                                <a href="#{{ $heading->id }}" class="hover:text-primary transition-colors underline-offset-2 hover:underline">{{ $heading->text }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </nav>
+            @endif
+
             <div class="blog-content">
                 {!! $article->htmlContent !!}
             </div>

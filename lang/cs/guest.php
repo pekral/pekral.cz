@@ -24,6 +24,8 @@ return [
         'no_articles' => 'Zatím žádné články.',
         'latest_from_blog' => 'Nejnovější z blogu',
         'view_all_articles' => 'Zobrazit všechny články',
+        'toc_heading' => 'Obsah',
+        'toc_aria' => 'Obsah článku',
     ],
     'footer' => [
         'author_name' => 'Petr Král',
