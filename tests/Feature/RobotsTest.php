@@ -41,3 +41,19 @@ test('robots has noindex header to prevent indexing itself', function (): void {
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertHeader('X-Robots-Tag', 'noindex');
 });
+
+test('guest pages use meta robots index follow', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertSuccessful();
+    $response->assertSee('<meta name="robots" content="index, follow', false);
+});
+
+test('auth and app layout pages use meta robots noindex', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get(route('login'));
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertSuccessful();
+    $response->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+});
