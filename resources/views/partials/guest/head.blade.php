@@ -1,7 +1,12 @@
 @php
     $routeName = Route::currentRouteName() ?? 'default';
-    $pageTitle = __('head.title.' . $routeName);
-    $pageDescription = __('head.description.' . $routeName);
+    if ($routeName === 'blog.show' && isset($article)) {
+        $pageTitle = $article->title . ' | ' . __('head.meta.site_name');
+        $pageDescription = $article->description !== '' ? $article->description : __('head.description.blog.show');
+    } else {
+        $pageTitle = __('head.title.' . $routeName);
+        $pageDescription = __('head.description.' . $routeName);
+    }
 @endphp
 
 <meta charset="UTF-8">

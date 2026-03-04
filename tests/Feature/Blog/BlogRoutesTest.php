@@ -66,3 +66,12 @@ test('navigation includes blog link', function (): void {
     $response->assertSee('blog');
     $response->assertSee(route('blog.index'));
 });
+
+test('blog post page has dynamic meta title and description from article', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertSuccessful();
+    $response->assertSee('<title>Vibe coding with AI', false);
+    $response->assertSee('og:title', false);
+});

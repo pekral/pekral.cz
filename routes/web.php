@@ -1,8 +1,10 @@
 <?php
 
 use App\Actions\Blog\GetAllBlogArticlesAction;
+use App\Actions\Blog\GetBlogArticleBySlugAction;
 use App\Http\Controllers\BlogImageController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
@@ -34,7 +36,15 @@ Route::get('/projects', function () {
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 
 Route::get('/blog', fn () => view('blog'))->name('blog.index');
-Route::get('/blog/{slug}', fn (string $slug) => view('blog.show', ['slug' => $slug]))->name('blog.show');
+Route::get('/blog/{slug}', function (string $slug, GetBlogArticleBySlugAction $getArticle) {
+    $article = $getArticle->execute($slug);
+    if ($article === null) {
+        abort(404);
+    }
+    View::share('article', $article);
+
+    return view('blog.show', ['slug' => $slug]);
+})->name('blog.show');
 Route::get('/blog/{slug}/image', [BlogImageController::class, 'show'])->name('blog.image');
 
 Route::get('robots.txt', function () {

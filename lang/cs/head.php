@@ -8,6 +8,7 @@ return [
         'projects' => 'Open source PHP projekty | Petr Král - PHP vývojář',
         'privacy-policy' => 'Zásady ochrany osobních údajů | Petr Král - PHP vývojář',
         'blog.index' => 'Blog | Petr Král - PHP vývojář',
+        'blog.show' => 'Článek | Petr Král - PHP vývojář',
         'default' => 'Petr Král | PHP vývojář stavějící na Laravelu',
     ],
     'description' => [
@@ -17,6 +18,7 @@ return [
         'projects' => 'Open source PHP projekty vývojáře Petra Krále. Aplikace stavěné na Laravelu, PHP knihovny, Rector pravidla a vývojářské nástroje. Aktivní přispěvatel do PHP a open source komunity.',
         'privacy-policy' => 'Zásady ochrany osobních údajů pro portfolio web Petra Krále, senior PHP vývojáře stavějícího na Laravelu.',
         'blog.index' => 'Články a poznámky Petra Krále, PHP vývojáře stavějícího projekty na Laravelu.',
+        'blog.show' => 'Článek na blogu Petra Krále, PHP vývojáře stavějícího na Laravelu.',
         'default' => 'Petr Král - Senior PHP vývojář stavějící na Laravelu, zaměření na open source, vývoj API a škálovatelná backendová řešení.',
     ],
     'meta' => [
