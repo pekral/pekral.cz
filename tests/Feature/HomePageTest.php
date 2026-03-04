@@ -37,6 +37,14 @@ test('homepage contains footer', function (): void {
     $response->assertSee('PHP Developer');
 });
 
+test('homepage contains sitemap link in head', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertSuccessful();
+    $response->assertSee('<link rel="sitemap" type="application/xml" title="Sitemap" href="' . url('/sitemap.xml') . '">', false);
+});
+
 test('homepage shows latest from the blog section when articles exist', function (): void {
     /** @var \Tests\TestCase $this */
     $response = $this->get('/');
