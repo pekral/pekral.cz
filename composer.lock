@@ -8704,12 +8704,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/cursor-rules.git",
-                "reference": "f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d"
+                "reference": "a4eeb715fbfe30fd58c8b239c93c7d3f50970997"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d",
-                "reference": "f57ebf20b4d48bbc24dea991faa0aa6a0d11e28d",
+                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/a4eeb715fbfe30fd58c8b239c93c7d3f50970997",
+                "reference": "a4eeb715fbfe30fd58c8b239c93c7d3f50970997",
                 "shasum": ""
             },
             "require": {
@@ -8782,7 +8782,7 @@
                 "issues": "https://github.com/pekral/cursor-rules/issues",
                 "source": "https://github.com/pekral/cursor-rules"
             },
-            "time": "2026-03-03T20:27:11+00:00"
+            "time": "2026-03-04T07:41:15+00:00"
         },
         {
             "name": "pekral/phpcs-rules",
