@@ -10,6 +10,13 @@ test('sitemap returns valid xml response', function (): void {
     $response->assertHeader('Content-Type', 'application/xml; charset=UTF-8');
 });
 
+test('sitemap has noindex header to prevent indexing', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/sitemap.xml');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertHeader('X-Robots-Tag', 'noindex');
+});
+
 test('sitemap contains all public pages', function (): void {
     /** @var \Tests\TestCase $this */
     $response = $this->get('/sitemap.xml');
