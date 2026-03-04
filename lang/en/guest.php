@@ -24,6 +24,8 @@ return [
         'no_articles' => 'No articles yet.',
         'latest_from_blog' => 'Latest from the blog',
         'view_all_articles' => 'View all articles',
+        'toc_heading' => 'Contents',
+        'toc_aria' => 'Article contents',
     ],
     'footer' => [
         'author_name' => 'Petr Král',

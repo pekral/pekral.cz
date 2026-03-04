@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 use App\Actions\Blog\GetBlogArticleBySlugAction;
 use App\Data\ArticleData;
+use App\Data\ArticleHeadingData;
 use App\Repositories\BlogContentRepository;
 use Carbon\Carbon;
 
@@ -20,6 +21,12 @@ test('returns article data for existing slug', function (): void {
     expect($article->date)->not->toBeNull();
     expect($article->hasImage)->toBeTrue();
     expect($article->readingTimeMinutes)->toBeGreaterThan(0);
+    expect($article->headings)->not->toBeEmpty();
+    $firstHeading = $article->headings[0];
+    expect($firstHeading)->toBeInstanceOf(ArticleHeadingData::class);
+    expect($firstHeading->id)->not->toBeEmpty();
+    expect($firstHeading->text)->not->toBeEmpty();
+    expect($article->htmlContent)->toContain('id="' . $firstHeading->id . '"');
 });
 
 test('returns null for non-existent slug', function (): void {
@@ -48,6 +55,31 @@ test('parses article without front matter', function (): void {
         assert($article instanceof ArticleData);
         expect($article->title)->toBe('Title From Content');
         expect($article->description)->toBe('');
+        expect($article->headings)->toBeEmpty();
+    } finally {
+        unlink($articleDir . '/article.md');
+        rmdir($articleDir);
+        rmdir($base);
+    }
+});
+
+test('extracts only headings with id for table of contents', function (): void {
+    $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
+    $slug = 'toc-headings-test';
+    $articleDir = $base . '/' . $slug;
+    mkdir($articleDir, 0755, true);
+    $content = "---\ndate: 2020-01-01\ndescription: D\n---\n# Title\n\n## With id from markdown\n\nParagraph.\n\n<h2>Raw HTML without id</h2>\n\nText.";
+    file_put_contents($articleDir . '/article.md', $content);
+
+    try {
+        $repository = new BlogContentRepository($base);
+        $action = new GetBlogArticleBySlugAction($repository);
+        $article = $action->execute($slug);
+        expect($article)->not->toBeNull();
+        assert($article instanceof ArticleData);
+        expect($article->headings)->toHaveCount(1);
+        expect($article->headings[0]->id)->toBe('with-id-from-markdown');
+        expect($article->headings[0]->text)->toBe('With id from markdown');
     } finally {
         unlink($articleDir . '/article.md');
         rmdir($articleDir);
@@ -242,6 +274,14 @@ test('parseDate returns Carbon instance when value is DateTimeInterface', functi
         rmdir($articleDir);
         rmdir($base);
     }
+});
+
+test('extractHeadingsFromHtml returns empty array for empty or fragment without headings', function (): void {
+    $repository = new BlogContentRepository(sys_get_temp_dir());
+    $method = new ReflectionMethod($repository, 'extractHeadingsFromHtml');
+    $result = $method->invoke($repository, '');
+    expect($result)->toBeArray();
+    expect($result)->toBeEmpty();
 });
 
 /**

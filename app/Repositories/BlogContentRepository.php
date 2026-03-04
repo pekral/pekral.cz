@@ -5,17 +5,24 @@ declare(strict_types = 1);
 namespace App\Repositories;
 
 use App\Data\ArticleData;
+use App\Data\ArticleHeadingData;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use DateTimeInterface;
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
 use Illuminate\Support\Collection;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\Extension\FrontMatter\Output\RenderedContentWithFrontMatter;
+use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
+use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkProcessor;
 use League\CommonMark\MarkdownConverter;
 use Throwable;
 
+use function assert;
 use function is_string;
 
 final readonly class BlogContentRepository
@@ -122,6 +129,7 @@ final readonly class BlogContentRepository
         $description = is_string($descriptionRaw) ? $descriptionRaw : '';
         $hasImage = is_readable($this->imageFilePath($slug));
         $readingTimeMinutes = $this->computeReadingTimeMinutes($htmlContent);
+        $headings = $this->extractHeadingsFromHtml($htmlContent);
 
         return new ArticleData(
             slug: $slug,
@@ -131,7 +139,46 @@ final readonly class BlogContentRepository
             htmlContent: $htmlContent,
             hasImage: $hasImage,
             readingTimeMinutes: $readingTimeMinutes,
+            headings: $headings,
         );
+    }
+
+    /**
+     * @return array<int, \App\Data\ArticleHeadingData>
+     */
+    private function extractHeadingsFromHtml(string $htmlContent): array
+    {
+        $dom = new DOMDocument();
+        $useErrors = libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8"><div>' . $htmlContent . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_use_internal_errors($useErrors);
+
+        $xpath = new DOMXPath($dom);
+        $nodes = $xpath->query('//h2 | //h3');
+
+        if ($nodes === false || $nodes->length === 0) {
+            return [];
+        }
+
+        $headings = [];
+
+        foreach ($nodes as $node) {
+            assert($node instanceof DOMElement);
+
+            $id = $node->getAttribute('id');
+
+            if ($id === '') {
+                continue;
+            }
+
+            $text = trim($node->textContent ?? '');
+
+            if ($text !== '') {
+                $headings[] = new ArticleHeadingData(id: $id, text: $text);
+            }
+        }
+
+        return $headings;
     }
 
     private function computeReadingTimeMinutes(string $htmlContent): int
@@ -181,9 +228,20 @@ final readonly class BlogContentRepository
 
     private function createConverter(): MarkdownConverter
     {
-        $environment = new Environment([]);
+        $config = [
+            'heading_permalink' => [
+                'apply_id_to_heading' => true,
+                'fragment_prefix' => '',
+                'id_prefix' => '',
+                'insert' => HeadingPermalinkProcessor::INSERT_NONE,
+                'max_heading_level' => 3,
+                'min_heading_level' => 2,
+            ],
+        ];
+        $environment = new Environment($config);
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new FrontMatterExtension());
+        $environment->addExtension(new HeadingPermalinkExtension());
 
         return new MarkdownConverter($environment);
     }
