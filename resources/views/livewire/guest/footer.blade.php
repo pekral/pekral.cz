@@ -22,6 +22,7 @@
                         <li><a href="{{ route('about') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.about_me') }}</a></li>
                         <li><a href="{{ route('skills') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.technical_skills') }}</a></li>
                         <li><a href="{{ route('projects') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.open_source_projects') }}</a></li>
+                        <li><a href="{{ route('home') }}#contact" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.contact') }}</a></li>
                         <li><a href="{{ route('privacy-policy') }}" class="text-muted-foreground hover:text-primary transition-colors">{{ __('guest.nav.privacy_policy') }}</a></li>
                     </ul>
                 </nav>

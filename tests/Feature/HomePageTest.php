@@ -63,3 +63,13 @@ test('homepage shows at most three latest articles with links', function (): voi
     $response->assertSee('Vibe coding with AI');
     $response->assertSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
 });
+
+test('homepage contains contact section with id and CTA', function (): void {
+    /** @var \Tests\TestCase $this */
+    $response = $this->get('/');
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertSuccessful();
+    $response->assertSee('id="contact"', false);
+    $response->assertSee('Contact', false);
+    $response->assertSee(route('home') . '#contact', false);
+});

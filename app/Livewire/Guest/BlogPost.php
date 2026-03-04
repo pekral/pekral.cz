@@ -13,13 +13,9 @@ final class BlogPost extends Component
 
     public string $slug;
 
-    public function mount(string $slug, GetBlogArticleBySlugAction $getBlogArticleBySlug): void
+    public function mount(string $slug): void
     {
         $this->slug = $slug;
-
-        if ($getBlogArticleBySlug->execute($slug) === null) {
-            abort(404);
-        }
     }
 
     public function render(GetBlogArticleBySlugAction $getBlogArticleBySlug): View
