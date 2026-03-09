@@ -10,8 +10,11 @@ test('returns collection of articles sorted by date descending', function (): vo
     $articles = $action->execute();
 
     expect($articles)->not->toBeEmpty();
-    $first = $articles->first();
-    expect($first)->toBeInstanceOf(ArticleData::class);
-    assert($first instanceof ArticleData);
-    expect($first->slug)->toBe('vibe-coding-with-ai-good-servant-bad-master');
+    $slugs = $articles->map(fn (ArticleData $a): string => $a->slug)->all();
+    expect($slugs)->toContain('vibe-coding-with-ai-good-servant-bad-master');
+    expect($slugs)->toContain('cursor-editor-ai-productivity-developer');
+
+    $dates = $articles->map(fn (ArticleData $a) => $a->date)->all();
+    $sortedDates = collect($dates)->sortDesc()->values()->all();
+    expect($dates)->toBe($sortedDates);
 });
