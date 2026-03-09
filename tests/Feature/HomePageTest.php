@@ -60,8 +60,10 @@ test('homepage shows at most three latest articles with links', function (): voi
     $response = $this->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('Vibe coding with AI');
+    $response->assertSee(route('blog.show', 'cursor-editor-ai-productivity-developer'));
     $response->assertSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
+    $response->assertSee('Cursor Editor for developers');
+    $response->assertSee('Vibe coding with AI');
 });
 
 test('homepage contains contact section with id and CTA', function (): void {

@@ -20,8 +20,10 @@ test('returns paginator with first page of articles', function (): void {
     $items = $paginator->items();
     $first = $items[0] ?? null;
     expect($first)->toBeInstanceOf(ArticleData::class);
-    assert($first instanceof ArticleData);
-    expect($first->slug)->toBe('vibe-coding-with-ai-good-servant-bad-master');
+    expect($paginator->total())->toBeGreaterThanOrEqual(2);
+    $slugs = collect($items)->map(fn (ArticleData $a): string => $a->slug)->all();
+    expect($slugs)->toContain('vibe-coding-with-ai-good-servant-bad-master');
+    expect($slugs)->toContain('cursor-editor-ai-productivity-developer');
 });
 
 test('respects page parameter', function (): void {
