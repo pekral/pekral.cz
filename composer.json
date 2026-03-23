@@ -17,7 +17,7 @@
         "livewire/volt": "^1.10.3",
         "spatie/laravel-cookie-consent": "^3.4.0",
         "symfony/yaml": "^7.4.6",
-        "pekral/arch-app-services": "^0.3",
+        "pekral/arch-app-services": "^0.4",
         "spatie/laravel-data": "^4.20"
     },
     "require-dev": {
