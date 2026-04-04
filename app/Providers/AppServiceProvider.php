@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
         $contentPath = config('blog.content_path');
         $this->app->singleton(
             BlogContentRepository::class,
-            fn (): BlogContentRepository => new BlogContentRepository(is_string($contentPath) ? $contentPath : base_path('content/blog')),
+            static fn (): BlogContentRepository => new BlogContentRepository(is_string($contentPath) ? $contentPath : base_path('content/blog')),
         );
     }
 
