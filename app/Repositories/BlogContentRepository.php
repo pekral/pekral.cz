@@ -48,7 +48,7 @@ final readonly class BlogContentRepository
         return collect($slugs)
             ->map(fn (string $slug): ?ArticleData => $this->getBySlug($slug))
             ->filter()
-            ->sortByDesc(fn (ArticleData $a): CarbonInterface => $a->date)
+            ->sortByDesc(static fn (ArticleData $a): CarbonInterface => $a->date)
             ->values();
     }
 

@@ -22,7 +22,7 @@ final class ProjectsSection extends Component
     public function getProjects(): array
     {
         return array_map(
-            fn (array $p): array => [
+            static fn (array $p): array => [
                 'description' => __('guest.projects.section_items.' . $p['name']),
                 'language' => $p['language'],
                 'name' => $p['name'],
