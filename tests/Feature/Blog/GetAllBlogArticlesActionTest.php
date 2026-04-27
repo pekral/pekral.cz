@@ -14,7 +14,7 @@ test('returns collection of articles sorted by date descending', function (): vo
     expect($slugs)->toContain('vibe-coding-with-ai-good-servant-bad-master');
     expect($slugs)->toContain('cursor-editor-ai-productivity-developer');
 
-    $dates = $articles->map(fn (ArticleData $a) => $a->date)->all();
+    $dates = $articles->map(fn (ArticleData $a): \Carbon\CarbonInterface => $a->date)->all();
     $sortedDates = collect($dates)->sortDesc()->values()->all();
     expect($dates)->toBe($sortedDates);
 });
