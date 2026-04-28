@@ -165,20 +165,26 @@ final readonly class BlogContentRepository
         foreach ($nodes as $node) {
             assert($node instanceof DOMElement);
 
-            $id = $node->getAttribute('id');
+            $heading = $this->buildHeadingFromNode($node);
 
-            if ($id === '') {
-                continue;
-            }
-
-            $text = trim($node->textContent ?? '');
-
-            if ($text !== '') {
-                $headings[] = new ArticleHeadingData(id: $id, text: $text);
+            if ($heading !== null) {
+                $headings[] = $heading;
             }
         }
 
         return $headings;
+    }
+
+    private function buildHeadingFromNode(DOMElement $node): ?ArticleHeadingData
+    {
+        $id = $node->getAttribute('id');
+        $text = trim($node->textContent ?: '');
+
+        if ($id === '' || $text === '') {
+            return null;
+        }
+
+        return new ArticleHeadingData(id: $id, text: $text);
     }
 
     private function computeReadingTimeMinutes(string $htmlContent): int
