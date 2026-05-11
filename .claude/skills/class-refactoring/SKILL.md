@@ -1,70 +1,113 @@
 ---
 name: class-refactoring
-description: "Use when refactoring PHP classes following Laravel best practices and SOLID principles. Ensures code quality, maintains functionality, improves testability, and achieves 100% code coverage. Focuses on single responsibility, DRY principle, and clean code structure."
+description: Use when refactor PHP classes to improve structure, readability,
+  and maintainability while preserving behavior
 license: MIT
 metadata:
-  author: "Petr Král (pekral.cz)"
+  author: Petr Král (pekral.cz)
 ---
 
-**Constraint:**
-- Read project.mdc file
-- First, load all the rules for the cursor editor (.cursor/rules/.*mdc).
-- Always apply @.cursor/skills/smartest-project-addition/SKILL.md to select the single highest-impact refactoring direction before implementing changes.
+# Class Refactoring
 
-**Steps:**
-- Analyze the class and complete the TODO list tasks.
-- Verify code coverage after refactoring.
-- For all changes in the current branch, analyze code coverage and ensure that all changes are covered by tests. Add any missing tests to ensure 100% coverage.
-- If new database migrations were created during the changes, run them (`php artisan migrate`) before running tests or creating a PR.
-- Preserve functionality — change how, not what.
-- Focus on recently modified code unless instructed otherwise.
-- No increase in public API surface without strong justification
-- Clean, modern, optimized code.
-- Stateless PHP classes.
-- Collections over `foreach` where appropriate.
-- PHPDoc for PHPStan analysis. PHPDoc content: describe business logic and general purpose; avoid listing method calls or implementation steps.
-- Complex logic commented
-- No magic numbers
-- No deep nesting
-- Prefer small, focused functions.
-- English comments only.
-- Spatie DTOs (Spatie Laravel Data) instead of arrays (except Job constructors). Use PHP attributes for property mapping — never override `from()` manually. Apply `#[MapInputName(SnakeCaseMapper::class)]` at class level for snake_case-to-camelCase input mapping, or `#[MapName(SnakeCaseMapper::class)]` when the DTO is also serialized to output.
-- **`?array` is forbidden:** Any use of `?array` as a type hint must be replaced with a typed collection, DTO, or explicit `array<Type>|null`. Vague nullable arrays hide structure and break static analysis.
-- **PHP array key type safety:** When refactoring associative arrays with dynamic keys, apply safe key strategies: use stable prefixed keys (`'user:' . $id`, `'postal:' . $postalCode`, `'ext:' . $externalReference`); prefer a dedicated collection or value object when the key is domain-significant; prefer `list<T>` when the structure is a list, not a map; prefer explicit validation or normalization before using external values as array keys; where relevant, prefer `array<non-decimal-int-string, T>` over misleading `array<string, T>`.
-- Laravel helpers over native PHP when appropriate.
-- **Laravel AI SDK:** When implementing AI features in a Laravel project, always use the [Laravel AI SDK](https://laravel.com/docs/13.x/ai-sdk). Never call AI provider APIs directly (e.g., raw OpenAI PHP client) when the Laravel AI SDK covers the use case.
-- When changing Eloquent models, migrations, or factories, do not duplicate column defaults that already exist in the database schema; see `@.cursor/rules/laravel/architecture.mdc` (Schema defaults, Migrations).
-- When changing Laravel tests that queue jobs, dispatch only via `JobClass::dispatch(...)` per `@.cursor/rules/laravel/architecture.mdc` Testing.
-- DRY principle — eliminate duplicates.
-- **Validation rules as traits:** Extract reusable validation rules into traits in `App\Concerns` (e.g. `PasswordValidationRules`). Use these traits in FormRequest classes instead of duplicating rule arrays.
-- Remove obvious comments; keep PHPStan-relevant docs.
-- Single Responsibility Principle.
-- Extract private methods if body exceeds ~30 lines.
-- No single-use variables.
-- Extract intention-revealing private methods
-- **All business logic is allowed only in classes that follow the action pattern!**
-- **Invokeable call convention:** When calling Action classes, always use direct invocation `$action($params)` — never `$action->__invoke($params)`.
-- **Action pattern (only when `vendor/pekral/arch-app-services` exists):** Apply @.cursor/skills/refactor-entry-point-to-action/SKILL.md when the refactored class is a controller, job, command, listener, or **Livewire component** that contains orchestration logic.
-- **Single-use Service/Facade method rule (Action pattern):** If an Action calls a Service or Facade method that is used only once in the entire codebase, move the business logic from that Service/Facade method directly into the Action and remove the original Service/Facade method.
-- **Invokeable controller rule:** Any controller method that is not a standard CRUD method (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`) must be extracted into a dedicated single-action invokeable controller with only `__invoke()`. Resource controllers must only contain CRUD methods.
-- **BaseModelService pattern (only when `vendor/pekral/arch-app-services` exists):** All services that primarily work with a specific Eloquent Model must extend `BaseModelService` and implement `getModelManager()`, `getRepository()`, and `getModelClass()` (see `vendor/pekral/arch-app-services/examples/Services/User/UserModelService.php`). Services that do not primarily serve a single model must be refactored into Action pattern classes.
-- **Data Validator extraction (only when `vendor/pekral/arch-app-services` exists):** If an Action class contains inline validation logic (throwing `ValidationException` directly or calling `Validator::make()`), extract it into a dedicated Data Validator class under `app/DataValidators/{Domain}/`.
-- **Livewire components (only in Livewire projects):** Livewire components are entry points — they must not contain business logic. Split every component into a PHP class (`app/Livewire/`) and a Blade view (`resources/views/livewire/`). Never use single-file (Volt) components. Delegate all business logic to Action classes following the mandatory flow: `Livewire Component -> Action -> ModelService -> Repository/ModelManager`.
-- Separate orchestration layer from business logic
-- Split by responsibility
-- Centralize business rules
-- Business logic duplication is not allowed.
-- Method signatures must remain expressive and minimal.
-- Match test variable names to actual use cases.
-- New tests must cover relevant code.
-- After generating or modifying tests, verify that all new tests comply with the testing rules in `@.cursor/rules/php/standards.mdc`. Check mock usage specifically: mock only external services (HTTP clients) or to simulate exceptions; remove any constructor mocks, unnecessary mocks, or mocks that can be replaced with real service logic.
-- Remove coverage files after verification.
+## Purpose
+Improve code structure and quality without changing behavior.
 
-  **Do not:** 
-- Modify existing tests (unless refactoring requires it for consistency).
+Focus on:
+- clarity
+- separation of concerns
+- testability
+- maintainability
 
-**After completing the tasks**
-- If according to @.cursor/skills/test-like-human/SKILL.md the changes can be tested, do it!
+---
+
+## Constraints
+- Apply @rules/refactoring/general.mdc — shared definition of refactoring, recommended incremental process, and "no big-bang rewrite" rule.
+- Apply @rules/php/core-standards.mdc
+- If the current project uses Laravel, also apply `@rules/laravel/laravel.mdc`, `@rules/laravel/architecture.mdc`, `@rules/laravel/filament.mdc`, and `@rules/laravel/livewire.mdc`
+- Apply @rules/code-testing/general.mdc
+- Never change behavior
+- Keep public API stable unless explicitly required
+
+---
+
+## Execution
+
+- Analyze the class and identify the highest-impact refactoring.
+- Follow the incremental process from `@rules/refactoring/general.mdc` (stabilize → identify entry points → introduce Action pattern → split responsibilities → modernize → DRY → concurrency). Never propose a big-bang rewrite.
+- Fix any obvious pre-existing bugs before refactoring (separate commit).
+- Apply focused refactoring:
+  - simplify structure
+  - reduce complexity
+  - improve naming
+  - extract responsibilities where needed
+- Avoid unnecessary changes outside the scope.
+- Prefer small, safe transformations over large rewrites.
+
+---
+
+## Refactoring Guidelines
+
+- Ensure single responsibility per class.
+- Separate orchestration from business logic.
+- Replace per-row DB queries inside loops with batch operations per `@rules/sql/optimalize.mdc` "Batch over per-row operations" — ModelManager `batchUpdate` / `batchInsert`, `whereIn(...)->delete()`, or a single bulk read keyed in memory. Keep per-row work only when an explicit side-effect dependency between iterations cannot be batched.
+- Remove duplication (DRY).
+- Before modifying code, enumerate every place that modifies data before it is saved or passed downstream (DTO mapping, payload shaping, key renaming, default fallbacks, format normalization, business-driven derivation). Surface the list in the refactoring plan and consolidate duplicates into the canonical layer per `@rules/laravel/architecture.mdc` Data Modification (DRY) section (Data Builder, DTO named constructor, Data Validator, ModelManager, Repository).
+- Prefer small, focused methods.
+- Extract intention-revealing private methods when it improves clarity.
+- Avoid deep nesting and complex conditionals.
+- Keep method signatures clear and minimal.
+
+---
+
+## Laravel Context (if applicable)
+
+- Delegate business logic to Actions and Services.
+- Do not place business logic in controllers or Livewire components.
+- Use existing query scopes instead of duplicating conditions.
+- Prefer DTOs over raw arrays when the project uses them.
+- Keep Repositories limited to basic, reusable queries. When refactoring uncovers a feature-specific query method on a Repository, move it to a Service (single-model) or an Action (cross-model / cross-feature) that composes basic Repository methods (see `@rules/laravel/architecture.mdc` Repositories and ModelManagers section).
+
+---
+
+## Testing
+
+- Ensure all changes are covered by tests.
+- Add missing tests for modified behavior.
+- Do not modify existing tests unless necessary for consistency.
+- Prefer realistic tests over heavy mocking.
+
+---
+
+## Output
+
+- Refactored code
+- Short explanation of changes:
+  - what was improved
+  - why it matters
+- Summary of test coverage impact
+
+---
+
+## Principles
+
+- Preserve behavior — change how, not what
+- Prefer clarity over cleverness
+- Prefer simple solutions over complex abstractions
+- Avoid over-engineering
+- Improve only what is necessary
+
+---
+
+## Pre-push quality gates
+
+- Discover available fixers and checkers (prefer Phing targets from `build.xml`/`phing.xml`; fall back to Composer scripts in `composer.json`)
+- Run available fixers on all changed files and fix any violations
+- Run available checkers/analyzers on all changed files and resolve all reported errors
+
+## After Completion
+
+- Run @skills/code-review/SKILL.md
+- Resolve findings via @skills/process-code-review/SKILL.md
 
 ## Output Humanization
 - Use [blader/humanizer](https://github.com/blader/humanizer) for all skill outputs to keep the text natural and human-friendly.

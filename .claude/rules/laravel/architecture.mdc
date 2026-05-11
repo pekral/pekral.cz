@@ -1,190 +1,230 @@
 ---
-description: Laravel architecture and conventions
-alwaysApply: true
-globs: ["*"]
+description: Architecture rules for projects using pekral/arch-app-services package. Apply only when this package is present in vendor.
+alwaysApply: false
+globs:
+  - vendor/pekral/arch-app-services/**
+  - app/Actions/**
+  - app/DataBuilders/**
+  - app/DataValidators/**
+  - app/ModelManagers/**
+  - app/Repositories/**
+  - app/Services/**
+  - app/Http/Controllers/**
+  - app/Jobs/**
+  - app/Console/Commands/**
+  - app/Listeners/**
+  - app/Livewire/**/*.php
 ---
 
-## Layer Responsibilities
-- **All business logic is allowed only in classes that follow the action pattern!**
-- **Controllers**: Slim, delegate to Services, accept FormRequest only, Do not contain business logic.
-- **Services**: All business logic, return DTOs or models, use Single Responsibility, Keep services stateless. Dont read and write operations in one service method.
-- **BaseModelService pattern (only when `vendor/pekral/arch-app-services` exists):** All services that primarily work with a specific Eloquent Model must extend `BaseModelService` and implement `getModelManager()`, `getRepository()`, and `getModelClass()`. Services that do not primarily serve a single model must be refactored into Action pattern classes.
-- **Repositories**: Read-only, no writes, no business rules
-- **ModelManagers**: Write-only, store data to DB
-- **Data Builders**: Transform/prepare DTOs, never query DB
-- **Jobs**: Slim, delegate to Services
-- **Events**: Slim, delegate to Services
-- **Commands**: Slim, delegate to Services
+## Scope
+- Apply these rules only if the project uses `pekral/arch-app-services`.
+- This rule extends core Laravel conventions with package-specific architectural constraints.
+- Follow `pekral/arch-app-services` as the source of truth, including package examples and conventions.
 
-## Validation Rules
-- Store reusable validation rules as traits in the `App\Concerns` namespace (e.g. `PasswordValidationRules`).
-- Each trait should provide focused, well-typed methods that return validation rule arrays with proper PHPDoc generics.
-- Use these traits in FormRequest classes and anywhere validation rules are needed to ensure DRY and consistent validation across the application.
+## Architecture
+- All business logic must follow the Action pattern.
+- Mandatory orchestration flow:
+  - `Controller / Job / Command / Listener / Livewire Component -> Action -> ModelService -> Repository (read) / ModelManager (write)`
+- Entry points must stay thin:
+  - accept input
+  - validate input or delegate validation
+  - call an Action
+  - return a response or update UI state
 
-## DTOs (Spatie Laravel Data)
-- Use Spatie Laravel Data DTOs (`Spatie\LaravelData\Data`) for all typed data exchange between layers; never pass raw `array<mixed>`.
-- **Use PHP attributes for property mapping** — never override `from()` or use manual array mapping to rename keys. Prefer attribute-based configuration for a clean, declarative syntax:
-  - `#[MapInputName(SnakeCaseMapper::class)]` — map all incoming snake_case keys to camelCase properties globally (class-level).
-  - `#[MapName(SnakeCaseMapper::class)]` — map both input and output; use when the DTO is also serialized back (e.g. API responses).
-  - `#[MapInputName('some_key')]` — map a single specific input key to a differently named property.
-  - `#[WithoutValidation]` — skip validation for a specific property.
-  - `#[Computed]` — mark a property as computed (not filled from input).
-- DTO classes are `final readonly` with public constructor properties; no setters.
-- Place DTOs under `app/Dto/{Domain}/` with a `Data` suffix (e.g. `UserData`, `OrderItemData`).
-- Example:
-```php
-use Spatie\LaravelData\Attributes\MapInputName;
-use Spatie\LaravelData\Mappers\SnakeCaseMapper;
-
-#[MapInputName(SnakeCaseMapper::class)]
-final class CreateUserData extends Data
-{
-    public function __construct(
-        public readonly string $firstName,
-        public readonly string $lastName,
-        public readonly string $emailAddress,
-    ) {}
-}
-```
-
-## Data Validators (when `vendor/pekral/arch-app-services` exists)
-- Validation logic that throws exceptions (e.g. `ValidationException::withMessages()`) or calls `Validator::make()` must not be placed directly in Action classes.
-- Extract such validation into dedicated Data Validator classes under `app/DataValidators/{Domain}/`.
-- Data Validators are `final readonly`, have constructor DI, and expose a single `validate()` method.
-- Actions call the Data Validator before proceeding with orchestration.
-- Reusable validation rule traits from `App\Concerns` can be used inside Data Validators.
-
-## Controllers
-- Inject services by method injection
-- Never call `validate()` inside controller
-- Implement proper request validation using Form Requests
-- Aim for "slim" Controllers and put larger logic pieces in Service classes
-- Ensure that every route checks permissions (e.g., auth/can middleware). Every CRUD action validates input.
-- Call actions or service using direct invocation syntax: `$action($params)` (never `$action->__invoke($params)`)
-- NO Database Queries in Controller!
-- For validation rule `['required', 'string']` verify that an empty string does not pass.
-
-### Resource (CRUD) Controllers
-- Use for standard CRUD operations only: `index`, `create`, `store`, `show`, `edit`, `update`, `destroy`
-- Plural names (e.g. `ContactsController`, `OrdersController`)
-- No additional non-CRUD methods — extract any non-CRUD action into its own single-action controller
-
-### Single-Action (Invokeable) Controllers
-- **All non-CRUD controller actions must be implemented as single-action invokeable controllers** with only one public method `__invoke()`
-- Named after the specific action they perform (e.g. `ApproveOrderController`, `PublishPostController`, `SendInvoiceController`)
-- Placed in the same `app/Http/Controllers/` namespace hierarchy, optionally in domain subfolders (e.g. `app/Http/Controllers/Orders/ApproveOrderController.php`)
-- Registered with a single route pointing directly to the class: `Route::post('/orders/{order}/approve', ApproveOrderController::class)`
-- Must be slim entry points — delegate all orchestration to an Action class following the Action pattern
-
-## Database / Schema
-- Primary keys on every table; prefer INT over BIGINT unless > ~2B rows
-- Smallest fitting data types: INT for integers, DECIMAL for money, VARCHAR(n) for short strings, TIMESTAMP over DATETIME where possible
-- Use InnoDB (row-level locking, foreign keys, transactions)
-- Naming: lower_case_snake_case for tables and columns
-- Normalize first; denormalize only when metrics show a read bottleneck
-- Partition large tables by range (e.g. date) when query patterns benefit
-- Prefer to use Eloquent over using Query Builder and raw SQL queries. Prefer collections over arrays
-- Do not execute queries in Blade templates and use eager loading (N + 1 problem)
-- Define relationships, scopes, casts, and accessors in the model.
-- Use enums with `HasLabel`, `HasColor`, `HasIcon` where applicable.
-- No business logic in models.
-- Use Eloquent models and relationships first; avoid raw queries and DB:: unless truly necessary.
-- Use Query Scopes everytime!
-- Use withCount for Counts!
-- Use Casts for Type Safety
-- Chunking for Large Datasets
-- Don't Query in Loops
-- **Schema defaults:** If a column has a default in the database schema (migration `->default(...)` or SQL `DEFAULT`), that is the single source of truth at insert time. Do not duplicate the same default in PHP (`$attributes` on the model, redundant fields in factories/seeders, form `default()`, DTOs) unless you intentionally override it for a specific flow or test.
-
-## Migrations
-- Only `up()` methods, no `down()`
-- When adding columns in a migration, update the model's `$fillable` array to include those new attributes
-- Prefer defining column defaults in the migration so the database applies them; then avoid mirroring that default again in application layers when it adds no value.
-- Never chain multiple migration-creating commands (e.g., `make:model -m`, `make:migration`) with `&&` or `;` — they may get identical timestamps; run each command separately and wait for completion before running the next
-
-## Blade / Views
-- Analyze existing UI style before creating new
-- Keep consistent layout, colors, typography
-- Human-friendly, simply understandable
-- Blade: 4-space indent, no space after control structures
-
-## Testing
-- Laravel: prefer Http::fake() over Mockery
-- **Queue/Bus/Event assertions** — Do not pass a callback (closure) as the second argument to `Queue::assertPushed()`, `Queue::assertNotPushed()`, `Bus::assertDispatched()`, `Bus::assertNotDispatched()`, or `Event::assertDispatched()`. Assert only that the job/event class was pushed or dispatched (and optionally the count). Use `Queue::assertPushed(JobClass::class)` or `Queue::assertPushed(JobClass::class, $count)`; never use a callback to inspect job payload or filter matches.
-- Always call console commands using Artisan::call(MyCommand::class)
-- Mocking services is only allowed for classes that use external service calls or if it is necessary to simulate an exception throw.
-- **Eloquent rows in tests:** Persisted database rows that map to Eloquent models must be created only via model factories (`Model::factory()->create()`, `make()`, `count()`, `state()`, `for()`, `has()`, `afterCreating()`, etc.). Do not persist such data using `Model::create()`, `new Model([...])->save()`, `DB::table(...)->insert()`, `DB::insert()`, or raw SQL. If a model has no factory yet, add a factory before writing tests that need persisted rows for that model.
-- Factory: multiple records with the same attributes — When creating multiple instances of a model with the same attributes in your tests, use Model::factory()->count(n)->create([...]) instead of repeatedly calling Model::factory()->create([...]). Do not pass attributes that are not verified by the test (e.g., name); a single call is clearer and consistent with Laravel style. Omit factory attributes that are already covered by a database `DEFAULT` unless the test needs a non-default value.
-- If the PEST test requires calling a method that is in an abstract class, use the notation `test()->methodName()`.
-- **Dispatching jobs in tests:** Push jobs using the job class static `dispatch()` method (`Dispatchable` trait) — e.g. `ExportActivityRecurring::dispatch($payload)`. Do not use `dispatch(new ExportActivityRecurring(...))`, `Bus::dispatch(new ExportActivityRecurring(...))`, or `new ExportActivityRecurring(...)` without dispatching when the test should queue the job. Never combine `new` with `::dispatch()` (invalid PHP); call `JobClass::dispatch(...)` only.
-- Mocking the necessary classes only via app()->instance(Mock::class), e.g. 
-```
-$intercomServiceMock = Mockery::mock(IntercomService::class);
-    $intercomServiceMock->shouldNotReceive('updateOrCreateCompanyData');
-    $intercomServiceMock->shouldNotReceive('updateOrCreateUser');
-
-    app()->instance(IntercomService::class, $intercomServiceMock);
-```
+- Do not place business logic in controllers, jobs, commands, listeners, or Livewire components.
+- Legacy untouched code is a carve-out, but all new or materially changed flows must follow this architecture.
+- Multitenancy remains mandatory in every layer: all reads and writes must stay account-scoped.
+- **Invokeable call convention:** When calling Action classes, always use direct invocation `$action($params)` — never `$action->__invoke($params)`.
+- **Action pattern (only when `vendor/pekral/arch-app-services` exists):** Apply @skills/refactor-entry-point-to-action/SKILL.md rules when the class is a controller, job, command, listener, or **Livewire component** that contains orchestration logic. If a new or changed entry point contains orchestration logic without an Action class, flag it as **Critical**.
+- **Single-use Service/Facade method rule (Action pattern):** If an Action calls a Service or Facade method that is used only once in the entire codebase, move the business logic from that Service/Facade method directly into the Action and remove the original Service/Facade method.
+- **Invokeable controller rule:** Any controller method that is not a standard CRUD method (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`) must be extracted into a dedicated single-action invokeable controller with only `__invoke()`. Resource controllers must only contain CRUD methods.
+- **BaseModelService pattern (only when `vendor/pekral/arch-app-services` exists):** All services that primarily work with a specific Eloquent Model must extend `BaseModelService` and implement `getModelManager()`, `getRepository()`, and `getModelClass()` (see `vendor/pekral/arch-app-services/examples/Services/User/UserModelService.php`). Services that do not primarily serve a single model must be refactored into Action pattern classes.
+- **Data Validator extraction (only when `vendor/pekral/arch-app-services` exists):** If an Action class contains inline validation logic (throwing `ValidationException` directly, calling `Validator::make()`, or imperative guard clauses that check input and throw exceptions like `InvalidArgumentException`), extract it into a dedicated Data Validator class. Data Validators must use validation rules defined as reusable traits in `app/Concerns/`. Default location is `app/DataValidators/{Domain}/`, but follow the project's existing convention if different.
+- **Livewire components (only in Livewire projects):** Livewire components are entry points — they must not contain business logic. Split every component into a PHP class (`app/Livewire/`) and a Blade view (`resources/views/livewire/`). Never use single-file (Volt) components. Delegate all business logic to Action classes.
+- **Validation rules as traits:** Store all validation rules as reusable traits in `app/Concerns/` (e.g. `GitHubIssueNumbersValidationRules`, `JiraIssueKeysValidationRules`). Use these traits in FormRequest classes and Data Validator classes — never duplicate rule arrays.
+- **Custom Rule classes reuse:** Before adding validation logic, scan `app/Rules/` for existing custom Rule classes that already implement the required validation. If a matching Rule exists, use it. If no matching Rule exists and the validation logic is non-trivial or reusable, create a new custom Rule class in `app/Rules/` and use it. During code review, flag any FormRequest that duplicates logic already covered by an existing custom Rule class or that contains non-trivial inline validation that should be a custom Rule.
+- **Laravel AI SDK:** When implementing AI features in a Laravel project, always use the [Laravel AI SDK](https://laravel.com/docs/13.x/ai-sdk). Never call AI provider APIs directly when the Laravel AI SDK covers the use case.
+- **Custom Helpers:** Small utility functions that don't belong to any specific class (cache key generators, input validators, formatters) must be implemented as **global helper functions** in `app/helpers.php` (autoloaded via `composer.json` `files` key). Follow the [Laravel News helpers pattern](https://laravel-news.com/creating-helpers): plain functions, no wrapper classes, snake_case names. Do **not** create `final class` wrappers with a single static method for simple utility logic — use a helper function instead.
 
 
-## Helpers
-- Use Laravel helpers instead of `use` section classes. Examples: use `auth()->id()` instead of `Auth::id()` and adding `Auth` in the `use` section. Other examples: use `redirect()->route()` instead of `Redirect::route()`, or `str()->slug()` instead of `Str::slug()`.
-- Replace all foreach with collect() helper.
+## Actions
+- Store all Actions under `app/Actions/{Domain}`.
+- Use one use case per Action class.
+- Class names should use the `Action` suffix.
+- Actions should be `final readonly` where practical.
+- Use constructor injection only.
+- Expose a single public entry point: `__invoke()`.
 
-## Best practices
-- Follow Laravel best practices and conventions
-- Use object-oriented programming with a focus on SOLID principles
-- Prefer iteration and modularization over duplication
-- Favor dependency injection and service containers
-- Use Eloquent ORM instead of raw SQL queries when possible
-- Implement Repository pattern for data access layer
-- Use Laravel's built-in authentication and authorization features
-- Utilize Laravel's caching mechanisms for improved performance
-- Implement job queues for long-running tasks
-- Use Laravel's built-in testing tools (Pest) for unit and feature tests
-- Implement proper database indexing for improved query performance
-- Use Laravel's built-in pagination features
-- Implement proper error logging and monitoring
-- Use Laravel's routing system for defining application endpoints
-- Use the Laravel 11/12 structure: configure middleware, exceptions, and routes in bootstrap/app.php; service providers in bootstrap/providers.php; console configuration in routes/console.php.
-- Prefer named routes and route() for URL generation.
+### Action Rules
+- Actions are orchestration-only:
+  - validation via Data Validators (using validation traits from `app/Concerns/`)
+  - DTO/data transformation
+  - delegation to services, repositories, and model managers
+- Do not:
+  - execute direct Eloquent queries
+  - call `DB::` directly
+  - perform persistence inline
+  - expose additional public business methods
+- Always call Actions using direct invocation:
+  - `$action($payload)`
+  - never `$action->__invoke($payload)`
 
-## Dependencies
-- Composer for dependency management
+## Model Services
+- Services that primarily work with a specific Eloquent model must extend `BaseModelService`.
+- BaseModelService implementations must define:
+  - `getModelClass()`
+  - `getRepository()`
+  - `getModelManager()`
+- Model services should stay focused on one model/domain concern.
+- Keep services stateless.
+- Do not mix unrelated multi-domain orchestration into one service.
+- If logic does not primarily serve a single model, prefer an Action instead.
+- Services must not execute direct Eloquent queries or `DB::` calls — delegate reads to Repositories and writes to ModelManagers.
+
+## Repositories and ModelManagers
+- All database read operations (Eloquent queries, `DB::` calls, query builder) must be encapsulated in Repository classes — never inline in Actions, Services, Facades, controllers, jobs, commands, listeners, or Livewire components.
+- Repositories are read-only:
+  - querying
+  - filtering
+  - pagination
+  - retrieval
+- Repositories must not perform writes or side effects.
+- **Basic queries only:** Repositories may expose only generic, reusable queries (e.g. `find`, `findBy{Attribute}`, `all`, simple `where` lookups, pagination of a base scope). Use case–specific or feature-specific queries (combinations, multi-condition business filters, joins driven by a single feature) must not live in Repositories.
+- **Specialization belongs to Services and Actions:** When a feature needs a specialized result, compose it from basic Repository methods inside a Service (when scoped to one model) or an Action (when orchestrating across models or features). Services and Actions still must not write Eloquent or `DB::` queries themselves — they call Repository methods and shape the result.
+- All database write operations must be encapsulated in ModelManager classes — never inline persistence in Actions, Services, Facades, controllers, jobs, commands, listeners, or Livewire components.
+- ModelManagers are write-only:
+  - create
+  - update
+  - delete
+  - bulk persistence operations
+- ModelManagers must not contain read/query responsibilities.
+- **Batch-first writes:** ModelManagers should expose batch methods (`batchUpdate($model, $rows, 'id')`, `batchInsert($model, $rows)`) and use single-query bulk operations for delete (`whereIn(...)->delete()`). Actions and Services must call these batch methods instead of issuing per-row `update()` / `create()` / `delete()` from inside a loop (see `@rules/sql/optimalize.mdc` "Batch over per-row operations"). The same applies to reads: prefer one `findBy{Attribute}In(...)` keyed in memory over per-row Repository lookups inside a loop.
+- Never mix read and write responsibilities between Repositories and ModelManagers.
+
+## DTOs
+- Use typed DTOs for data exchange across layers.
+- Prefer Spatie Laravel Data when the project uses it.
+- Do not pass raw untyped arrays across layer boundaries when a DTO exists or should exist.
+- Use PHP attributes for mapping:
+  - `#[MapInputName(...)]`
+  - `#[MapName(...)]`
+- Never override `from()` solely to rename keys or perform trivial manual array mapping.
+- Custom named constructors such as `fromModel()`, `fromRequest()`, or `fromArray()` are valid when they perform meaningful domain-specific transformation.
+- DTO classes should be `final readonly` with promoted constructor properties where practical.
+- Place DTOs under `app/Dto/{Domain}` and use a `Data` suffix.
+
+## Data Modification (DRY)
+- Each data transformation has exactly one home, defined by the layer that produces the result:
+  - **Data Builders** — mapping, hydration, and normalization of incoming data into DTOs.
+  - **DTOs** — typed carriers; named constructors (`fromModel`, `fromRequest`, …) own model/request → DTO transformations.
+  - **Data Validators** — validation and rejection of invalid input.
+  - **ModelManagers** — persistence-side shaping (write payloads, bulk write transformations).
+  - **Repositories** — read-side shaping limited to basic query results; specialization via composition in Services/Actions.
+  - **Actions** — orchestration that composes the above, never inline transformation logic.
+- The same shaping rule (date format, default fallback, null handling, key renaming, business-driven derivation, etc.) must not be repeated across Actions, Services, controllers, jobs, listeners, Livewire components, or commands. If two or more entry points need the same transformation, extract it into the canonical layer above and reuse it.
+- When introducing or reviewing changes, enumerate every place that modifies data before it is saved or passed downstream and verify that no two places implement the same transformation.
+
+## Data Builders
+- Data Builders are dedicated classes for mapping, hydrating, and normalizing input into DTOs.
+- Data Builders are **not** Action pattern classes — they do not use `__invoke()` and may expose multiple public methods.
+- Each public method should accept input (array, request data, model, external API response, etc.) and return a typed DTO.
+- Data Builders must never query the database or perform side effects.
+- Store Data Builders under `app/DataBuilders/{Domain}/` and use the `DataBuilder` suffix.
+- Data Builders should be `final readonly` with constructor injection where practical.
+- Use Data Builders when DTO construction involves non-trivial mapping, hydration, or normalization that does not belong in the DTO itself.
+- Actions may call Data Builders for complex DTO transformations instead of performing inline mapping.
+
+## Validation Rules (Traits)
+- Store all validation rules as reusable traits in `app/Concerns/` following the existing naming convention (e.g. `GitHubIssueNumbersValidationRules`, `JiraIssueKeysValidationRules`). Keep this approach consistent across the entire application.
+- Use these validation traits in FormRequest classes and Data Validator classes — never duplicate rule arrays.
+- Use custom Rule classes in `app/Rules/` for complex or reusable validation logic that goes beyond simple rule arrays.
+
+## Data Validators
+- All data validation logic must be encapsulated in dedicated Data Validator classes — never inline in Actions, controllers, jobs, commands, listeners, or Livewire components.
+- Data Validators must use validation rules defined as reusable traits in `app/Concerns/` — never define rule arrays inline in the Data Validator.
+- Actions must not throw `ValidationException` directly.
+- Actions must not call `Validator::make()` inline.
+- Actions must not contain inline imperative validation — guard clauses that check input and throw exceptions (`InvalidArgumentException`, `RuntimeException`, `DomainException`, `\LogicException`, or any other exception used to reject invalid input) must be extracted into a Data Validator.
+- Controllers must not call `Validator::make()` inline — use FormRequest or delegate to a Data Validator via an Action.
+- Services, Facades, Jobs, Commands, and Listeners must not contain inline imperative validation (guard clauses with `in_array`, `is_null`, type/range checks followed by `throw`) — extract into a Data Validator.
+- Data Validators are responsible for validating input data and throwing `ValidationException` when needed.
+- Store Data Validators under `app/DataValidators/{Domain}` by default, but follow the project's existing namespace convention if different.
+- Use the `DataValidator` suffix.
+- Data Validators should be `final readonly` with constructor injection and a single public method `validate()`.
+- **When `pekral/arch-app-services` is installed:** Data Validator classes must use the `Pekral\Arch\DataValidation\DataValidator` trait, which provides the `$this->validate($data, $rules, $messages)` method. Do not call `Validator::make()` directly — always use `$this->validate()` from the trait.
+- Actions must call Data Validators before business orchestration.
+
+## Controllers and Other Entry Points
+- Controllers must stay slim and delegate orchestration to Actions.
+- Controllers should accept FormRequests where appropriate.
+- Never call `validate()` directly in controllers.
+- Never execute database queries directly in controllers.
+- Jobs, console commands, listeners, and Livewire components must also delegate orchestration to Actions.
+- Use direct invocation syntax for Actions:
+  - `$action($params)`
+  - never `$action->__invoke($params)`
+
+### Resource Controllers
+- Resource controllers may contain only standard CRUD methods:
+  - `index`
+  - `create`
+  - `store`
+  - `show`
+  - `edit`
+  - `update`
+  - `destroy`
+- Do not add non-CRUD methods to resource controllers.
+
+### Single-Action Controllers
+- All non-CRUD controller actions must use single-action invokable controllers.
+- These controllers must expose only `__invoke()`.
+- Name controllers after the action they perform.
 
 ## Livewire
-- **Never use single-file (Volt) components.** Every Livewire component must be split into a PHP class (`app/Livewire/`) and a Blade view (`resources/views/livewire/`).
-- Livewire components are **entry points** (like controllers, jobs, commands, listeners): they must delegate all business logic to Action classes following the Action pattern.
-- Mandatory flow: `Livewire Component -> Action -> ModelService -> Repository (read) / ModelManager (write)`.
-- No direct Eloquent queries or `DB::` calls in Livewire components.
-- Keep component methods slim — validate input and delegate to Actions/Services.
-- See `.cursor/rules/laravel/livewire.mdc` for full Livewire conventions.
+- Livewire components are entry points and must delegate orchestration to Actions.
+- Mandatory flow:
+  - `Livewire Component -> Action -> ModelService -> Repository / ModelManager`
+- Livewire does not support constructor injection. Use the `boot()` lifecycle hook to inject service dependencies.
+- Do not place business logic in Livewire components.
+- Do not execute direct Eloquent queries or `DB::` calls in Livewire components.
+- Keep component methods slim: validate input, delegate work, update UI state.
 
-## Queue System and Jobs
-- Queue long-running or external-dependent tasks.
-- Implement `ShouldQueue` and `ShouldBeUnique` where applicable.
-- Set `$tries`, `$backoff`, and `$timeout` on every job.
-- Handle failed jobs with `failed()` method.
-- Use job batching for related operations.
-- Jobs are idempotent — safe to retry.
-- No heavy logic in constructors (serialization issues).
-- Queue connections and workers are configured for the workload.
-- If you are doing code review for asynchronous jobs in the application, first check how the timeout, tries, etc. are set in the config. These values may not always be set directly in the Jobs.
-- If using in queue job any sql query from repository or direct from model, avoid of offset and limit and prefer last id row
+## Custom Helpers
+- Small utility functions that do not belong to a specific class should be implemented as global helper functions in `app/helpers.php`.
+- Use plain helper functions, not wrapper classes with a single static method.
+- Helper names should be snake_case.
+- Helper functions are globally available and do not require imports.
 
-## Concurrency and Race Conditions
-- Never use read-modify-write patterns in PHP without an atomicity guard (DB transaction + `lockForUpdate()`, or atomic DB operation like `increment()`/`decrement()`).
-- Use `DB::transaction()` with `lockForUpdate()` for any operation that reads and then writes the same record under concurrent load.
-- Prefer atomic DB operations: `increment()`, `decrement()`, `updateOrInsert()` with a unique index.
-- Every `firstOrCreate()` / `updateOrCreate()` call must be backed by a unique DB index — without it, concurrent requests can insert duplicate rows.
-- Jobs that mutate shared records must be idempotent and implement `ShouldBeUnique` or use an idempotency key to prevent duplicate processing on retry.
-- Use `Cache::lock($key)->get(fn() => ...)` to prevent cache stampede on expensive computations.
-- Never rely on application-level uniqueness checks (e.g. `if (!exists) create`) — they are not atomic. Use unique DB constraints instead.
+## Code Review Enforcement
+- Always enforce the Action pattern in code review for new or materially changed backend flows.
+- New jobs, controller actions, console commands, listeners, and Livewire methods must delegate orchestration to Actions.
+- If a new or changed flow bypasses the Action pattern, request changes.
+- Apply the shared refactoring definition from `@rules/refactoring/general.mdc` whenever the PR includes refactoring: behavior must be preserved, migration must be incremental, and entry points / responsibilities / DRY / concurrency must follow the recommended process.
 
-## Middleware
-- Use middleware for cross-cutting concerns (auth, rate limiting, headers, logging).
-- Register middleware in the appropriate group or route.
-- Keep middleware focused — one concern per middleware.
-- Middleware does not contain business logic.
-- Order of middleware is intentional and correct.
-- Terminate middleware is used for post-response tasks.
+### CR Severity Rules
+- Mark as critical:
+  - new orchestration that bypasses Actions
+  - inline `Validator::make()` inside Actions
+  - `ValidationException` thrown directly inside Actions
+  - validation logic not encapsulated in a dedicated Data Validator class (e.g. inline validation in controllers, jobs, commands, listeners, or Livewire components outside of FormRequest)
+  - inline imperative validation in Actions, Services, Facades, Jobs, Commands, or Listeners — guard clauses that check input and throw exceptions (e.g. `if (!in_array(...)) throw new InvalidArgumentException(...)`) must be extracted into a Data Validator
+  - Data Validator class calling `Validator::make()` directly when `pekral/arch-app-services` is installed (must use `DataValidator` trait and `$this->validate()`)
+  - Data Validator defining validation rules inline instead of using reusable traits from `app/Concerns/`
+  - inline database queries (Eloquent or `DB::`) in Actions, Services, Facades, controllers, jobs, commands, listeners, or Livewire components — reads must go through Repositories, writes through ModelManagers
+  - services tied to one model that do not extend `BaseModelService`
+  - non-CRUD methods inside resource controllers
+- Mark as moderate:
+  - feature-specific or use-case–specific query methods inside Repositories — Repositories must expose only basic, reusable queries; specialization belongs in Services or Actions composing those basic methods
+  - calling Actions via `->__invoke()` instead of `$action(...)`
+  - DTOs overriding `from()` only for key renaming instead of using mapping attributes
+  - plain service classes used where an Action is the better fit
+  - Data Builder class using Action pattern (`__invoke()`) instead of named public methods
+  - non-trivial or reusable validation logic written inline instead of as a custom Rule class in `app/Rules/`
+  - per-row DB queries inside loops (per-row `update()`, `create()`, `delete()`, or single-row read inside a `foreach`) — must be replaced by ModelManager batch methods, `whereIn(...)->delete()`, or a single bulk read keyed in memory (see `@rules/sql/optimalize.mdc` "Batch over per-row operations"); allowed only when an explicit comment or PR description justifies an unavoidable per-row side-effect dependency
+
+## Exceptions
+- No Action is required for:
+  - trivial pass-through code
+  - pure DTO mapping with no business rules
+  - config-only changes
+  - frontend-only changes with no new PHP orchestration

@@ -1,0 +1,70 @@
+---
+description: Shared testing conventions for skills that generate or modify tests
+alwaysApply: false
+globs: []
+---
+
+## Testing Rules
+
+- Follow test conventions from:
+    - @rules/php/core-standards.mdc
+    - @rules/laravel/architecture.mdc (for Laravel projects)
+
+- Write all new tests using Pest syntax (`it()` / `test()` functional blocks). Do not introduce PHPUnit-style class-based tests for new test files.
+- When modifying existing PHPUnit tests, prefer rewriting them to Pest via `@skills/rewrite-tests-pest/SKILL.md` rather than extending the legacy class.
+- Never use `describe()`; use top-level `it()` / `test()` only.
+- Test classes should be `final`.
+- Prefer local variables; avoid shared mutable state.
+- In Laravel Pest projects, define `uses(Tests\TestCase::class)` in `tests/Pest.php` instead of repeating it in every test file.
+
+## Data Handling
+- For Laravel:
+    - Use `Model::factory()` for persisted data.
+    - Do not duplicate database defaults unless explicitly required by the test.
+- Avoid mocking data that can be created via factories.
+
+## Mocking
+- Prefer storing real data in the database over mocking ModelManager or Repository classes.
+- Mock only:
+    - external services that cannot run in test environment
+    - exception scenarios that are hard to reach otherwise
+- Prefer partial mocks over full mocks.
+- Remove unnecessary or redundant mocks.
+
+## Jobs
+- Dispatch jobs using `JobClass::dispatch(...)` only.
+
+## External Calls
+- Tests must not call external services.
+- Mock all HTTP requests.
+- Use local or in-memory database connections for tests.
+- Avoid DNS lookups in tests.
+
+## Consistency
+- Ensure new or modified tests follow existing project conventions.
+
+## Scope
+- Focus tests on behavior, not implementation details.
+
+## Execution
+- Run tests in parallel whenever possible (e.g. `php artisan test --parallel` or `pest --parallel`).
+
+## Quality
+- Prefer simple, readable tests over complex setups.
+- Use data providers (datasets) where they improve readability and reduce duplication across similar test cases.
+- Tests must not contain conditions (e.g., `if`, `switch`); split conditional logic into separate test cases or data providers instead.
+
+## Coverage
+- Every test change must be verified to be functional — run affected tests after each modification.
+- Require 100% code coverage for every changed or added code path — applies equally to code modifications and code review.
+- Before running coverage, discover the project's coverage command (prefer Phing target from `build.xml`/`phing.xml`; fall back to a Composer script in `composer.json` such as `test:coverage` or `coverage`). Do not assume a default command.
+- Always report the coverage result (tool used, command, % covered for changed lines). If no coverage tooling can be discovered, state that explicitly and treat it as a blocking finding — never silently skip the check or push a report without it.
+
+## Code Style and Quality Gates
+- Discover available fixers and checkers: prefer Phing targets (`build.xml`/`phing.xml`) over Composer scripts (`composer.json`).
+- Run available fixers on changed test files and fix any violations.
+- Run available checkers/analyzers on changed test files and resolve all reported errors.
+- Complete all quality gates before finalizing test changes.
+
+## Test Review
+- After completing test changes, run a quick code review focused on test quality against these rules.

@@ -7,47 +7,156 @@ metadata:
 ---
 
 **Constraint:**
-- For all GitHub operations, prefer GitHub CLI (`gh`) as the primary tool.
-- If `gh` is not available or cannot be used, use an available GitHub MCP server as fallback.
-- If neither `gh` nor a GitHub MCP server is available, stop and return a failed result explaining that required GitHub tools are missing.
-- Read project.mdc file
-- First, load all the rules for the cursor editor (.cursor/rules/.*mdc).
-- I want the texts to be in the language in which the assignment was written.
-- Never push direct changes to the main branch.
-- If the pull request has merge conflicts with the base branch, stop and report that the code review processing is blocked.
-- For comments posted to JIRA, always use JIRA Wiki Markup (not Markdown) and follow the universal structure from JIRA-focused skills.
+- Apply @rules/php/core-standards.mdc
+- Apply @rules/git/general.mdc
+- Apply @rules/jira/general.mdc
+- If the current project uses Laravel, also apply `@rules/laravel/laravel.mdc`, `@rules/laravel/architecture.mdc`, `@rules/laravel/filament.mdc`, and `@rules/laravel/livewire.mdc`
+- Never combine multiple languages in your answer
+- All CR output must be written in English
+- Never push direct changes to the main branch
+- If the pull request has merge conflicts with the base branch, stop and report it
+- Do not introduce new logic unrelated to review feedback
 
-**Steps:**
-- Identify the task from the provided issue code or URL.
-- Find the latest pull request for that task using GitHub CLI (`gh`) first; if `gh` is not available, use a GitHub MCP server; if neither is available, stop and return a failed result about missing GitHub tools.
-- In the pull request, locate code review output and all review comments (including review threads and general comments).
-- If there is only a generic `CR` comment, treat it as `code review` feedback.
-- Build a checklist from all review findings and map each item to a concrete code or test change.
-- Ensure the checklist explicitly contains all reported **DRY violations** and tracks their resolution before triggering the next CR cycle.
-- Apply the requested changes and keep scope limited to review feedback. All new or modified production code must follow @.cursor/skills/class-refactoring/SKILL.md.
-- Re-check current changes with @.cursor/skills/code-review/SKILL.md and @.cursor/skills/security-review/SKILL.md.  
-- If review feedback requires additional tests, use @.cursor/skills/create-missing-tests-in-pr/SKILL.md and ensure current changes are fully covered.
-- If new database migrations were created during the changes, run them (`php artisan migrate`) before running tests or creating a PR.
-- Run only checks/tests needed for the changed files and fix all errors before continuing.
-- Run the issue-tracker-specific code review skill before PR creation:
-  - GitHub issue flow: run @.cursor/skills/code-review-github/SKILL.md
-  - JIRA issue flow: run @.cursor/skills/code-review-jira/SKILL.md
-- Fix all Critical and Moderate findings from that review and repeat the same review skill until no Critical or Moderate findings remain.
-- After the CR loop is clean (no **Critical** or **Moderate** findings), run @.cursor/skills/test-like-human/SKILL.md when the change can be tested.
-- Commit all changes and push the branch. If no pull request exists for the current branch, create one according to @.cursor/rules/git/pr.mdc rules — link it to the original issue and follow the PR description format (title in English, body in the language of the assignment). Do not create a new PR before the CR cycle is clean.
-- Update the review result comment in the pull request:
-- mark resolved points as checked items when possible, or
-- format resolved points as underlined text when checkbox updates are not possible.
-- If you cannot update the original comment, add a new PR comment with the same resolved-point status.
-- After all points are addressed, trigger the next review interaction by issue tracker:
-- GitHub: run @.cursor/skills/code-review-github/SKILL.md
-- JIRA: run @.cursor/skills/code-review-jira/SKILL.md
-- Share a concise completion report with PR link, resolved items, and any remaining blockers.
+---
 
-**After completing the tasks**
-- Confirm all review points are resolved or explicitly marked as blocked with reasons.
-- Ensure the PR contains clear evidence that each review remark was handled.
-- Summarize what changed, what was tested, and what requires follow-up.
+## Steps
+
+- Identify the task from the provided issue code or URL
+- Find all open pull requests for the task
+  - If multiple PRs exist, process each independently
+- Before processing a PR, switch to the PR branch and pull latest changes
+
+### For each PR:
+
+- Load all review comments (including threads and general comments)
+- Build a checklist from all review findings
+- Map each finding to a concrete code or test change
+
+#### Reproducer extraction (per finding)
+
+For every Critical and Moderate finding, extract the reproducer fields published by the CR skills (`@skills/code-review/SKILL.md`, `@skills/code-review-github/SKILL.md`, `@skills/code-review-jira/SKILL.md`, `@skills/security-review/SKILL.md`):
+
+- **Faulty Example** — the minimal snippet or input that reproduces the bug
+- **Expected Behavior** — the assertion target the test must verify
+- **Test Hint** — the layer (unit, integration, feature) and entry point
+- **Suggested Fix** — the minimal corrected snippet that resolves the finding (may be `n/a — <reason>` when the Fix narrative is sufficient)
+
+For JIRA-originated reviews, read the reproducer fields off `comments[]` and `descriptionText` returned by `skills/code-review-jira/scripts/load-issue.sh <KEY|URL>` instead of re-fetching the issue. Never call `acli` directly.
+
+Use these to write a failing test **before** applying the fix:
+
+1. Drop the Faulty Example into a new test case at the layer named in the Test Hint.
+2. Assert the Expected Behavior — the test must fail on the current code.
+3. Apply the Suggested Fix snippet (or the Fix narrative when Suggested Fix is `n/a`); rerun the test until it passes.
+
+If a finding lacks Faulty Example, Expected Behavior, or Test Hint, request a CR rerun rather than guessing — the CR skills are responsible for providing them. Suggested Fix may legitimately be `n/a` per the CR rules.
+
+---
+
+### Pre-fix phase
+
+- Scan affected files for pre-existing bugs
+- Fix them in a **separate commit** before applying review fixes
+
+---
+
+### Apply fixes
+
+- Apply only requested review changes
+- Keep scope strictly limited to review feedback
+- Ensure DRY violations are included and resolved
+- All production code changes must follow:
+  - @skills/class-refactoring/SKILL.md
+
+---
+
+### Testing
+
+- If tests are required or missing:
+  - Run @skills/create-missing-tests-in-pr/SKILL.md
+- Ensure current changes have 100% coverage
+- Run only relevant tests for changed files
+- If migrations were added, run `php artisan migrate`
+
+---
+
+### Review loop
+
+- Run the appropriate review skill:
+  - GitHub: @skills/code-review-github/SKILL.md
+  - JIRA: @skills/code-review-jira/SKILL.md
+
+- Fix findings and repeat until:
+  - No **Critical** or **Moderate** issues remain
+
+---
+
+### Pre-push quality gates
+
+- Discover available fixers and checkers (prefer Phing targets from `build.xml`/`phing.xml`; fall back to Composer scripts in `composer.json`)
+- Run available fixers on all changed files and fix any violations
+- Run available checkers/analyzers on all changed files and resolve all reported errors
+
+### Finalization
+
+- Run @skills/test-like-human/SKILL.md if changes are testable
+- Commit and push changes
+- If PR does not exist, create it according to @rules/git/general.mdc
+  - Title in English
+  - Body in assignment language
+
+---
+
+### PR update
+
+- Find the original code review comment on the PR:
+  - Use `gh api` to list PR comments and identify the CR comment (e.g. contains "Summary:" with severity counts)
+- **If the original CR comment is found:**
+  - Post resolved items and status updates as a new PR comment that references the original CR comment
+  - GitHub does not support native replies to issue comments — use quoting (e.g. "> Replying to code review from {date}") to create a visual thread
+- **If original comment cannot be found or edited:**
+  - Add a new top-level PR comment with resolved-point status
+- Mark resolved items (checkbox or inline) in all cases
+
+#### Per-item justification (required)
+
+Every resolved review point in the PR comment **must** include a brief justification using this format:
+
+```
+- [x] {short finding title}
+  - **Why:** {what was wrong / what the reviewer asked for}
+  - **Reason:** {root cause or rule that was violated}
+  - **Solution:** {what was changed and why this is the best fit}
+```
+
+Rules:
+- Keep each line **one sentence max**.
+- Skip the section only if a point was rejected or deferred — in that case state the rejection reason instead.
+- Do not pad with filler, restate the obvious, or paraphrase the diff.
+
+---
+
+### Completion
+
+- Trigger final review:
+  - GitHub: @skills/code-review-github/SKILL.md
+  - JIRA: @skills/code-review-jira/SKILL.md
+
+- Share a concise completion report:
+  - PR link
+  - resolved items
+  - remaining blockers (if any)
+
+---
+
+## Principles
+
+- Resolve review feedback, do not expand scope
+- Prefer minimal changes over unnecessary refactoring
+- Do not introduce new bugs while fixing existing ones
+- Keep changes traceable to review comments
+- Ensure every review comment is explicitly addressed
+- Avoid unnecessary commits or noise
 
 ## Output Humanization
 - Use [blader/humanizer](https://github.com/blader/humanizer) for all skill outputs to keep the text natural and human-friendly.
