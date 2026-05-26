@@ -17,7 +17,7 @@ final class TestResponseLivewireMacroExtension implements MethodsClassReflection
     public function hasMethod(ClassReflection $classReflection, string $methodName): bool
     {
         return $classReflection->getName() === TestResponse::class
-            && in_array($methodName, self::MACROS, true);
+            && in_array($methodName, self::MACROS, strict: true);
     }
 
     public function getMethod(ClassReflection $classReflection, string $methodName): MethodReflection

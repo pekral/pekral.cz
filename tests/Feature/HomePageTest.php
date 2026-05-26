@@ -42,7 +42,7 @@ test('homepage contains sitemap link in head', function (): void {
     $response = $this->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('<link rel="sitemap" type="application/xml" title="Sitemap" href="' . url('/sitemap.xml') . '">', false);
+    $response->assertSee('<link rel="sitemap" type="application/xml" title="Sitemap" href="' . url('/sitemap.xml') . '">', escape: false);
 });
 
 test('homepage shows latest from the blog section when articles exist', function (): void {
@@ -71,7 +71,7 @@ test('homepage contains contact section with id and CTA', function (): void {
     $response = $this->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('id="contact"', false);
-    $response->assertSee('Contact', false);
-    $response->assertSee(route('home') . '#contact', false);
+    $response->assertSee('id="contact"', escape: false);
+    $response->assertSee('Contact', escape: false);
+    $response->assertSee(route('home') . '#contact', escape: false);
 });

@@ -22,7 +22,7 @@ final class SetLocaleFromSession
         /** @var array<string> $supported */
         $supported = config('app.supported_locales', ['en', 'cs']);
 
-        if (is_string($locale) && in_array($locale, $supported, true)) {
+        if (is_string($locale) && in_array($locale, $supported, strict: true)) {
             $request->setLocale($locale);
             app()->setLocale($locale);
         }

@@ -8,7 +8,9 @@ metadata:
 
 ## Constraints
 - Apply `@rules/php/core-standards.mdc`
+- Apply `@rules/php/dependency-selection.mdc` — whenever the resolution flow needs to add a new Composer dependency (Packagist or a GitHub-hosted VCS repository), run the Activity gate + Compatibility gate from that rule before recommending a package, and embed the selection note in the PR description. When no candidate passes the gates, stop and surface the disqualification table to the user instead of adopting an inactive library.
 - Apply `@rules/git/general.mdc`
+- Apply `@rules/reports/general.mdc`. The **final technical report** this skill posts on the GitHub PR (code-review and security-review summary block) stays in canonical English per the rule's *Exception — technical CR findings on the GitHub PR*. The **non-technical report** posted on the original issue / JIRA ticket / Bugsnag-linked GitHub issue follows the language of the source assignment. Code identifiers, file paths, severity labels, and CLI commands stay verbatim regardless of the surrounding prose language; never mix two natural languages inside a single comment.
 - If the current project uses Laravel, also apply `@rules/laravel/laravel.mdc`, `@rules/laravel/architecture.mdc`, `@rules/laravel/filament.mdc`, and `@rules/laravel/livewire.mdc`
 - Follow project architecture and testing rules
 - Do not expose sensitive/internal details in user-facing messages
@@ -21,6 +23,11 @@ metadata:
 ## Source detection
 
 See `references/source-detection.md` for the detection table and rules.
+
+## Preparation
+
+Before starting the resolution flow:
+- Switch to the `main` branch and pull the latest changes so the working tree reflects the current state of the repository before creating the feature branch.
 
 ## Required approach
 - Fully analyze the issue (description, comments, attachments)
@@ -38,13 +45,15 @@ See `references/source-detection.md` for the detection table and rules.
    - **GitHub:** the issue repository must match the current Git remote origin.
    - **JIRA:** the issue project key must match the configured JIRA project for this repository.
    - If the issue does not belong to the current project, refuse to process it and inform the user.
-2. Fetch and analyze the issue from the detected source. For JIRA issues, load context by running `skills/code-review-jira/scripts/load-issue.sh <KEY|URL>` and read all fields off the resulting JSON document. Never call `acli` directly. If the script is unavailable (missing tool, exit code 2/3), fall back to the JIRA MCP server.
+2. Fetch and analyze the issue from the detected source by running the deterministic loader for that tracker — never call `gh`, `acli`, or REST endpoints directly. Read all required fields off the resulting JSON document.
+   - **GitHub:** `skills/code-review-github/scripts/load-issue.sh <NUMBER|URL>`. If the script is unavailable (missing tool, exit code 2/3), fall back to the GitHub MCP server.
+   - **JIRA:** `skills/code-review-jira/scripts/load-issue.sh <KEY|URL>`. If the script is unavailable (missing tool, exit code 2/3), fall back to the JIRA MCP server.
 3. Define exact requirements and expected behavior.
 4. Classify the task (bug or feature).
 
 ### Comment analysis
 
-5. Before analyzing the problem, fetch and read **all comments and replies** from the issue tracker (GitHub, JIRA, or Bugsnag). For JIRA issues, read `comments[]` directly off the JSON loaded in step 2 — do not issue a second listing call:
+5. Before analyzing the problem, fetch and read **all comments and replies** from the issue tracker (GitHub, JIRA, or Bugsnag). For GitHub and JIRA issues, read `comments[]` directly off the JSON loaded in step 2 — do not issue a second listing call:
    - Group comments by conversation thread (e.g., review threads, reply chains).
    - For each thread, determine:
      - **Current requirements** — requests or conditions that are still valid and unfulfilled.
@@ -52,9 +61,13 @@ See `references/source-detection.md` for the detection table and rules.
      - **Outdated items** — requests superseded by newer comments or decisions.
    - Use only the **current requirements** (combined with the issue description) as input for the next step.
 
+### Context preparation (mandatory pre-flight)
+
+Run `@skills/prepare-issue-context/SKILL.md` with `MODE=resolve-issue` and the same issue reference. It extracts every scenario from the assignment's *Jak otestovat* / acceptance criteria, maps each scenario to a concrete code path, seeds the development database with the records the scenarios depend on, and runs a one-shot reproduction. Stop immediately and surface the gap list to the user when the skill returns `blocked: <count> open gap(s)` — do **not** continue into problem analysis with incomplete context, because an implementing agent forced to guess at missing data is the most common source of hallucinated fixes. The scenario table the skill produces is the canonical input for the next step.
+
 ### Problem analysis
 
-6. Run `@skills/analyze-problem/SKILL.md` using the issue description, current requirements from comment analysis, and any available context as input.
+6. Run `@skills/analyze-problem/SKILL.md` using the issue description, the scenario table from the context-preparation pre-flight, the current requirements from comment analysis, and any available context as input.
 7. Review the analysis output and split the identified items into two groups:
    - **In scope** — items that directly match the issue requirements. These will be implemented.
    - **Out of scope** — items that are valid findings but fall outside the current issue. These will be added to the PR summary as a TODO list for future tasks.
@@ -63,7 +76,7 @@ See `references/source-detection.md` for the detection table and rules.
 
 Before writing any code, decide how the in-scope work will be split into commits within the PR.
 
-1. **Detect existing phases** in the issue description and the kept comments. Phase markers include explicit headings such as `Fáze 1` / `Phase 1`, numbered milestones, ordered acceptance-criteria blocks, or a step-by-step plan written by the reporter.
+1. **Detect existing phases** in the issue description and the kept comments. Phase markers include explicit headings such as `Phase 1`, numbered milestones, ordered acceptance-criteria blocks, or a step-by-step plan written by the reporter.
 2. **If phases exist:** treat each phase as exactly **one commit**. Keep the original phase order as commit order. Do not merge, reorder, or re-scope phases.
 3. **If no phases exist but the assignment is long or covers multiple distinct concerns:** propose a phased breakdown — each phase must be independently reviewable and yield a working state — then map **one phase per commit**.
 4. **If the assignment is small and atomic:** keep it as a single commit. Do not invent artificial phases.
@@ -81,50 +94,82 @@ Before writing any code, decide how the in-scope work will be split into commits
 ### Continue
 11. Implement the solution for all **in-scope** items identified in step 7.
 12. Ensure no sensitive data is exposed in error/validation messages.
-13. Run tests for affected areas and confirm correctness.
-14. Add or update tests to cover the new or fixed behavior.
-15. Verify 100% code coverage for all changed or added code paths — if coverage tooling exists, run it and confirm the result before proceeding.
+13. If the implementation introduced new database migrations, run them (`php artisan migrate` for Laravel projects, or the project-specific equivalent) before executing the affected tests or creating the pull request.
+14. Run tests for affected areas and confirm correctness.
+15. Add or update tests to cover the new or fixed behavior.
+16. Verify 100% code coverage for all changed or added code paths — if coverage tooling exists, run it and confirm the result before proceeding.
 
 ## Pre-push quality gates
 
 Follow the workflow defined in `references/quality-gates.md`.
 
+## Code quality and review loop
+
+After implementation and pre-push quality gates pass, and **before creating the pull request**, run the review loop on the local changes:
+
+1. Run `@skills/code-review/SKILL.md`
+2. If **Critical** or **Moderate** findings exist:
+   - Apply the **Suggested Fix** snippet from each finding directly to the working tree
+   - Add or update a reproducer test for each finding using its **Faulty Example**, **Expected Behavior**, and **Test Hint**
+   - Re-run the pre-push quality gates on touched files
+   - Repeat from step 1
+3. Iterate until no **Critical** or **Moderate** findings remain
+
+PR-comment processing via `@skills/process-code-review/SKILL.md` remains the path used **after** a PR exists; it is not part of this pre-PR loop because it requires an open PR to operate on.
+
+## Testing
+
+After the code review loop passes clean, and **still before creating the pull request**, validate the change:
+
+1. Run `@skills/security-review/SKILL.md`
+
+Resolve any **Critical** or **Moderate** finding from the security review before continuing. If a finding requires code changes, re-run the **Code quality and review loop** to re-validate.
+
+`@skills/test-like-human/SKILL.md` is **not** part of this gate. It runs **on demand only** (via `/test-like-human` or an explicit follow-up after the PR is open); resolve-issue must never auto-chain into it.
+
 ## Pull request
+
+Once review and testing are clean:
+
 - Create a branch and commit changes following `@rules/git/general.mdc`
 - Create a pull request with:
   - clear description of the change
   - reference to the original issue
   - testing instructions
+  - **Summary** — concise overview of what changed and why
   - **TODO list** — if any **out-of-scope** items were identified in step 7, include them in the PR summary under a `## TODO` section as a checklist of potential follow-up tasks
-
-## Code quality and review loop
-
-After the pull request is created, run the following review loop:
-
-1. Run `@skills/code-review/SKILL.md`
-2. If **Critical** or **Moderate** findings exist:
-   - Run `@skills/process-code-review/SKILL.md` to fix them
-   - Repeat from step 1
-3. Iterate until no **Critical** or **Moderate** findings remain
-
-After the review loop passes clean:
-
-4. Run `@skills/security-review/SKILL.md`
-5. Run `@skills/test-like-human/SKILL.md`
 
 ## Final report
 
-Post the final report (code review result, security review result, and test-like-human result) back to the issue tracker where the assignment originated:
+Reporting is split by audience and destination:
 
-- **GitHub:** post as a comment on the original issue
-- **JIRA:** post as a JIRA comment (using JIRA formatting rules) understandable by non-technical testers and product managers, containing:
-  - **What changed:** a brief, plain-language summary of the fix or feature
-  - **How to test:** step-by-step instructions a tester can follow to verify the change works correctly
-  - **Risk areas and edge cases:** specific scenarios the tester should focus on to catch potential regressions or unexpected behavior
-- **Bugsnag:** post as a comment on the linked GitHub issue (if available)
+### Technical report → codebase tracker (GitHub PR)
+
+Post the technical report as a comment on the GitHub PR, since that is where the codebase and testing state live. It must contain:
+
+- **Code review summary** — outcome of `@skills/code-review/SKILL.md` (findings addressed during the loop and the final clean state)
+- **Security review summary** — outcome of `@skills/security-review/SKILL.md`
+
+### Non-technical report → original task tracker
+
+Post the non-technical report on the issue tracker where the task with the assignment was created (the original tracker, regardless of where the PR lives):
+
+- **GitHub** (task filed as a GitHub issue): post as a comment on the original issue
+- **JIRA** (task filed in JIRA): post as a JIRA comment formatted with JIRA Wiki Markup per `@rules/jira/general.mdc` (no Markdown headings, fenced code blocks, or tables)
+- **Bugsnag** (task originated from a Bugsnag error): post as a comment on the linked GitHub issue (if available)
+
+The non-technical report must be understandable by non-technical testers and product managers and contain:
+
+- **What changed:** a brief, plain-language summary of the fix or feature
+- **How to test:** step-by-step instructions a tester can follow to verify the change works correctly
+- **Risk areas and edge cases:** specific scenarios the tester should focus on to catch potential regressions or unexpected behavior
+
+### GitHub-specific follow-up
+- If the original repository uses a `ready for review` (or equivalent) label, apply it to the source issue once the PR is open to signal it is ready for reviewers. Skip this step when the project does not use such labels.
 
 ### JIRA-specific follow-up
-- Link the created PR back to the JIRA issue
+- Link the created PR back to the JIRA issue.
+- Do not change the JIRA issue status — per `@rules/jira/general.mdc`, status transitions are handled by humans only.
 
 ## References
 
@@ -137,11 +182,11 @@ Post the final report (code review result, security review result, and test-like
 - Tests cover affected logic with 100% coverage and pass
 - Pre-push fixers and checkers ran clean on all changed files
 - No sensitive data is exposed
-- Code review loop passed with no Critical or Moderate findings
-- Security review completed
-- Test-like-human completed
-- Final report posted to the issue tracker
-- A clean pull request is created
+- Code review loop passed with no Critical or Moderate findings **before the PR was created**
+- Security review completed **before the PR was created**
+- A clean pull request is created with a summary
+- Technical report posted on the GitHub PR
+- Non-technical report posted on the original issue tracker
 - For JIRA issues: PR is linked back and a summary comment is posted
 
 ## Output Humanization

@@ -59,18 +59,18 @@ it('shows hamburger menu button for mobile', function (): void {
 it('toggles mobile menu open and closed', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(Navigation::class);
-    $component->assertSet('menuOpen', false);
+    $component->assertSet('menuOpen', value: false);
     $component->call('toggleMenu');
-    $component->assertSet('menuOpen', true);
+    $component->assertSet('menuOpen', value: true);
     $component->call('toggleMenu');
-    $component->assertSet('menuOpen', false);
+    $component->assertSet('menuOpen', value: false);
 });
 
 it('closes mobile menu when closeMenu is called', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(Navigation::class);
     $component->call('toggleMenu');
-    $component->assertSet('menuOpen', true);
+    $component->assertSet('menuOpen', value: true);
     $component->call('closeMenu');
-    $component->assertSet('menuOpen', false);
+    $component->assertSet('menuOpen', value: false);
 });

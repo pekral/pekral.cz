@@ -47,7 +47,7 @@ test('guest pages use meta robots index follow', function (): void {
     $response = $this->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('<meta name="robots" content="index, follow', false);
+    $response->assertSee('<meta name="robots" content="index, follow', escape: false);
 });
 
 test('auth and app layout pages use meta robots noindex', function (): void {
@@ -55,5 +55,5 @@ test('auth and app layout pages use meta robots noindex', function (): void {
     $response = $this->get(route('login'));
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+    $response->assertSee('<meta name="robots" content="noindex, nofollow">', escape: false);
 });

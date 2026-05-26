@@ -100,8 +100,8 @@ final readonly class TestResponseMacroMethodReflection implements Reflection\Met
                 TemplateTypeMap::createEmpty(),
                 TemplateTypeMap::createEmpty(),
                 [new ComponentParameterReflection()],
-                false,
-                new ObjectType($this->classReflection->getName()),
+                isVariadic: false,
+                returnType: new ObjectType($this->classReflection->getName()),
             ),
         ];
     }

@@ -44,7 +44,7 @@ test('parses article without front matter', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'no-front-matter';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "Plain text\n\n# Title From Content");
 
     try {
@@ -67,7 +67,7 @@ test('extracts only headings with id for table of contents', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'toc-headings-test';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     $content = "---\ndate: 2020-01-01\ndescription: D\n---\n# Title\n\n## With id from markdown\n\nParagraph.\n\n<h2>Raw HTML without id</h2>\n\nText.";
     file_put_contents($articleDir . '/article.md', $content);
 
@@ -91,7 +91,7 @@ test('uses slug as title when article has no h1', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'no-h1-heading';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\nJust paragraph.");
 
     try {
@@ -112,7 +112,7 @@ test('parses numeric date from front matter', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'timestamp-date';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 1609459200\ndescription: D\n---\n# Title");
 
     try {
@@ -133,7 +133,7 @@ test('uses default date for invalid date in front matter', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'invalid-date';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: not-a-date\ndescription: D\n---\n# Title");
 
     try {
@@ -154,7 +154,7 @@ test('uses default date when front matter date is non-scalar', function (): void
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'array-date';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: []\ndescription: D\n---\n# Title");
 
     try {
@@ -175,7 +175,7 @@ test('returns 1 minute reading time when content has no words', function (): voi
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'no-words-article';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n\n");
 
     try {
@@ -196,7 +196,7 @@ test('uses default WPM when config reading_words_per_minute is non-numeric', fun
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'wpm-config-article';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     $body = str_repeat('word ', 400) . 'end';
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n# Title\n\n" . $body);
 
@@ -220,7 +220,7 @@ test('returns null when article path is a directory', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'dir-as-article';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     mkdir($articleDir . '/article.md', 0755);
 
     try {
@@ -258,7 +258,7 @@ test('parseDate returns Carbon instance when value is DateTimeInterface', functi
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'datetime-interface-date';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-06-15\ndescription: D\n---\n# Title");
 
     try {

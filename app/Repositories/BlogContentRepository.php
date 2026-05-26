@@ -149,7 +149,7 @@ final readonly class BlogContentRepository
     private function extractHeadingsFromHtml(string $htmlContent): array
     {
         $dom = new DOMDocument();
-        $useErrors = libxml_use_internal_errors(true);
+        $useErrors = libxml_use_internal_errors(use_errors: true);
         $dom->loadHTML('<?xml encoding="UTF-8"><div>' . $htmlContent . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_use_internal_errors($useErrors);
 
@@ -300,7 +300,7 @@ final readonly class BlogContentRepository
 
     private function isValidSlug(string $slug): bool
     {
-        return !in_array($slug, ['', '.', '..'], true) && !str_contains($slug, '/');
+        return !in_array($slug, ['', '.', '..'], strict: true) && !str_contains($slug, '/');
     }
 
 }

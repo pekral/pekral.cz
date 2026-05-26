@@ -31,7 +31,7 @@ test('returns null when article directory has no photo', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
     $slug = 'no-image-article';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: Test\n---\n# No Image");
 
     try {

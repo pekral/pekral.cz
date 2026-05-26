@@ -119,7 +119,7 @@ final class ProjectsPage extends Component
 
         $excluded = config('projects.excluded_repositories', []);
 
-        if (is_array($excluded) && in_array($repoName, $excluded, true)) {
+        if (is_array($excluded) && in_array($repoName, $excluded, strict: true)) {
             return null;
         }
 

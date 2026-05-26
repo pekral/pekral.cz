@@ -28,7 +28,7 @@ it('logs in user with valid credentials', function (): void {
     Livewire::test('auth.login')
         ->set('email', 'test@example.com')
         ->set('password', 'password')
-        ->set('remember', true)
+        ->set('remember', value: true)
         ->call('login')
         ->assertRedirect(route('dashboard'));
 

@@ -7,7 +7,7 @@ test('sets app locale from session when valid locale in session', function (): v
     $response = $this->withSession(['locale' => 'cs'])->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('o mně', false);
+    $response->assertSee('o mně', escape: false);
 });
 
 test('sets app locale to en when session has en', function (): void {

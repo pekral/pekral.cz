@@ -72,8 +72,8 @@ test('blog post page shows table of contents when article has headings', functio
     $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('Contents', false);
-    $response->assertSee('href="#it-starts-like-any-other-project"', false);
+    $response->assertSee('Contents', escape: false);
+    $response->assertSee('href="#it-starts-like-any-other-project"', escape: false);
 });
 
 test('blog post page has dynamic meta title and description from article', function (): void {
@@ -81,6 +81,6 @@ test('blog post page has dynamic meta title and description from article', funct
     $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('<title>Vibe coding with AI', false);
-    $response->assertSee('og:title', false);
+    $response->assertSee('<title>Vibe coding with AI', escape: false);
+    $response->assertSee('og:title', escape: false);
 });

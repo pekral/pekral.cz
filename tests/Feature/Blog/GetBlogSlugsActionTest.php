@@ -22,11 +22,11 @@ test('returns empty array when content path does not exist', function (): void {
 
 test('returns only directories that contain article.md', function (): void {
     $base = sys_get_temp_dir() . '/blog-test-' . uniqid();
-    mkdir($base, 0755, true);
+    mkdir($base, 0755, recursive: true);
     file_put_contents($base . '/.gitkeep', '');
     $slug = 'valid-article';
     $articleDir = $base . '/' . $slug;
-    mkdir($articleDir, 0755, true);
+    mkdir($articleDir, 0755, recursive: true);
     file_put_contents($articleDir . '/article.md', "---\ndate: 2020-01-01\ndescription: D\n---\n# Valid");
 
     try {

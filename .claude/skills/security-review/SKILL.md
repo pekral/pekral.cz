@@ -8,14 +8,16 @@ metadata:
 
 ## Constraints
 - Apply `@rules/php/core-standards.mdc`
+- Apply `@rules/php/dependency-selection.mdc` — when the audit recommends replacing a vulnerable package with a hardened alternative, run the Activity gate + Compatibility gate on the proposed replacement before recommending the swap. Never trade a vulnerable-but-maintained package for an archived / abandoned / branch-pinned one in the name of security.
 - Apply `@rules/code-review/general.mdc`
 - Apply `@rules/security/backend.mdc`
 - Apply `@rules/code-review/frontend.mdc`
 - Apply `@rules/code-review/mobile.mdc`
 - If the current project uses Laravel, also apply `@rules/laravel/laravel.mdc`, `@rules/laravel/architecture.mdc`, `@rules/laravel/filament.mdc`, and `@rules/laravel/livewire.mdc`
-- Output must be in English
+- Apply @rules/reports/general.mdc. When the audit findings are folded into the **GitHub PR comment** by a CR wrapper, they stay in canonical English per the rule's *Exception — technical CR findings on the GitHub PR*. When a non-technical summary is published on a linked issue / JIRA ticket via `@skills/pr-summary/SKILL.md`, it follows the language of the source assignment. CVE / CWE / OWASP identifiers and code identifiers stay verbatim regardless of the surrounding prose language.
 - Focus on realistic, exploitable issues
 - Never reveal secrets
+- **Read-only skill** — never modify code, never stage / commit / push changes, and never run any git write operation (`git add`, `git commit`, `git push`, `git reset`, `git checkout -- …`, etc.). Switching to the relevant branch and `git pull` to read the latest diff are allowed; mutating the working tree or pushing to the remote is not. Output is the audit report only.
 
 ## Scope
 Perform a focused security review with emphasis on:
