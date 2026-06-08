@@ -20,6 +20,15 @@ Focus on:
 
 ---
 
+## Modes
+
+This skill runs in one of two modes, selected by the caller via `MODE` (default `apply`):
+
+- **`apply` (default)** — full refactoring: modify code, author the pre-refactor coverage commit, run fixers / checkers, and chain the After Completion review. Every step below behaves as written unless it is explicitly flagged for `MODE=cr`.
+- **`cr` (read-only lens — invoked by `@skills/code-review/SKILL.md`, `code-review-github`, `code-review-jira`)** — **never modify code, never author tests, never stage / commit / push, never run fixers or checkers, and never chain any After Completion review.** Scope the analysis to the lines added or modified by the PR diff and return the refactoring opportunities as markdown only, for the CR to fold into its Refactoring (DRY / tech debt) and Refactoring proposals sections. Every "apply / extract / split / consolidate" instruction below is emitted as a written proposal, not applied to code; the Test Coverage Gate becomes a read-only audit (report coverage gaps as findings, do not author tests).
+
+---
+
 ## Constraints
 - Apply @rules/refactoring/general.mdc — shared definition of refactoring, recommended incremental process, and "no big-bang rewrite" rule.
 - Apply @rules/php/core-standards.mdc
@@ -35,23 +44,27 @@ Focus on:
 
 ### Test Coverage Gate (mandatory pre-flight — issue #493)
 
-Before touching any line of structure, satisfy the **Test Coverage Contract** defined in `@rules/refactoring/general.mdc`:
+> **`MODE=cr`:** do not write tests or commits. Run the coverage check read-only and report any target lines below 100% coverage as a refactoring finding (a refactor cannot land safely without them) — then continue the analysis. The steps below that author tests / commits apply to `MODE=apply` only.
 
-1. Run the diff-scoped coverage command (`vendor/bin/test-coverage-diff` first, then the fallbacks listed in `@rules/php/core-standards.mdc` Testing section) against the *current* code that the refactor will touch. Every line, branch, and condition must already be at 100%.
+**The gate is blocking.** Refactoring may not edit a single line of production code until tests for the target lines reach 100% coverage. Satisfy the **Test Coverage Contract** defined in `@rules/refactoring/general.mdc`:
+
+1. Verify coverage of the *current* code that the refactor will touch, using the project's available coverage tooling scoped to those files (per `@rules/php/core-standards.mdc` Testing section). Every line, branch, and condition must already be at 100%.
 2. **If coverage is below 100% on the target lines, stop and write the missing tests first.** Use `@skills/create-test/SKILL.md` to author them; commit them in a dedicated `test(scope): cover <area> before refactor` commit per `@rules/git/general.mdc` Allowed Types. The pre-refactor coverage commit and the refactor commit are **always two separate commits** — never squash them and never mix new tests into the refactor commit.
-3. Only after the coverage gate is green may the refactor proceed.
+3. The pre-refactor tests are the **behavior-preservation contract** for the refactor. Their **assertions must continue to pass unchanged** through the refactor commit, end to end. If a pre-existing assertion would have to change to make the refactor green, the change is **no longer a refactor** — it is a behavior change and must be split into a separate commit with its own justification (typically a `feat(scope): …` / `fix(scope): …` commit, not the refactor commit).
+4. Only after the coverage gate is green and the assertions are confirmed stable may the refactor proceed.
 
 ### Refactoring steps
 
 - Analyze the class and identify the highest-impact refactoring.
 - Follow the incremental process from `@rules/refactoring/general.mdc` (stabilize → identify entry points → introduce Action pattern → split responsibilities → modernize → DRY → concurrency). Never propose a big-bang rewrite.
 - Fix any obvious pre-existing bugs before refactoring (separate commit).
-- Apply focused refactoring:
+- Apply focused refactoring **strictly per the applied rules** — `@rules/refactoring/general.mdc`, `@rules/php/core-standards.mdc`, `@rules/code-testing/general.mdc`, and (for Laravel projects) `@rules/laravel/laravel.mdc` + `@rules/laravel/architecture.mdc` + `@rules/laravel/filament.mdc` + `@rules/laravel/livewire.mdc`. The refactor rewrites the existing code into the **target architecture** (Action / Service / Repository / ModelManager / Data Validator / Data Builder / DTO per project rules) and the **target code-style** (naming, structure, parameter count, nesting, design principles). Anything that would deviate from the rules is rewritten until it complies; do not invent ad-hoc structure outside the rule set.
+- Concrete refactoring activities:
   - simplify structure
   - reduce complexity
   - improve naming
   - extract responsibilities where needed
-- **Do not modify pre-existing tests inside the refactor commit.** The safety net authored under the Test Coverage Gate above is what proves behavior is preserved — rewriting or restructuring those tests in the same commit invalidates the proof. The only allowed test edits in the refactor commit are mechanical renames forced by the refactor itself (e.g. namespace move), and they must be flagged in the commit body. New tests that cover newly introduced code paths belong in a separate `test(scope): …` commit *after* the refactor.
+- **Test assertion logic must not change during the refactor.** The pre-refactor coverage commit fixed the contract; the refactor commit changes structure only. Pre-existing assertions, expected return values, expected exceptions, expected persisted state, and expected emitted events stay byte-for-byte the same — they are the proof that behavior is preserved. The only allowed test edits in the refactor commit are mechanical renames forced by the refactor itself (e.g. namespace move, constructor argument order forced by an extracted DTO), and they must be flagged in the commit body. If an assertion would have to change to make the refactor green, treat that as a signal that you are no longer refactoring and split the behavior change into its own commit instead. New tests that cover newly introduced code paths belong in a separate `test(scope): …` commit *after* the refactor.
 - Avoid unnecessary changes outside the scope.
 - Prefer small, safe transformations over large rewrites.
 
@@ -67,6 +80,7 @@ Before touching any line of structure, satisfy the **Test Coverage Contract** de
 - Remove duplication (DRY).
 - Before modifying code, enumerate every place that modifies data before it is saved or passed downstream (DTO mapping, payload shaping, key renaming, default fallbacks, format normalization, business-driven derivation). Surface the list in the refactoring plan and consolidate duplicates into the canonical layer per `@rules/laravel/architecture.mdc` Data Modification (DRY) section (Data Builder, DTO named constructor, Data Validator, ModelManager, Repository).
 - Prefer small, focused methods.
+- **Simplicity First.** A refactor must leave the touched code at least as simple as it found it — never trade structural clarity for unrequested flexibility. Reject any proposed step that adds an abstraction for code with a single call site, introduces a configurability / extension point not justified by an existing caller, adds error handling for impossible scenarios (catching exceptions the call surface cannot throw, defensive guards on internal values the caller already validates, fallbacks for unreachable branches), or expands a method's line count without an architectural justification anchored in `@rules/php/core-standards.mdc` Design Principles or, on Laravel projects, `@rules/laravel/architecture.mdc`. When two refactoring options preserve behavior equally well, pick the shorter, less layered one ("if you write 200 lines and it could be 50, rewrite it"). Reuse existing helpers / Services / Actions / Repositories before extracting a new class. In `MODE=cr`, surface every such speculative addition the PR diff introduces as a refactoring proposal rather than a code change.
 - Extract intention-revealing private methods when it improves clarity.
 - Avoid deep nesting and complex conditionals.
 - Keep method signatures clear and minimal.
@@ -86,8 +100,9 @@ Before touching any line of structure, satisfy the **Test Coverage Contract** de
 
 ## Testing
 
+- **`MODE=cr`:** this section is apply-mode only — the read-only lens audits coverage per the Test Coverage Gate note and reports gaps as findings; it never authors tests or commits.
 - The **Test Coverage Gate** in the Execution section is the binding rule — pre-existing target lines must be at 100% coverage *before* the refactor, written into a dedicated `test(scope): cover <area> before refactor` commit per `@rules/refactoring/general.mdc` Test Coverage Contract.
-- Inside the refactor commit, pre-existing tests **must remain unchanged** (mechanical-rename exemption only, flagged in the commit body). Editing the safety net inside the structural change voids the behavior-preservation proof.
+- Inside the refactor commit, **assertion logic of pre-existing tests must remain unchanged**. Expected return values, expected exceptions, expected persisted state, expected emitted events, and expected side effects all stay identical — they are the behavior-preservation proof. Mechanical renames forced by the refactor itself (namespace move, constructor argument shape forced by an extracted DTO) are the only allowed test edits and must be flagged in the commit body. An assertion that has to change is a behavior change, not a refactor — split it out.
 - New tests covering code paths introduced by the refactor go in a separate `test(scope): …` commit *after* the refactor.
 - Prefer realistic tests over heavy mocking.
 
@@ -95,11 +110,13 @@ Before touching any line of structure, satisfy the **Test Coverage Contract** de
 
 ## Output
 
-- Refactored code
-- Short explanation of changes:
-  - what was improved
-  - why it matters
-- Summary of test coverage impact
+- **`MODE=apply`:**
+  - Refactored code
+  - Short explanation of changes:
+    - what was improved
+    - why it matters
+  - Summary of test coverage impact
+- **`MODE=cr`:** refactoring opportunities as markdown only (no code) — for each, the `file:line` on the PR diff, the structural problem in one sentence, the concrete consolidation step (target layer per `@rules/laravel/architecture.mdc`), and the rule reference it satisfies. The CR places in-scope items in its **Refactoring (DRY / tech debt)** section and out-of-scope structural problems in **Refactoring proposals**.
 
 ---
 
@@ -115,14 +132,18 @@ Before touching any line of structure, satisfy the **Test Coverage Contract** de
 
 ## Pre-push quality gates
 
+> Skip this entire section in `MODE=cr` — a read-only lens pushes nothing.
+
 - Discover available fixers and checkers (prefer Phing targets from `build.xml`/`phing.xml`; fall back to Composer scripts in `composer.json`)
 - Run available fixers on all changed files and fix any violations
 - Run available checkers/analyzers on all changed files and resolve all reported errors
 
 ## After Completion
 
-- Run @skills/code-review/SKILL.md
-- Resolve findings via @skills/process-code-review/SKILL.md
+> Skip this entire section in `MODE=cr` — the CR is the caller, so chaining back into it would recurse. Return the findings to the caller and stop.
+
+- **Run the review inline.** Invoke `@skills/code-review/SKILL.md` directly in this skill's context, passing the refactor commit range plus the instruction to return Critical / Moderate / Minor findings with their reproducer fields. Do not dispatch the review as a subagent — run it sequentially in the current context.
+- Resolve findings via `@skills/process-code-review/SKILL.md` (also invoked inline per its own contract).
 
 ## Output Humanization
 - Use [blader/humanizer](https://github.com/blader/humanizer) for all skill outputs to keep the text natural and human-friendly.

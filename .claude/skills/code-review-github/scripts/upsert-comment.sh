@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# upsert-comment.sh — idempotent upsert of a GitHub issue / PR comment, keyed
-# by the actor running this script. Used by CR-track skills so each reviewer
-# identity owns exactly one comment per (issue|PR, actor) and follow-up runs
-# edit it in place instead of stacking new comments.
+# upsert-comment.sh — append-only GitHub issue / PR comment publisher used by
+# CR-track skills. Every invocation POSTs a fresh comment, even when a prior
+# marker-carrying comment exists, so each CR run owns its own self-contained
+# entry instead of editing an earlier one in place. The hidden marker stays in
+# the body so previous comments remain identifiable per actor + namespace, but
+# the lookup-and-PATCH branch was removed by user request — see CHANGELOG.
 #
 # Usage:
 #   upsert-comment.sh <NUMBER|URL> <BODY_FILE> [<MARKER_KEY>]
@@ -18,25 +20,23 @@
 #   MARKER_KEY  Optional. Marker namespace, defaults to `cr-comment`. CR
 #               wrappers (`code-review-github`, `code-review-jira`, `pr-summary`)
 #               leave it at the default; `process-code-review` passes
-#               `cr-status` so its resolved-items follow-up owns a separate
-#               per-actor comment that gets edited in place across loop runs
-#               instead of stacking on top of the CR comment.
+#               `cr-status` so its resolved-items follow-up stays distinguishable
+#               from the CR comment even though every run is now a fresh post.
 #
 # Behavior:
 #   1. Detect the actor login via `gh api user --jq .login`.
 #   2. Append a hidden marker `<!-- <MARKER_KEY>:actor=<login> -->` to the body
 #      (only when the body does not already carry the marker).
-#   3. List the issue / PR comments and find the most recent one carrying the
-#      same marker — that is the actor's prior comment in this namespace.
-#   4. If found, PATCH it (`gh api repos/<nwo>/issues/comments/<id>`).
-#      Otherwise, POST a fresh comment.
+#   3. POST a new comment via `gh api repos/<nwo>/issues/<N>/comments`. The
+#      script never edits prior comments; every CR run produces a new entry.
 #
 # The marker stays at the bottom of the comment so it survives manual edits
 # at the top. It is rendered by GitHub as an invisible HTML comment.
 #
 # Output:
-#   The published comment URL on stdout. `action=created|updated` on stderr
-#   for the calling skill to log in its summary line.
+#   The published comment URL on stdout. `action=created` on stderr for the
+#   calling skill to log in its summary line — the value is always `created`
+#   because the script no longer PATCHes existing comments.
 #
 # Exit codes:
 #   1  usage / argument error
@@ -53,7 +53,8 @@ Usage: upsert-comment.sh <NUMBER|URL> <BODY_FILE|-> [<MARKER_KEY>]
   BODY_FILE   path to a file containing the comment body, or `-` for stdin
   MARKER_KEY  optional marker namespace (default: cr-comment).
               Use `cr-status` from process-code-review so the resolved-items
-              comment owns its own per-actor slot.
+              comment keeps its own per-actor identification even though every
+              run is posted as a fresh comment.
 EOF
 }
 
@@ -133,9 +134,32 @@ if [[ -z "$BODY" ]]; then
   exit 1
 fi
 
-ACTOR="$(gh api user --jq .login 2>/dev/null || true)"
+# Resolve the current GitHub actor through `gh api user`. Earlier revisions
+# discarded both stderr and the exit code, which collapsed every failure mode
+# (expired token, rate limit, network blip) into the same misleading
+# "is gh authenticated?" message. Capture stderr to surface the actual cause
+# and retry up to three times so a single transient API hiccup does not abort
+# the whole CR comment publish — see issue #519.
+ACTOR_STDERR="$(mktemp)"
+trap 'rm -f "$ACTOR_STDERR"' EXIT
+ACTOR=""
+ACTOR_ERR=""
+for attempt in 1 2 3; do
+  : > "$ACTOR_STDERR"
+  if ACTOR="$(gh api user --jq .login 2>"$ACTOR_STDERR")" && [[ -n "$ACTOR" ]]; then
+    break
+  fi
+  ACTOR=""
+  ACTOR_ERR="$(cat "$ACTOR_STDERR")"
+  [[ $attempt -lt 3 ]] && sleep 1
+done
+
 if [[ -z "$ACTOR" ]]; then
-  echo "upsert-comment.sh: failed to resolve current GitHub actor — is gh authenticated?" >&2
+  if [[ -n "$ACTOR_ERR" ]]; then
+    echo "upsert-comment.sh: failed to resolve current GitHub actor after 3 attempts: ${ACTOR_ERR}" >&2
+  else
+    echo "upsert-comment.sh: failed to resolve current GitHub actor — is gh authenticated? (run: gh auth status)" >&2
+  fi
   exit 3
 fi
 
@@ -147,50 +171,21 @@ if ! grep -Fq "$MARKER" <<<"$BODY"; then
 ${MARKER}"
 fi
 
-# `gh api .../issues/<N>/comments` works for both issues and PRs — GitHub treats
-# PR conversation comments as issue comments under the hood. `--paginate` emits
-# one JSON array per page concatenated without a wrapping array, so the jq
-# pipeline below uses `-s` (slurp) and `.[][]` to flatten every page into a
-# single stream before filtering / sorting; otherwise the `last` would be
-# computed page-locally and miss the marker comment on issues with > 30
-# comments.
-COMMENTS_JSON="$(gh api --paginate "repos/${NWO}/issues/${NUMBER}/comments" || true)"
-if [[ -z "$COMMENTS_JSON" ]]; then
-  echo "upsert-comment.sh: failed to list comments on ${NWO}#${NUMBER}" >&2
+# Always POST a fresh comment. The lookup-and-PATCH branch was removed by user
+# request — every CR run now owns its own self-contained comment so reviewers
+# see one entry per run instead of an edited-in-place history. `gh api` body
+# payloads are built via jq and fed through `--input -` so the body stays a
+# string regardless of its content (a body that happens to be `true` or an
+# integer would otherwise be coerced by `-F` type inference).
+RESPONSE="$(jq -n --arg body "$BODY" '{body:$body}' | gh api \
+  "repos/${NWO}/issues/${NUMBER}/comments" \
+  -X POST \
+  --input - \
+  || true)"
+if [[ -z "$RESPONSE" ]]; then
+  echo "upsert-comment.sh: POST failed on ${NWO}#${NUMBER}" >&2
   exit 3
 fi
-
-EXISTING_ID="$(printf '%s' "$COMMENTS_JSON" \
-  | jq -s -r --arg marker "$MARKER" '
-      [ .[][] | select(.body | contains($marker)) ]
-      | sort_by(.updated_at)
-      | last
-      | (.id // empty)
-    ')"
-
-if [[ -n "$EXISTING_ID" ]]; then
-  RESPONSE="$(printf '%s' "$BODY" | gh api \
-    "repos/${NWO}/issues/comments/${EXISTING_ID}" \
-    -X PATCH \
-    -f body=@- \
-    || true)"
-  if [[ -z "$RESPONSE" ]]; then
-    echo "upsert-comment.sh: PATCH failed on comment ${EXISTING_ID}" >&2
-    exit 3
-  fi
-  printf '%s' "$RESPONSE" | jq -r '.html_url'
-  echo "action=updated id=${EXISTING_ID}" >&2
-else
-  RESPONSE="$(printf '%s' "$BODY" | gh api \
-    "repos/${NWO}/issues/${NUMBER}/comments" \
-    -X POST \
-    -f body=@- \
-    || true)"
-  if [[ -z "$RESPONSE" ]]; then
-    echo "upsert-comment.sh: POST failed on ${NWO}#${NUMBER}" >&2
-    exit 3
-  fi
-  printf '%s' "$RESPONSE" | jq -r '.html_url'
-  NEW_ID="$(printf '%s' "$RESPONSE" | jq -r '.id')"
-  echo "action=created id=${NEW_ID}" >&2
-fi
+printf '%s' "$RESPONSE" | jq -r '.html_url'
+NEW_ID="$(printf '%s' "$RESPONSE" | jq -r '.id')"
+echo "action=created id=${NEW_ID}" >&2

@@ -29,7 +29,27 @@ metadata:
 ### For each PR:
 
 - Load PR context by running `skills/code-review-github/scripts/load-issue.sh <NUMBER|URL>` — the single deterministic entry point. Never call `gh issue view`, `gh pr view`, or `gh api /repos/.../issues/...` directly. Read review comments, files, commits, status checks, and `closingIssues` off the resulting JSON document. If the script is unavailable (missing tool, exit code 2/3) fall back to the GitHub MCP server, and always prefer the MCP fallback for review-thread / line-anchored comments that the script does not return.
-- Build a checklist from all review findings (general comments come from `comments[]`; line-anchored review-thread comments still need the MCP fallback)
+- **Load unresolved reviewer threads (mandatory, GitHub).** `load-issue.sh` returns general `comments[]` and `reviews[]` but never the line-anchored review threads nor their resolved/unresolved state. Fetch them deterministically with the GraphQL `reviewThreads` connection — this is **not** one of the forbidden REST endpoints (`gh issue view`, `gh pr view`, `gh api /repos/.../issues/...`):
+  ```
+  gh api graphql -f query='
+  query($owner:String!,$repo:String!,$number:Int!,$cursor:String){
+    repository(owner:$owner,name:$repo){
+      pullRequest(number:$number){
+        reviewThreads(first:100, after:$cursor){
+          pageInfo{ hasNextPage endCursor }
+          nodes{
+            id isResolved path line
+            comments(first:100){ nodes{ author{login} body url createdAt } }
+          }
+        }
+      }
+    }
+  }' -F owner=<owner> -F repo=<repo> -F number=<number>
+  ```
+  **Do not accept a truncated list** — the "every unresolved thread" guarantee depends on completeness. When `reviewThreads.pageInfo.hasNextPage` is `true`, repeat the query with `-F cursor=<endCursor>` until it is `false`; when any thread's `comments.nodes` reaches the page size, page that thread's comments the same way. If `gh api graphql` is unavailable, fall back to the GitHub MCP server for the same thread list plus its resolved state.
+- Build the checklist from **both** sources:
+  1. Structured CR findings published by the review skills (general comments come from `comments[]`).
+  2. **Unresolved reviewer threads** from the `reviewThreads` query — add every thread where `isResolved == false` (human reviewer **and** bot) as a checklist item, and **skip every thread where `isResolved == true`**. Record each thread's `id` so it can be marked resolved once its fix lands (see **Resolve addressed reviewer threads** below).
 - Map each finding to a concrete code or test change
 
 #### Reproducer extraction (per finding)
@@ -51,7 +71,9 @@ Use these to write a failing test **before** applying the fix:
 2. Assert the Expected Behavior — the test must fail on the current code.
 3. Apply the Suggested Fix snippet (or the Fix narrative when Suggested Fix is `n/a`); rerun the test until it passes.
 
-If a finding lacks Faulty Example, Expected Behavior, or Test Hint, request a CR rerun rather than guessing — the CR skills are responsible for providing them. Suggested Fix may legitimately be `n/a` per the CR rules.
+If a **CR-skill finding** lacks Faulty Example, Expected Behavior, or Test Hint, request a CR rerun rather than guessing — the CR skills are responsible for providing them. Suggested Fix may legitimately be `n/a` per the CR rules.
+
+**Free-form reviewer threads are exempt from the reproducer requirement.** Unresolved threads written by human reviewers will not carry the four structured fields. Do **not** request a CR rerun for them and do **not** block. Instead, derive the intent from the comment text, apply the minimal best-effort fix that satisfies it, and add or adjust a test at your discretion (a regression test when the comment describes a behavior bug; none when it is a naming / readability / dead-code remark). Keep the change scoped strictly to what the reviewer asked for. The exemption removes only the mandatory reproducer workflow — a behavior-changing best-effort fix still has to satisfy the diff-scoped coverage gate enforced by the **Review loop** below (`@rules/php/core-standards.mdc` Testing).
 
 ---
 
@@ -76,7 +98,7 @@ If a finding lacks Faulty Example, Expected Behavior, or Test Hint, request a CR
 
 - If tests are required or missing:
   - Run @skills/create-missing-tests-in-pr/SKILL.md
-- Ensure current changes have 100% coverage by running the **diff-scoped** coverage command only (discovery order per `@skills/code-review/SKILL.md` Coverage gate — `vendor/bin/test-coverage-diff` from this package, Phing `test:coverage:diff` / `coverage:diff`, Composer `test:coverage:diff`, or any project-specific `*coverage*diff*` script). Never run the full-suite coverage command during a CR / review loop iteration.
+- Ensure current changes have 100% coverage **for the changed files only**, using the project's available coverage tooling (per the Coverage gate in `@skills/code-review/SKILL.md`). Do not gate on the full-suite coverage percentage during a CR / review loop iteration.
 - Run only relevant tests for changed files
 - If migrations were added, run `php artisan migrate`
 
@@ -87,10 +109,10 @@ If a finding lacks Faulty Example, Expected Behavior, or Test Hint, request a CR
 This is a **blocking loop**. Do not advance to **Finalization**, **PR update**, or **Completion** until the loop converges. The final report (technical and non-technical) is published only **once**, after convergence.
 
 1. Initialise `iteration = 1` and `maxIterations = 5` (safety net to avoid runaway loops).
-2. Run the appropriate review skill:
+2. **Run the review inline.** Invoke the appropriate CR wrapper directly in this skill's context — do not dispatch as a subagent. Each iteration re-invokes the CR wrapper inline so it reloads the diff after the latest fix commit:
    - GitHub: `@skills/code-review-github/SKILL.md`
    - JIRA: `@skills/code-review-jira/SKILL.md`
-   The review run **must not** publish to the PR or to the issue tracker — capture findings in memory only. (See **Quiet review runs** below for how to suppress publishing.)
+   The invocation **must** include the explicit quiet-mode instruction (see **Quiet review runs** below). The review run **must not** publish to the PR or to the issue tracker during loop iterations — capture findings in memory only.
 3. Count `criticalCount` and `moderateCount` in the latest review.
 4. If `criticalCount + moderateCount == 0` → **converged**, exit the loop.
 5. Otherwise, apply the **Suggested Fix** snippet from each Critical / Moderate finding using the **Reproducer extraction** workflow above, run pre-push quality gates on touched files, increment `iteration`, and go back to step 2.
@@ -126,11 +148,23 @@ This is a **blocking loop**. Do not advance to **Finalization**, **PR update**, 
 
 **Precondition:** same as Finalization — convergence required.
 
-- Publish the resolved-items report through the **single-comment upsert helper** using the dedicated `cr-status` marker namespace, so the status comment lives in its own per-(PR, actor) slot — separate from the CR comment (`cr-comment` namespace) — and follow-up converge runs edit it in place instead of stacking on top of it. Concretely:
-  - GitHub PR: `skills/code-review-github/scripts/upsert-comment.sh <PR-NUMBER|URL> - cr-status` (body on stdin). The helper appends `<!-- cr-status:actor=<gh-login> -->` to the body, locates any prior `cr-status`-namespaced comment by the same actor, and either PATCHes it or POSTs a fresh one. Action (`created|updated`) is logged on stderr; include it in the in-conversation completion report.
-  - JIRA-originated reviews that also mirror to a JIRA ticket: `skills/code-review-jira/scripts/upsert-comment.sh <KEY|URL> - cr-status`. The helper appends `{anchor:cr-status-actor-<slug>}` and edits / adds the comment via `acli` (JIRA MCP fallback on exit code 4).
-- Do **not** quote / reply to the CR comment and do **not** open a new top-level PR comment outside the upsert flow — the upsert convention replaces the previous quoting-based visual thread entirely. The CR comment (`cr-comment` namespace) stays untouched by this skill; only the actor-owned `cr-status` comment is edited.
-- Mark resolved items (checkbox or inline) inside the upserted body in all cases.
+- Publish the resolved-items report through the publish helper using the dedicated `cr-status` marker namespace, so the status comment is identifiable as a status post (separate from the CR comment in the `cr-comment` namespace). Concretely:
+  - GitHub PR: `skills/code-review-github/scripts/upsert-comment.sh <PR-NUMBER|URL> - cr-status` (body on stdin). The helper appends `<!-- cr-status:actor=<gh-login> -->` to the body for traceability and **POSTs a new comment on every run** — it never PATCHes a prior status comment. Action (`created`) is logged on stderr; include it in the in-conversation completion report.
+  - JIRA-originated reviews that also mirror to a JIRA ticket: `skills/code-review-jira/scripts/upsert-comment.sh <KEY|URL> - cr-status`. The helper appends `{anchor:cr-status-actor-<slug>}` and edits / adds the comment via `acli` (JIRA MCP fallback on exit code 4) — JIRA-side upsert behavior is unchanged.
+- Do **not** quote / reply to a previous CR or status comment — the always-new-comment convention (GitHub) replaces the previous quoting / in-place edit flow entirely, and every converge run adds its own self-contained status comment so the chronological sequence is the audit trail. The CR comment (`cr-comment` namespace) stays untouched by this skill.
+- Mark resolved items (checkbox or inline) inside the freshly posted body in all cases.
+
+#### Resolve addressed reviewer threads (GitHub)
+
+After the fixes are committed and pushed (Finalization above), mark every reviewer review thread whose finding was **actually fixed** as resolved, using the thread `id` captured during intake:
+
+```
+gh api graphql -f query='mutation($threadId:ID!){ resolveReviewThread(input:{threadId:$threadId}){ thread{ isResolved } } }' -F threadId=<thread-id>
+```
+
+- Resolve **only** threads that were fixed. Leave a thread unresolved when its point was rejected or deferred, and record the rejection reason in the `cr-status` report instead of resolving it.
+- If `gh api graphql` is unavailable, fall back to the GitHub MCP server's resolve-review-thread operation.
+- Resolving a thread is a GitHub PR state change, not a code change — it stays within the read-fixes-push-resolve flow this skill already owns and never touches the protected main branch.
 
 #### Per-item justification (required)
 
@@ -154,12 +188,13 @@ Rules:
 
 **Precondition:** Review loop has converged (`criticalCount + moderateCount == 0`).
 
-- Trigger the final review run **with publishing enabled** — this is the **only** review whose output reaches the PR / issue tracker:
+- **Run the final publishing run inline.** Invoke the appropriate CR wrapper directly in this skill's context with publishing enabled — this is the **only** review whose output reaches the PR / issue tracker. The invocation must include the PR URL, the converged state (Critical + Moderate == 0), and the instruction to post the final PR comment + linked-issue / JIRA mirror per the CR wrapper's contract. Do not dispatch as a subagent — run it sequentially in the current context:
   - GitHub: `@skills/code-review-github/SKILL.md`
   - JIRA: `@skills/code-review-jira/SKILL.md`
 - Share a concise completion report (in-conversation, not on the tracker):
   - PR link
   - resolved items
+  - reviewer threads resolved (count) and any left unresolved with the rejection / deferral reason
   - loop iteration count and final convergence status
   - remaining blockers (if any — should be empty when convergence was reached)
 
@@ -172,6 +207,7 @@ Rules:
 - Do not introduce new bugs while fixing existing ones
 - Keep changes traceable to review comments
 - Ensure every review comment is explicitly addressed
+- Treat unresolved GitHub reviewer threads as first-class checklist items; skip already-resolved threads, and resolve a thread only after its fix lands
 - Avoid unnecessary commits or noise
 
 ## Output Humanization

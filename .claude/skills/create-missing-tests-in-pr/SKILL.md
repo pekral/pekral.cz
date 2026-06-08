@@ -36,7 +36,7 @@ metadata:
     scenarios, edge cases, regression coverage, and coverage gaps.
 -   Analyze the current branch changes against the review findings.
 -   Verify whether the recommended tests already exist in the codebase.
--   Check whether current changes have 100% coverage **using only the diff-scoped coverage command** (discovery order per `@skills/code-review/SKILL.md` Coverage gate — `vendor/bin/test-coverage-diff` from this package, Phing `test:coverage:diff` / `coverage:diff`, Composer `test:coverage:diff`, or any project-specific `*coverage*diff*` script). Never run the project-wide coverage command (`composer test:coverage`, Phing `coverage`, `pest --coverage --min=100` on the whole suite) — if no diff-scoped script is available, stop and report it as a blocker, and **do not create a new `composer test:coverage:diff` script** in the consuming project; `vendor/bin/test-coverage-diff` is the canonical entry point.
+-   Check whether current changes have 100% coverage **for the changed files only**, using the project's available coverage tooling (per the Coverage gate in `@skills/code-review/SKILL.md`). Do not gate on the project-wide coverage percentage — if the project ships no coverage tooling at all, stop and report it as a blocker, and **do not add a new bespoke coverage script** to the consuming project.
 -   If coverage is incomplete or recommended test scenarios are missing,
     use @skills/create-test/SKILL.md.
 -   Follow existing project test conventions, helpers, patterns, and
@@ -51,13 +51,15 @@ metadata:
     repeated test cases.
 -   After adding or updating tests, run only the necessary tests for the
     current changes.
--   If a diff-scoped coverage tool exists, verify that current changes are covered
-    with 100% coverage. Use only the diff-scoped command (preferred: `vendor/bin/test-coverage-diff`; fallback: `composer test:coverage:diff` only when the consuming project already defines that script) — do not fall back to the full-suite coverage command.
+-   If coverage tooling exists, verify that current changes are covered
+    with 100% coverage for the changed files only, using the project's available coverage tooling (per the Coverage gate in `@skills/code-review/SKILL.md`) — do not gate on the full-suite coverage percentage. Delete any generated coverage report file once read so it is not accidentally committed.
 -   If fixers or test-related wrappers exist in the project, use them (prefer Phing targets from `build.xml`/`phing.xml`; fall back to Composer scripts in `composer.json`).
 -   Do not run the whole test suite unless it is required for the
     changed files workflow.
 -   If the review recommendation is already satisfied by existing tests,
     do not duplicate test coverage.
+-   **Place new test files per `@rules/code-testing/general.mdc` *Test Organization*** — the test file path mirrors the namespace of the SUT (e.g. `App\Service\Billing\InvoiceCalculator` → `tests/Service/Billing/InvoiceCalculatorTest.php`), the file name is `{ClassName}Test.php` (or `{ClassName}{Scenario}Test.php` for an extracted scenario file of the same SUT), and cross-cutting tests sit under an intent-named directory (`tests/Feature/<flow>`, `tests/Contract/<vendor>`, `tests/Integration/<area>`).
+-   **Name every `it()` / `test()` block to match the scenario the body asserts** — plain-language descriptions such as `it('returns zero for an empty cart')` or `test('throws InvalidArgumentException when the discount is negative')`. Never use placeholders (`it('it works')`, `test('test1')`, `test('happy path')`), method names (`test('calculate')`, `it('handles getUser')`), or descriptions that contradict the assertions, so the code-review test-organization gate passes when the PR is re-reviewed.
 
 **Deliver:**
 

@@ -48,12 +48,13 @@ metadata:
 - When `resolve-issue` finishes, capture the resulting PR URL from its output. If no PR URL is produced, stop and report the failure — do **not** continue the chain.
 
 ### 4. Run code review on the PR
-- Invoke `@skills/code-review-github/SKILL.md` with the **PR URL** (not the issue URL). The CR skill's deterministic loader accepts a PR URL or number and posts findings as a single upserted PR comment plus a non-technical mirror on the linked issue.
+- **Run inline.** Invoke `@skills/code-review-github/SKILL.md` directly in this skill's context, passing the **PR URL** (not the issue URL) plus the instruction "run `@skills/code-review-github/SKILL.md` against this PR and return the published PR comment URL, the linked-issue comment URL(s), and the Critical / Moderate / Minor counts". Do not dispatch the CR as a subagent — run it sequentially in the current context.
+- The CR skill's deterministic loader accepts a PR URL or number and posts findings as a fresh PR comment plus a non-technical mirror on the linked issue.
 
 ### 5. Process review feedback
-- Invoke `@skills/process-code-review/SKILL.md` with the **PR URL**.
+- **Run inline.** Invoke `@skills/process-code-review/SKILL.md` directly in this skill's context, passing the **PR URL** plus the instruction "drive the review loop on this PR to convergence (Critical + Moderate == 0) and return the iteration count, residual finding counts, and the final status comment URL". Do not dispatch as a subagent — run it sequentially in the current context.
 - This is the convergence loop: it resolves comments, applies Suggested Fix snippets, re-runs the review in quiet mode, and exits when `criticalCount + moderateCount == 0` (or after its `maxIterations` safety net).
-- If `process-code-review` exits with residual Critical or Moderate findings, **stop**. Report the residual findings and the PR URL; do not attempt the merge.
+- If the run reports residual Critical or Moderate findings, **stop**. Report the residual findings and the PR URL; do not attempt the merge.
 
 ### 6. Merge the PR
 - Invoke `@skills/merge-github-pr/SKILL.md` with the **PR URL**.

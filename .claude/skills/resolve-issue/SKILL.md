@@ -67,8 +67,10 @@ Run `@skills/prepare-issue-context/SKILL.md` with `MODE=resolve-issue` and the s
 
 ### Problem analysis
 
-6. Run `@skills/analyze-problem/SKILL.md` using the issue description, the scenario table from the context-preparation pre-flight, the current requirements from comment analysis, and any available context as input.
-7. Review the analysis output and split the identified items into two groups:
+6. **Gate — assignment specificity.** The pre-flight in step 5 already guarantees every scenario is mapped to a concrete code path; this gate only decides how clear the *requirements* are. Pick **specific** or **general** based on the scenario table and the current requirements from comment analysis:
+   - **Specific** — expected behavior is unambiguous for every scenario, and the root cause (for bugs) or target behavior (for features) is explicitly stated in the assignment or current requirements. **Skip** `@skills/analyze-problem/SKILL.md` and use the scenario table together with the current requirements as the input for step 7.
+   - **General** — requirements are vague, acceptance criteria are missing or open-ended, or the root cause is not identified. When in doubt, treat the assignment as general. **Run** `@skills/analyze-problem/SKILL.md` using the issue description, the scenario table, current requirements, and any available context, and use its output as the input for step 7.
+7. Review the input from step 6 and split the identified items into two groups:
    - **In scope** — items that directly match the issue requirements. These will be implemented.
    - **Out of scope** — items that are valid findings but fall outside the current issue. These will be added to the PR summary as a TODO list for future tasks.
 
@@ -93,7 +95,7 @@ Before writing any code, decide how the in-scope work will be split into commits
 
 ### Continue
 11. Implement the solution for all **in-scope** items identified in step 7.
-12. Ensure no sensitive data is exposed in error/validation messages.
+12. Ensure no sensitive data is exposed in error/validation messages. Apply `@rules/security/backend.md` *Safe Validation & Error Messages* (and `@rules/security/frontend.md` / `@rules/security/mobile.md` for the equivalent client surfaces) to every user-facing string the change touches, **including every locale shipped by the project** — auth, password-reset, sign-up, and account-lookup flows must return one generic message with one response shape so the wording cannot be used for identity enumeration, authorization-denied responses must not confirm the resource exists, and no stack traces / file paths / framework versions / DB or queue / cache identifiers / verbatim attacker input reach the response body.
 13. If the implementation introduced new database migrations, run them (`php artisan migrate` for Laravel projects, or the project-specific equivalent) before executing the affected tests or creating the pull request.
 14. Run tests for affected areas and confirm correctness.
 15. Add or update tests to cover the new or fixed behavior.
@@ -107,7 +109,7 @@ Follow the workflow defined in `references/quality-gates.md`.
 
 After implementation and pre-push quality gates pass, and **before creating the pull request**, run the review loop on the local changes:
 
-1. Run `@skills/code-review/SKILL.md`
+1. **Run the review inline.** Invoke `@skills/code-review/SKILL.md` directly in this skill's context, passing the current branch / diff context plus the instruction "run `@skills/code-review/SKILL.md` on the local changes and return the Critical / Moderate / Minor findings with their reproducer fields (Faulty Example, Expected Behavior, Test Hint, Suggested Fix)". Do not dispatch the review as a subagent — run it sequentially in the current context.
 2. If **Critical** or **Moderate** findings exist:
    - Apply the **Suggested Fix** snippet from each finding directly to the working tree
    - Add or update a reproducer test for each finding using its **Faulty Example**, **Expected Behavior**, and **Test Hint**
@@ -121,7 +123,7 @@ PR-comment processing via `@skills/process-code-review/SKILL.md` remains the pat
 
 After the code review loop passes clean, and **still before creating the pull request**, validate the change:
 
-1. Run `@skills/security-review/SKILL.md`
+1. **Run the security review inline.** Invoke `@skills/security-review/SKILL.md` directly in this skill's context, passing the current diff context plus the instruction "run `@skills/security-review/SKILL.md` on the local changes and return the Critical / Moderate / Minor findings". Do not dispatch the review as a subagent — run it sequentially in the current context.
 
 Resolve any **Critical** or **Moderate** finding from the security review before continuing. If a finding requires code changes, re-run the **Code quality and review loop** to re-validate.
 
