@@ -42,6 +42,18 @@ This skill runs in one of two modes, selected by the caller via `MODE` (default 
 
 ## Execution
 
+### Read, Map & Verify before refactoring (mandatory pre-flight)
+
+> **`MODE=cr`:** perform Read and Map read-only to ground the proposals in the real code; Verify is the audit you already run. Do not modify code.
+
+Reading, mapping, and verifying come first; refactoring comes last. This pre-flight is **blocking** — do not edit a single line of production code until all three steps pass, and never act on an assumption you have not confirmed by reading the code.
+
+1. **Read** — open and read the actual class being refactored and the code it depends on (callers, called methods, related tests, configuration). Confirm what the code does by reading it, not by guessing from names.
+2. **Map** — map the change's blast radius: every call site and caller of the touched code, the data-flow paths through it, the public API consumers, and the existing helpers / Services / Actions / layers to reuse instead of reinventing.
+3. **Verify** — check your assumptions against the real code and its observed behavior before deciding the highest-impact refactoring. If reading and mapping contradict the task framing, stop and surface the discrepancy instead of refactoring on a wrong premise.
+
+Only after Read, Map, and Verify are complete may the Test Coverage Gate and the refactor proceed.
+
 ### Test Coverage Gate (mandatory pre-flight — issue #493)
 
 > **`MODE=cr`:** do not write tests or commits. Run the coverage check read-only and report any target lines below 100% coverage as a refactoring finding (a refactor cannot land safely without them) — then continue the analysis. The steps below that author tests / commits apply to `MODE=apply` only.
@@ -65,6 +77,7 @@ This skill runs in one of two modes, selected by the caller via `MODE` (default 
   - improve naming
   - extract responsibilities where needed
 - **Test assertion logic must not change during the refactor.** The pre-refactor coverage commit fixed the contract; the refactor commit changes structure only. Pre-existing assertions, expected return values, expected exceptions, expected persisted state, and expected emitted events stay byte-for-byte the same — they are the proof that behavior is preserved. The only allowed test edits in the refactor commit are mechanical renames forced by the refactor itself (e.g. namespace move, constructor argument order forced by an extracted DTO), and they must be flagged in the commit body. If an assertion would have to change to make the refactor green, treat that as a signal that you are no longer refactoring and split the behavior change into its own commit instead. New tests that cover newly introduced code paths belong in a separate `test(scope): …` commit *after* the refactor.
+- **After the refactor — re-verify coverage stayed 100%.** Once the refactor commit is in place, run the coverage tooling again scoped to the refactored files and confirm every changed line, branch, and condition is still exercised and the pre-existing assertions still pass unchanged. Coverage must **remain** 100% — a refactored line that is no longer covered means the refactor introduced an untested path; fix the path (it is usually dead code or a new branch), never restore the number by editing the pre-refactor tests. This is the apply-mode enforcement of step 4 of the **Test Coverage Contract** in `@rules/refactoring/general.mdc`.
 - Avoid unnecessary changes outside the scope.
 - Prefer small, safe transformations over large rewrites.
 
@@ -91,10 +104,12 @@ This skill runs in one of two modes, selected by the caller via `MODE` (default 
 ## Laravel Context (if applicable)
 
 - Delegate business logic to Actions and Services.
+- **Pass-through Actions (Action pattern).** Per `@rules/laravel/architecture.mdc` *Pass-through Action rule*, an Action whose entire `__invoke()` body is a single delegating call to one Service / Facade / Model Service method — with no orchestration of its own (no validation delegation, no DTO / data transformation, no coordination of multiple collaborators, no extra business step, no return-value reshaping) — is a redundant indirection layer and must be collapsed during the refactor. Detect every such pass-through Action touched by the refactor and resolve it one of two ways: (1) if the wrapped Service / Facade method is used **only once** in the codebase, move its logic into the Action and delete the method (the **Single-use Service/Facade method rule**), so the Action does real work; (2) if the method is **reused** elsewhere, remove the Action entirely and rewrite the entry point to call the Service / Facade method directly (`$action($payload)` → `$service->method($payload)`), updating every call site. In `MODE=cr`, emit each pass-through Action as a written refactoring proposal (target resolution + every call site that must change) rather than applying the change.
 - Do not place business logic in controllers or Livewire components.
 - Use existing query scopes instead of duplicating conditions.
 - Prefer DTOs over raw arrays when the project uses them.
 - Keep Repositories limited to basic, reusable queries. When refactoring uncovers a feature-specific query method on a Repository, move it to a Service (single-model) or an Action (cross-model / cross-feature) that composes basic Repository methods (see `@rules/laravel/architecture.mdc` Repositories and ModelManagers section).
+- **Livewire / Blade view splitting.** When the refactor touches a Livewire component or Blade view (`app/Livewire/**/*.php`, `resources/views/livewire/**/*.blade.php`, `resources/views/**/*.blade.php`), analyze its HTML as a tree of UI concerns per `@rules/laravel/livewire.mdc` *HTML / Blade Layout Splitting*. Walk every trigger in that section (repeated markup, >150 Blade lines, self-contained `wire:*` cluster, self-contained data shape, cross-page reuse, independent loading / empty / error state, distinct named UI concern) and propose an extraction for each match. Pick **Livewire** children only for blocks with their own state / lifecycle / server interaction; pick **Blade** components for stateless presentation — wrapping presentational markup in a Livewire component just to enable reuse is itself a refactoring finding. Every extracted component must satisfy the **Reusability contract** in that rule (typed input, one concern, no business logic, events not parent reach-through, independently renderable, correct tree placement, concern-based name). The layout split is a structural refactor — the **Test Coverage Gate** above applies in spirit: every rendered branch of the touched view (initial render, `wire:loading`, `@empty`, error banner, each `@if` / `@foreach` arm) must be exercised by a Livewire / Blade feature test committed before the layout refactor, and the same feature tests must stay green through the refactor commit unchanged. PHP `--coverage-clover` does not measure `.blade.php` line-by-line, so the binding gate is feature-test parity, not a numeric coverage percentage on the view file.
 
 ---
 

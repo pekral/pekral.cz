@@ -44,16 +44,18 @@ Before starting the resolution flow:
 1. Verify the issue belongs to the current project before proceeding:
    - **GitHub:** the issue repository must match the current Git remote origin.
    - **JIRA:** the issue project key must match the configured JIRA project for this repository.
+   - **Bugsnag:** the error's linked GitHub issue/PR repository (`linkedIssues[]` in the loaded JSON) must match the current Git remote origin. When the error has no linked GitHub issue, confirm the Bugsnag project corresponds to this repository before proceeding.
    - If the issue does not belong to the current project, refuse to process it and inform the user.
 2. Fetch and analyze the issue from the detected source by running the deterministic loader for that tracker — never call `gh`, `acli`, or REST endpoints directly. Read all required fields off the resulting JSON document.
    - **GitHub:** `skills/code-review-github/scripts/load-issue.sh <NUMBER|URL>`. If the script is unavailable (missing tool, exit code 2/3), fall back to the GitHub MCP server.
    - **JIRA:** `skills/code-review-jira/scripts/load-issue.sh <KEY|URL>`. If the script is unavailable (missing tool, exit code 2/3), fall back to the JIRA MCP server.
+   - **Bugsnag:** `skills/code-review-bugsnag/scripts/load-issue.sh <URL|TRIPLE>` (requires `BUGSNAG_TOKEN`). The JSON carries the error class, message, status, `context`, the in-project `latestEvent.stacktrace` frames (the entry point for the TDD reproduction), `comments[]`, and `linkedIssues[]` (the mirrored GitHub issue/PR). If the script is unavailable (missing tool/token, exit code 2/3), fall back to a Bugsnag MCP server.
 3. Define exact requirements and expected behavior.
 4. Classify the task (bug or feature).
 
 ### Comment analysis
 
-5. Before analyzing the problem, fetch and read **all comments and replies** from the issue tracker (GitHub, JIRA, or Bugsnag). For GitHub and JIRA issues, read `comments[]` directly off the JSON loaded in step 2 — do not issue a second listing call:
+5. Before analyzing the problem, fetch and read **all comments and replies** from the issue tracker (GitHub, JIRA, or Bugsnag). For GitHub, JIRA, and Bugsnag issues, read `comments[]` directly off the JSON loaded in step 2 — do not issue a second listing call:
    - Group comments by conversation thread (e.g., review threads, reply chains).
    - For each thread, determine:
      - **Current requirements** — requests or conditions that are still valid and unfulfilled.
@@ -70,9 +72,20 @@ Run `@skills/prepare-issue-context/SKILL.md` with `MODE=resolve-issue` and the s
 6. **Gate — assignment specificity.** The pre-flight in step 5 already guarantees every scenario is mapped to a concrete code path; this gate only decides how clear the *requirements* are. Pick **specific** or **general** based on the scenario table and the current requirements from comment analysis:
    - **Specific** — expected behavior is unambiguous for every scenario, and the root cause (for bugs) or target behavior (for features) is explicitly stated in the assignment or current requirements. **Skip** `@skills/analyze-problem/SKILL.md` and use the scenario table together with the current requirements as the input for step 7.
    - **General** — requirements are vague, acceptance criteria are missing or open-ended, or the root cause is not identified. When in doubt, treat the assignment as general. **Run** `@skills/analyze-problem/SKILL.md` using the issue description, the scenario table, current requirements, and any available context, and use its output as the input for step 7.
-7. Review the input from step 6 and split the identified items into two groups:
+7. Review the input from step 6 and split the identified items into three groups:
    - **In scope** — items that directly match the issue requirements. These will be implemented.
-   - **Out of scope** — items that are valid findings but fall outside the current issue. These will be added to the PR summary as a TODO list for future tasks.
+   - **Pre-existing issues** — bugs, project-rule violations, or security vulnerabilities already present in the affected files before this task (see *Pre-existing issue handling* below). These will be fixed in **separate commits** inside the same PR.
+   - **Out of scope (deferred)** — valid findings that fall outside the current issue **and** do not qualify as pre-existing issues to fix now (e.g. enhancements, refactors, future features). These will be added to the PR summary as a `## TODO` list for future tasks.
+
+### Read, Map & Verify before implementing (mandatory pre-flight)
+
+Reading, mapping, and verifying come first; implementing comes last. This pre-flight is **blocking** — do not add or modify a single line of production code until all three steps pass, and never act on an assumption you have not confirmed by reading the code. (The context preparation above maps scenarios to code paths; this gate grounds the actual implementation in the real files you are about to change.)
+
+1. **Read** — open and read the actual files you will change and the code they depend on (callers, called methods, related tests, configuration, migrations). Confirm what the code does by reading it, not by guessing from names or the issue description.
+2. **Map** — map the change's blast radius: every call site, caller, data-flow path, and existing test that the in-scope change touches, plus the conventions, helpers, Services, and Actions already in the codebase to reuse instead of reinventing.
+3. **Verify** — check your assumptions against the real code and its observed behavior (for bugs, reproduce the failure; for features, confirm the integration points exist as assumed). If reading and mapping contradict the issue framing or the scenario table, stop and surface the discrepancy instead of implementing on a wrong premise.
+
+Only after Read, Map, and Verify are complete may phase planning and implementation begin.
 
 ### Phase planning (commit plan)
 
@@ -85,6 +98,28 @@ Before writing any code, decide how the in-scope work will be split into commits
 5. Record the planned phases as a numbered list (one line per commit, with the intended commit message in `type(scope): description` form per `@rules/git/general.mdc`) **before** starting implementation. This list is the commit plan for step 11.
 6. During implementation, commit at the end of each phase. Run pre-push fixers and tests on the changes belonging to that phase before moving on.
 
+### Pre-existing issue handling
+
+While reading and modifying the files required for the in-scope work, you may encounter problems that are **unrelated to the current assignment** but were already present in those files. The following categories qualify as pre-existing issues that must be fixed in this PR:
+
+- **Bugs** — incorrect logic, broken edge cases, null-dereference risks, race conditions, or runtime errors that exist before this task.
+- **Project-rule violations** — code that contradicts any rule listed in this skill's *Constraints* block (`@rules/php/core-standards.mdc`, `@rules/laravel/*`, `@rules/sql/optimalize.mdc`, etc.) or any other rule under `.claude/rules/`.
+- **Security vulnerabilities** — anything `@rules/security/backend.md`, `@rules/security/frontend.md`, or `@rules/security/mobile.md` would flag (injection, missing authn/authz, unsafe deserialization, sensitive-data exposure, …).
+
+Rules:
+
+1. **Do not silently ignore** a pre-existing issue you encountered in a file you had to read for the in-scope work — fix it in this PR.
+2. **Do not expand scope** by actively scanning unrelated files for additional pre-existing issues. Limit attention to files already touched by the in-scope changes (or their direct dependencies you must read to understand the change).
+3. Land each pre-existing fix in its **own separate commit** inside the same PR:
+   - Use a Conventional Commits subject per `@rules/git/general.mdc`: `fix(<scope>): pre-existing — <description>` for bugs and security, `refactor(<scope>): pre-existing — <description>` for rule violations without behavior change.
+   - The `pre-existing — ` prefix is mandatory so reviewers can identify these commits at a glance (e.g. `fix(user): pre-existing — null check before dispatching welcome mail`).
+   - **Test coverage workflow depends on the commit type:**
+     - `fix(<scope>): pre-existing — …` (bug, security) — add the regression test in the **same commit** as the fix; the test must fail before the fix lands and pass after.
+     - `refactor(<scope>): pre-existing — …` (project-rule violation, behavior-preserving) — apply `@rules/refactoring/general.mdc` *Test Coverage Contract*: when the target lines are below 100% coverage, author a dedicated `test(<scope>): cover <area> before pre-existing refactor` commit **before** the refactor commit, and do **not** modify pre-existing tests inside the refactor commit (mechanical renames forced by the refactor itself stay exempt and must be flagged in the commit body).
+   - Either way, pre-existing fixes follow the same 100% coverage rule on changed lines as in-scope changes (step 16).
+4. Order pre-existing fix commits **before** the in-scope commits in the commit plan from the previous section, so they form an independently revertable base. Update the recorded commit plan to include them before starting implementation.
+5. If a pre-existing issue is **non-trivial** (would significantly expand the PR, requires architectural decisions, or affects shared infrastructure beyond the touched files), do **not** fix it inline. Move it to the *Out of scope (deferred)* group from step 7 and surface it under the PR's `## TODO` section with a one-line reason for deferral.
+
 ### If bug
 8. Reproduce the issue if possible.
 9. Write or update a test capturing the failure.
@@ -96,6 +131,7 @@ Before writing any code, decide how the in-scope work will be split into commits
 ### Continue
 11. Implement the solution for all **in-scope** items identified in step 7.
 12. Ensure no sensitive data is exposed in error/validation messages. Apply `@rules/security/backend.md` *Safe Validation & Error Messages* (and `@rules/security/frontend.md` / `@rules/security/mobile.md` for the equivalent client surfaces) to every user-facing string the change touches, **including every locale shipped by the project** — auth, password-reset, sign-up, and account-lookup flows must return one generic message with one response shape so the wording cannot be used for identity enumeration, authorization-denied responses must not confirm the resource exists, and no stack traces / file paths / framework versions / DB or queue / cache identifiers / verbatim attacker input reach the response body.
+    Apply `@rules/security/backend.md` *Malicious Code & Supply-Chain Indicators* (issue #549) to every line the change adds in application code, shell / deploy / CI scripts, and installer hooks — never introduce a silent `curl -s … | sh`, disabled TLS validation (`curl -k`, `CURLOPT_SSL_VERIFYPEER => false`, `NODE_TLS_REJECT_UNAUTHORIZED=0`), suppressed error output on a security-relevant command, or a hidden `/tmp` file paired with a detached background process; route downloads through allow-listed checksum-verified HTTPS and background work through the project's queue / scheduler.
 13. If the implementation introduced new database migrations, run them (`php artisan migrate` for Laravel projects, or the project-specific equivalent) before executing the affected tests or creating the pull request.
 14. Run tests for affected areas and confirm correctness.
 15. Add or update tests to cover the new or fixed behavior.
@@ -139,7 +175,8 @@ Once review and testing are clean:
   - reference to the original issue
   - testing instructions
   - **Summary** — concise overview of what changed and why
-  - **TODO list** — if any **out-of-scope** items were identified in step 7, include them in the PR summary under a `## TODO` section as a checklist of potential follow-up tasks
+  - **Pre-existing fixes** — if any pre-existing issues were fixed per *Pre-existing issue handling*, list each fix commit under a `## Pre-existing fixes` section with a one-line rationale so reviewers can review them independently of the assignment
+  - **TODO list** — if any **out-of-scope (deferred)** items were identified in step 7 (or non-trivial pre-existing issues were deferred), include them under a `## TODO` section as a checklist of potential follow-up tasks
 
 ## Final report
 
@@ -158,13 +195,14 @@ Post the non-technical report on the issue tracker where the task with the assig
 
 - **GitHub** (task filed as a GitHub issue): post as a comment on the original issue
 - **JIRA** (task filed in JIRA): post as a JIRA comment formatted with JIRA Wiki Markup per `@rules/jira/general.mdc` (no Markdown headings, fenced code blocks, or tables)
-- **Bugsnag** (task originated from a Bugsnag error): post as a comment on the linked GitHub issue (if available)
+- **Bugsnag** (task originated from a Bugsnag error): post the non-technical report as a comment directly on the Bugsnag error via `skills/code-review-bugsnag/scripts/upsert-comment.sh <URL|TRIPLE> -` (requires `BUGSNAG_TOKEN`; falls back to a Bugsnag MCP server when the script is unavailable). Also mirror it as a comment on the linked GitHub issue from `linkedIssues[]` when one exists.
 
 The non-technical report must be understandable by non-technical testers and product managers and contain:
 
 - **What changed:** a brief, plain-language summary of the fix or feature
 - **How to test:** step-by-step instructions a tester can follow to verify the change works correctly
 - **Risk areas and edge cases:** specific scenarios the tester should focus on to catch potential regressions or unexpected behavior
+- **Pre-existing fixes also covered by this PR (when any):** plain-language one-line summary per pre-existing fix commit produced by *Pre-existing issue handling*, plus a one-line "what to re-verify" hint per fix so the tester knows the additional regression surface to validate. Omit the bullet entirely when no pre-existing fix landed.
 
 ### GitHub-specific follow-up
 - If the original repository uses a `ready for review` (or equivalent) label, apply it to the source issue once the PR is open to signal it is ready for reviewers. Skip this step when the project does not use such labels.
@@ -172,6 +210,10 @@ The non-technical report must be understandable by non-technical testers and pro
 ### JIRA-specific follow-up
 - Link the created PR back to the JIRA issue.
 - Do not change the JIRA issue status — per `@rules/jira/general.mdc`, status transitions are handled by humans only.
+
+### Bugsnag-specific follow-up
+- The created PR is linked through the Bugsnag error's existing GitHub integration (`linkedIssues[]`); do not invent a second link.
+- Do not change the Bugsnag error status (fixed / ignored / snoozed) automatically — like JIRA transitions, marking an error fixed is left to a human after the fix is verified in production.
 
 ## References
 

@@ -22,6 +22,7 @@ Focus on:
 
 ## Constraints
 - Apply @rules/php/core-standards.mdc
+- Apply @rules/compound-engineering/general.mdc — the pre-implementation research and the plan artifact below exist so the analysis compounds: it grounds the work in what already exists and leaves a reusable plan behind.
 - Never modify code
 - Output Markdown only
 - Use one language only
@@ -60,6 +61,30 @@ Apply these 10 steps in order. Each step feeds the next — never jump ahead to 
 
 ---
 
+## Pre-Implementation Research & Plan
+
+Before proposing or implementing anything, do the research that grounds the analysis in what already exists — then leave a reusable plan behind. This runs after the Analysis Framework settles the root cause and feeds the **Recommended Solution** (step 7) and **Implementation Outline** (step 8).
+
+### Research (do all three before planning)
+
+1. **Codebase** — read the actual files, layers, and conventions the change will touch. Find the existing part of the system the work belongs to; per `@rules/compound-engineering/general.mdc`, reach for an existing home before inventing a new abstraction.
+2. **Commit history** — walk `git log` / `git blame` for the affected area to learn how it evolved, which past changes touched it, and which approaches were already tried or reverted. Past decisions are context you must not re-derive blindly.
+3. **Internet best practices (when relevant)** — for an unfamiliar pattern, library, protocol, or security-sensitive surface, consult current authoritative references. Cite every source you rely on; skip this step for routine, well-understood changes.
+
+### Plan artifact (the deliverable)
+
+Capture the result as a **written plan** — a text file in the repo (e.g. under `docs/plans/` or alongside the issue) **or** a GitHub issue — not only inline prose. The plan must contain exactly these five parts:
+
+- **Goal** — the outcome in one or two sentences: what will be true when this is done.
+- **Architecture** — where the change lives in the existing system (files, layers, the existing part it extends), and why that home over a new abstraction.
+- **Implementation steps** — concrete, ordered, independently reviewable steps a following agent can execute without re-deriving the analysis.
+- **Sources** — links to the codebase locations, commits, and any external references the plan relies on.
+- **Success criteria** — observable, verifiable conditions (tests, behavior, metrics) that prove the work is complete and correct.
+
+State where the plan artifact was written (file path or issue URL) in the analysis output so the next agent can pick it up. A durable plan that the next agent reuses is the compounding payoff — see `@rules/compound-engineering/general.mdc`.
+
+---
+
 ## Output Structure
 
 The output uses the template at `templates/analysis-report.md`. The template has 11 sections that map onto the framework above:
@@ -87,6 +112,23 @@ Fill every section. If a section has nothing to report, write a short explicit n
 - Avoid confirmation bias
 - Keep analysis structured and concise
 - Prefer simple explanations over complex ones
+
+---
+
+## UI Redesign Lens
+
+Apply this lens **only when the analyzed problem is a UI / UX redesign or a new user-facing flow** — detected when the assignment, the loaded issue, or its comments talk about layout, screen, page, dashboard, form, wizard, modal, widget, navigation, look & feel, accessibility, or any other end-user interaction surface. Skip the lens entirely for backend-only, infrastructure, performance, or tooling problems.
+
+When it fires, the lens fixes the design direction of the **Recommended Solution** (step 7 of the framework) and the wording of the **Non-Technical Explanation** (step 10) so the analysis cannot drift into a complex, multi-screen, jargon-heavy design without an explicit reason:
+
+- **Simple** — the screen carries the minimum surface that solves the user's job. Every input, button, copy block, illustration, and toggle on the proposed design must trace to a concrete user need stated in the assignment. Speculative knobs, "in case" filters, and decorative chrome are rejected the same way speculative code is rejected by `@rules/php/core-standards.mdc` *Design Principles*.
+- **Intuitive** — the user reaches the goal without reading documentation. Primary action is unambiguous and placed where the user already looks; affordances match platform conventions (web / mobile / desktop) the user has internalised; nothing relies on a hidden gesture or an undocumented shortcut.
+- **Readable for humans** — the layout follows a clear visual hierarchy (one primary call-to-action per view, secondary actions visibly demoted, supporting copy in plain language at the user's reading level), respects a comfortable line length and information density, and meets the project's accessibility baseline (WCAG AA contrast, keyboard focus order, screen-reader labels, no colour-only signal) unless the assignment explicitly de-scopes accessibility.
+- **Modern** — the design follows current UI conventions of the framework / design system the project already uses (Tailwind UI, Filament, Material, Apple HIG, the project's in-house design tokens). Do not reintroduce patterns the platform has retired (1990s-style modal stacks, full-page reloads on every interaction, dense data tables with no progressive disclosure on mobile widths).
+- **One-click default** — for any action the analysis recommends, prefer a single-click / single-tap completion over a multi-step flow. A confirmation step is allowed only when the action is destructive, irreversible, financially material, legally significant, or affects a third party — and the **Recommended Solution** must name which of those reasons justifies the extra click.
+- **Wizard fallback when multi-step is unavoidable** — when the underlying job genuinely cannot fit one click (compound input, branching prerequisites, server-side processing between steps), recommend a wizard pattern with these mandatory properties: every step states its purpose and its position in the flow (*Step 2 of 4 — Billing address*); the user can move back without losing entered data; the user can save and resume later when the flow exceeds three steps; each step validates inline and surfaces field-level errors per the rules in `@rules/security/backend.md` / `@rules/security/frontend.md` *Safe Validation & Error Messages*; the final step shows a summary of every choice before commit. Reject wizard variants that hide progress, require the user to backtrack through a different surface to fix an earlier mistake, or block forward navigation behind a hidden prerequisite.
+
+Record the design verdict in the **Recommended Solution** section using these exact subheadings so a reader can scan the lens output deterministically: *Simplicity*, *Intuitiveness*, *Readability*, *Modernity*, *One-click vs wizard decision* (one sentence — *one click* or *N-step wizard*, plus the reason). When the design is *N-step wizard*, also list the wizard's mandatory properties met by the proposal. Do not relax any of the six rules silently — when the assignment forces a deviation (e.g. the brand requires a non-standard interaction), cite the assignment passage that authorizes it.
 
 ---
 
