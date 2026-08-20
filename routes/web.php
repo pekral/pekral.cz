@@ -174,3 +174,6 @@ Route::middleware(['auth'])->group(function (): void {
 });
 
 require __DIR__ . '/auth.php';
+
+// Runs inside the "web" group so the 404 page is rendered in the visitor's locale.
+Route::fallback(fn () => response()->view('errors.404', [], 404));

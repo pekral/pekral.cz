@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Livewire\Guest;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Config;
 use Livewire\Component;
 
 final class SocialLinks extends Component
@@ -19,17 +20,17 @@ final class SocialLinks extends Component
             [
                 'icon' => 'github',
                 'name' => __('guest.footer.github'),
-                'url' => 'https://github.com/pekral',
+                'url' => Config::string('social.github'),
             ],
             [
                 'icon' => 'twitter',
                 'name' => __('guest.footer.x_twitter'),
-                'url' => 'https://x.com/kral_petr_88',
+                'url' => Config::string('social.x'),
             ],
             [
                 'icon' => 'linkedin',
                 'name' => __('guest.footer.linkedin'),
-                'url' => 'https://www.linkedin.com/in/petr-král-60223752/',
+                'url' => Config::string('social.linkedin'),
             ],
         ];
     }

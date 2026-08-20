@@ -111,11 +111,11 @@
                         <p class="text-muted-foreground text-sm mb-4">
                             {{ __('guest.about.connect_linkedin') }}
                         </p>
-                        <a href="https://www.linkedin.com/in/petr-kr%C3%A1l-60223752/"
+                        <a href="{{ config('social.linkedin') }}"
                            target="_blank"
                            rel="noopener noreferrer"
                            class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                            linkedin.com/in/petr-král
+                            cz.linkedin.com/in/petr-kral-88-php
                         </a>
                     </div>
                 </div>
@@ -131,7 +131,7 @@
                         <p class="text-muted-foreground text-sm mb-4">
                             {{ __('guest.about.connect_github') }}
                         </p>
-                        <a href="https://github.com/pekral"
+                        <a href="{{ config('social.github') }}"
                            target="_blank"
                            rel="noopener noreferrer"
                            class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
