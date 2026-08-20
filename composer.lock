@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ccf5058600badb65c60c8ad5a59fe39",
+    "content-hash": "6954d6e9d3d79ae8cf816074a73243c0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -8885,34 +8885,33 @@
         },
         {
             "name": "pekral/phpcs-rules",
-            "version": "dev-master",
+            "version": "0.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/phpcs-rules.git",
-                "reference": "99f8594753ff1701641dc5ec6b36257be57dece3"
+                "reference": "9474a74c86b06fa1d883978a712aa5faf6295063"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/phpcs-rules/zipball/99f8594753ff1701641dc5ec6b36257be57dece3",
-                "reference": "99f8594753ff1701641dc5ec6b36257be57dece3",
+                "url": "https://api.github.com/repos/pekral/phpcs-rules/zipball/9474a74c86b06fa1d883978a712aa5faf6295063",
+                "reference": "9474a74c86b06fa1d883978a712aa5faf6295063",
                 "shasum": ""
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
-                "php": "^8.5",
-                "slevomat/coding-standard": "^8.31.0"
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+                "php": "^8.4",
+                "slevomat/coding-standard": "^8.28.0"
             },
             "require-dev": {
-                "illuminate/collections": "^13.23.0",
+                "illuminate/collections": "^12.52.0",
                 "mockery/mockery": "^1.6.12",
-                "pekral/cursor-rules": "dev-master",
-                "pekral/phpstan-rules": "dev-master",
-                "pekral/rector-rules": "dev-master",
-                "phpunit/phpunit": "^13.2.6",
+                "pekral/cursor-rules": "^0.4.1",
+                "pekral/phpstan-rules": "^0.4.5",
+                "pekral/rector-rules": "^0.4.8",
+                "phpunit/phpunit": "^13.0.5",
                 "roave/security-advisories": "dev-latest",
-                "symfony/console": "^7.4.1 || ^8.1.1"
+                "symfony/console": "^7.4.1 || ^8.0.4"
             },
-            "default-branch": true,
             "type": "phpcodesniffer-standard",
             "autoload": {
                 "psr-4": {
@@ -8963,7 +8962,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-29T06:47:56+00:00"
+            "time": "2026-02-24T06:55:52+00:00"
         },
         {
             "name": "pekral/rector-rules",
@@ -12551,7 +12550,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "pekral/cursor-rules": 20,
-        "pekral/phpcs-rules": 20,
         "pekral/rector-rules": 20,
         "roave/security-advisories": 20
     },
@@ -12561,5 +12559,8 @@
         "php": "^8.4"
     },
     "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.4.1"
+    },
     "plugin-api-version": "2.9.0"
 }
