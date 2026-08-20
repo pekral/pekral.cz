@@ -7,8 +7,10 @@ return [
         'skills' => 'PHP Developer Skills | Laravel, Symfony, Open Source | Petr Král',
         'projects' => 'Open Source PHP Projects | Petr Král - PHP Developer',
         'privacy-policy' => 'Privacy Policy | Petr Král - PHP Developer',
-        'blog.index' => 'Blog | Petr Král - PHP Developer',
-        'blog.show' => 'Article | Petr Král - PHP Developer',
+        'blog' => [
+            'index' => 'Laravel, PHP and AI Articles | Petr Král',
+            'show' => 'Article | Petr Král - PHP Developer',
+        ],
         'default' => 'Petr Král | PHP Developer building with Laravel',
     ],
     'description' => [
@@ -17,8 +19,10 @@ return [
         'skills' => 'Technical skills of Petr Král, PHP developer: Laravel, Symfony, PHP 8, REST API development, MySQL, PostgreSQL, Docker. Experienced programmer focused on open source and best practices.',
         'projects' => 'Open source PHP projects by developer Petr Král. Applications built with Laravel, PHP libraries, Rector rules, and developer tools. Active contributor to the PHP and open source community.',
         'privacy-policy' => 'Privacy policy for the portfolio website of Petr Král, Senior PHP Developer building with Laravel.',
-        'blog.index' => 'Articles and notes by Petr Král, PHP developer building projects with Laravel.',
-        'blog.show' => 'Blog article by Petr Král, PHP developer building with Laravel.',
+        'blog' => [
+            'index' => 'Articles and notes by Petr Král on Laravel, PHP code quality, testing and AI-assisted development.',
+            'show' => 'Blog article by Petr Král, PHP developer building with Laravel.',
+        ],
         'default' => 'Petr Král - Senior PHP Developer building with Laravel, specializing in open source, API development, and scalable backend solutions.',
     ],
     'meta' => [
