@@ -3,6 +3,35 @@ import {
 } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from "@tailwindcss/vite";
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+// Serve dev assets over HTTPS when the site itself is served over HTTPS
+// (Herd/Valet), otherwise the browser blocks them as mixed content.
+// Set VITE_DEV_HOST=pekral.test in .env to enable it; without the variable
+// (CI, Docker, plain `npm run dev`) nothing below applies.
+const devHost = process.env.VITE_DEV_HOST;
+const certificateDirectory = path.join(
+    os.homedir(),
+    'Library/Application Support/Herd/config/valet/Certificates',
+);
+
+const readCertificate = (host) => {
+    const key = path.join(certificateDirectory, `${host}.key`);
+    const cert = path.join(certificateDirectory, `${host}.crt`);
+
+    if (!fs.existsSync(key) || !fs.existsSync(cert)) {
+        return undefined;
+    }
+
+    return {
+        key: fs.readFileSync(key),
+        cert: fs.readFileSync(cert),
+    };
+};
+
+const certificate = devHost ? readCertificate(devHost) : undefined;
 
 export default defineConfig({
     plugins: [
@@ -14,5 +43,6 @@ export default defineConfig({
     ],
     server: {
         cors: true,
+        ...(certificate ? { host: devHost, https: certificate } : {}),
     },
 });
