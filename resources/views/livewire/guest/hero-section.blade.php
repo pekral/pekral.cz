@@ -100,7 +100,7 @@
                             <span>{{ __('guest.hero.contributing') }}</span>
                         </li>
                     </ul>
-                    <a href="https://github.com/pekral" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm text-primary hover:underline font-mono">
+                    <a href="{{ config('social.github') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-sm text-primary hover:underline font-mono">
                         {{ __('guest.hero.view_projects_github') }}
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
