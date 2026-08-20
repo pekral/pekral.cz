@@ -1,5 +1,6 @@
 @php
     $routeName = Route::currentRouteName() ?? 'default';
+    $structuredDataLocale = app()->getLocale() === 'cs' ? 'cs-CZ' : 'en-US';
     if ($routeName === 'blog.show' && isset($article)) {
         $pageTitle = $article->title . ' | ' . __('head.meta.site_name');
         $pageDescription = $article->description !== '' ? $article->description : __('head.description.blog.show');
@@ -35,11 +36,11 @@
 <meta property="og:image:alt" content="{{ __('head.meta.image_alt') }}">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="profile:first_name" content="Petr">
-<meta property="profile:last_name" content="Kr?l">
+<meta property="profile:last_name" content="Král">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@kral_petr_88">
-<meta name="twitter:creator" content="@kral_petr_88">
+<meta name="twitter:site" content="{{ '@' . basename((string) config('social.x')) }}">
+<meta name="twitter:creator" content="{{ '@' . basename((string) config('social.x')) }}">
 <meta name="twitter:title" content="{{ $pageTitle }}">
 <meta name="twitter:description" content="{{ $pageDescription }}">
 <meta name="twitter:image" content="{{ asset('assets/profile-photo.jpg') }}">
@@ -65,9 +66,9 @@
     '@context' => 'https://schema.org',
     '@type' => 'Person',
     '@id' => url('/') . '#person',
-    'name' => 'Petr Kr?l',
+    'name' => 'Petr Král',
     'givenName' => 'Petr',
-    'familyName' => 'Kr?l',
+    'familyName' => 'Král',
     'jobTitle' => 'PHP Developer building with Laravel',
     'alternateName' => 'Senior PHP Programmer',
     'description' => 'Senior PHP programmer building projects with Laravel, with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
@@ -84,7 +85,7 @@
         '@context' => 'https://schema.org',
         '@type' => 'PostalAddress',
         'addressLocality' => 'Chlumec nad Cidlinou',
-        'addressRegion' => 'Kr?lov?hradeck? kraj',
+        'addressRegion' => 'Královéhradecký kraj',
         'addressCountry' => 'CZ'
     ],
     'nationality' => [
@@ -93,9 +94,9 @@
         'name' => 'Czech Republic'
     ],
     'sameAs' => [
-        'https://github.com/pekral',
-        'https://www.linkedin.com/in/petr-kr?l-60223752/',
-        'https://x.com/kral_petr_88'
+        config('social.github'),
+        config('social.linkedin'),
+        config('social.x'),
     ],
     'knowsAbout' => [
         'PHP Development',
@@ -142,13 +143,13 @@
     '@type' => 'WebSite',
     '@id' => url('/') . '#website',
     'url' => url('/'),
-    'name' => 'Petr Kr?l - Senior PHP Developer',
-    'description' => 'Personal portfolio and blog of Petr Kr?l, Senior PHP Developer with 20+ years of experience.',
+    'name' => 'Petr Král - Senior PHP Developer',
+    'description' => 'Personal portfolio and blog of Petr Král, Senior PHP Developer with 20+ years of experience.',
     'publisher' => [
         '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'
     ],
-    'inLanguage' => 'en-US'
+    'inLanguage' => $structuredDataLocale,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
 
@@ -169,6 +170,6 @@
         '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'
     ],
-    'inLanguage' => 'en-US'
+    'inLanguage' => $structuredDataLocale,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
