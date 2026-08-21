@@ -48,7 +48,7 @@
                 @foreach($experiences as $exp)
                     <div class="relative pl-12">
                         {{-- Timeline dot --}}
-                        <div class="absolute left-2.5 top-2 w-3 h-3 rounded-full bg-primary border-2 border-background"></div>
+                        <div class="absolute left-2.5 top-2 w-3 h-3 rounded-full bg-primary border-2 border-background shadow-[0_0_10px_hsl(24_89%_57%_/_0.8)]" aria-hidden="true"></div>
 
                         <div class="project-card">
                             <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-2">
@@ -60,7 +60,7 @@
                                         {{ $exp['company'] }}
                                     </p>
                                 </div>
-                                <span class="text-xs text-muted-foreground font-mono whitespace-nowrap">
+                                <span class="hud-label whitespace-nowrap">
                                     {{ $exp['period'] }}
                                 </span>
                             </div>
@@ -82,7 +82,7 @@
 
         <div class="grid gap-4">
             @foreach($focus as $item)
-                <div class="flex items-start gap-3 p-4 rounded-lg bg-card border border-border">
+                <div class="project-card flex items-start gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0 mt-0.5">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>

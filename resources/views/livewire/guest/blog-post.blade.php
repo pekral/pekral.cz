@@ -13,7 +13,7 @@
                 <h1 class="text-2xl md:text-3xl font-bold text-foreground font-mono">
                     <span class="text-primary">#</span> {{ $article->title }}
                 </h1>
-                <p class="mt-2 text-sm text-muted-foreground font-mono flex flex-wrap items-center gap-x-1 gap-y-1">
+                <p class="hud-label mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1">
                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                     <span aria-hidden="true"> · </span>
                     <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>

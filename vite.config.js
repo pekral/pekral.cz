@@ -1,5 +1,6 @@
 import {
-    defineConfig
+    defineConfig,
+    loadEnv
 } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from "@tailwindcss/vite";
@@ -11,7 +12,6 @@ import path from 'node:path';
 // (Herd/Valet), otherwise the browser blocks them as mixed content.
 // Set VITE_DEV_HOST=pekral.test in .env to enable it; without the variable
 // (CI, Docker, plain `npm run dev`) nothing below applies.
-const devHost = process.env.VITE_DEV_HOST;
 const certificateDirectory = path.join(
     os.homedir(),
     'Library/Application Support/Herd/config/valet/Certificates',
@@ -31,18 +31,24 @@ const readCertificate = (host) => {
     };
 };
 
-const certificate = devHost ? readCertificate(devHost) : undefined;
+export default defineConfig(({ mode }) => {
+    // Vite does not copy .env into process.env, so the host has to be read
+    // through loadEnv - reading process.env directly always yields undefined
+    // and silently falls back to plain HTTP.
+    const devHost = loadEnv(mode, process.cwd(), '').VITE_DEV_HOST;
+    const certificate = devHost ? readCertificate(devHost) : undefined;
 
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/fe.js', 'resources/css/fe.css'],
-            refresh: true,
-        }),
-        tailwindcss(),
-    ],
-    server: {
-        cors: true,
-        ...(certificate ? { host: devHost, https: certificate } : {}),
-    },
+    return {
+        plugins: [
+            laravel({
+                input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/fe.js', 'resources/css/fe.css'],
+                refresh: true,
+            }),
+            tailwindcss(),
+        ],
+        server: {
+            cors: true,
+            ...(certificate ? { host: devHost, https: certificate } : {}),
+        },
+    };
 });

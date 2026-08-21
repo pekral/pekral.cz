@@ -7,10 +7,13 @@
             <div class="terminal-dot terminal-dot-yellow"></div>
             <div class="terminal-dot terminal-dot-green"></div>
         </div>
-        <span class="text-xs text-[#9ca3af] font-mono ml-2">{{ $title }}</span>
+        <span class="text-xs text-muted-foreground font-mono ml-2 truncate">{{ $title }}</span>
+        <span class="hud-label ml-auto hidden sm:flex items-center gap-2 text-functional-green shrink-0" aria-hidden="true">
+            <span class="status-dot"></span>
+            <span class="text-muted-foreground">active</span>
+        </span>
     </div>
     <div class="terminal-content">
         {{ $slot }}
     </div>
 </div>
-
