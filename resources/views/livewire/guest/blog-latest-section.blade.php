@@ -22,7 +22,7 @@
                                 <h3 class="font-mono text-foreground group-hover:text-primary transition-colors font-semibold">
                                     {{ $article->title }}
                                 </h3>
-                                <p class="mt-1 text-xs text-muted-foreground font-mono">
+                                <p class="hud-label mt-1.5">
                                     <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
                                     <span aria-hidden="true"> · </span>
                                     <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>

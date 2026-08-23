@@ -1,4 +1,8 @@
-<nav class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border" role="navigation" aria-label="Main navigation">
+@php
+    $currentUrl = url()->current();
+@endphp
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-[0_1px_0_hsl(190_85%_52%_/_0.14)]" role="navigation" aria-label="Main navigation">
     <div class="container max-w-4xl mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <a href="{{ route('home') }}" class="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
@@ -7,17 +11,32 @@
                     <path d="m6 8-4 4 4 4"></path>
                     <path d="m14.5 4-5 16"></path>
                 </svg>
-                <span class="font-mono font-semibold">pekral</span>
+                <span class="font-mono font-semibold tracking-tight">pekral</span>
             </a>
 
             <div class="hidden md:flex items-center gap-6">
                 @foreach($links as $link)
                     @if($link['is_anchor'])
-                        <a href="{{ $link['route'] }}" class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors no-underline">
+                        <a href="{{ $link['route'] }}" class="hud-label px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors no-underline">
                             {{ __('guest.nav.' . $link['name']) }}
                         </a>
                     @else
-                        <a href="{{ $link['route'] }}" class="text-sm text-muted-foreground hover:text-primary transition-colors font-mono link-underline" wire:navigate>
+                        @php
+                            $isActive = str_starts_with($currentUrl, $link['route']);
+                        @endphp
+                        <a
+                            href="{{ $link['route'] }}"
+                            @class([
+                                'hud-label inline-flex items-center gap-2 transition-colors link-underline',
+                                'text-primary' => $isActive,
+                                'hover:text-primary' => !$isActive,
+                            ])
+                            @if($isActive) aria-current="page" @endif
+                            wire:navigate
+                        >
+                            @if($isActive)
+                                <span class="status-dot" aria-hidden="true"></span>
+                            @endif
                             {{ __('guest.nav.' . $link['name']) }}
                         </a>
                     @endif
@@ -64,11 +83,27 @@
             <div class="md:hidden flex flex-col gap-4 pt-4 pb-2 border-t border-border mt-2">
                 @foreach($links as $link)
                     @if($link['is_anchor'])
-                        <a href="{{ $link['route'] }}" class="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md font-mono hover:bg-primary/90 transition-colors no-underline" wire:click="closeMenu">
+                        <a href="{{ $link['route'] }}" class="hud-label px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors no-underline" wire:click="closeMenu">
                             {{ __('guest.nav.' . $link['name']) }}
                         </a>
                     @else
-                        <a href="{{ $link['route'] }}" class="text-sm text-muted-foreground hover:text-primary transition-colors font-mono link-underline" wire:click="closeMenu" wire:navigate>
+                        @php
+                            $isActive = str_starts_with($currentUrl, $link['route']);
+                        @endphp
+                        <a
+                            href="{{ $link['route'] }}"
+                            @class([
+                                'hud-label inline-flex items-center gap-2 transition-colors link-underline',
+                                'text-primary' => $isActive,
+                                'hover:text-primary' => !$isActive,
+                            ])
+                            @if($isActive) aria-current="page" @endif
+                            wire:click="closeMenu"
+                            wire:navigate
+                        >
+                            @if($isActive)
+                                <span class="status-dot" aria-hidden="true"></span>
+                            @endif
                             {{ __('guest.nav.' . $link['name']) }}
                         </a>
                     @endif

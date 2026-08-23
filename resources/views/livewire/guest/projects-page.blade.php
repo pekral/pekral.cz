@@ -76,7 +76,7 @@
                                     {{ $project['phpVersion'] }}
                                 </span>
                             @endif
-                            <span class="px-2 py-0.5 rounded bg-secondary font-mono">
+                            <span class="hud-label px-2 py-0.5 rounded border border-border bg-secondary">
                                 {{ $project['language'] }}
                             </span>
                         </div>
