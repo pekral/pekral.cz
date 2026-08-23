@@ -16,7 +16,7 @@
         "livewire/flux": "^2.17.0",
         "livewire/volt": "^1.11.2",
         "spatie/laravel-cookie-consent": "^3.5.0",
-        "symfony/yaml": "^7.4.15",
+        "symfony/yaml": "^7.4.17",
         "pekral/arch-app-services": "^0.4",
         "spatie/laravel-data": "^4.23.0"
     },
@@ -33,7 +33,7 @@
         "pekral/phpcs-rules": "^0.4.8",
         "pekral/rector-rules": "dev-master",
         "pestphp/pest": "^4.7.8",
-        "phpstan/phpstan": "^2.2.8",
+        "phpstan/phpstan": "^2.2.9",
         "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpstan/phpstan-mockery": "^2.0",
         "roave/security-advisories": "dev-latest"
