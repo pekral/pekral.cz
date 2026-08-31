@@ -6,9 +6,17 @@ metadata:
   author: "Petr Král (pekral.cz)"
 ---
 
-# Skill Creator
+## Constraints
+- Apply `@rules/php/core-standards.md` **only once it is established that the skill being created targets PHP code work in a PHP project** — skip it for a stack-agnostic or non-PHP skill; do not load the PHP standards when the new skill does not touch PHP.
+- Apply `@rules/git/general.md`
+- Output must be in English
+- Do not modify other skills, rules, or production code
+- Do not duplicate an existing skill — extend or refactor instead
+- Never add behavior beyond what the requested skill needs
 
-## Purpose
+---
+
+## Scope
 Author a new Agent skill that fits this repository's conventions and ships ready for review.
 
 Focus on:
@@ -16,16 +24,6 @@ Focus on:
 - behavior aligned with `skill-check.config.json` limits
 - clear Use when, Execution, and Done when sections
 - no duplication with existing skills
-
----
-
-## Constraints
-- Apply `@rules/php/core-standards.mdc` **only once it is established that the skill being created targets PHP code work in a PHP project** — skip it for a stack-agnostic or non-PHP skill; do not load the PHP standards when the new skill does not touch PHP.
-- Apply `@rules/git/general.mdc`
-- Output must be in English
-- Do not modify other skills, rules, or production code
-- Do not duplicate an existing skill — extend or refactor instead
-- Never add behavior beyond what the requested skill needs
 
 ---
 
@@ -58,7 +56,27 @@ If running interactively, confirm the inputs with the user. If running autonomou
 
 ### 2. Choose the slug and location
 - Slug must be kebab-case, ≤ 64 chars, and not collide with an existing folder under `skills/`.
-- Create `skills/<slug>/SKILL.md`. Add subfolders (`templates/`, `references/`) only when the skill genuinely needs them.
+- Create `skills/<slug>/SKILL.md`. Add a subfolder only when the skill genuinely needs one — see the layout below.
+
+**Directory layout (Anthropic's recommended structure).** A skill is a directory whose entrypoint is `SKILL.md`; every other file is optional and exists so `SKILL.md` stays the overview rather than the whole payload ([skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/ai-olympus/best-practices), [Claude Code skills](https://code.claude.com/docs/en/skills)):
+
+```text
+<slug>/
+├── SKILL.md          # required — instructions and navigation
+├── references/       # detailed material Claude reads on demand
+├── scripts/          # utilities Claude executes, never loads into context
+└── templates/        # output shapes and examples Claude fills in
+```
+
+The rules that make the split work, each one load-bearing:
+
+- **Progressive disclosure.** Keep the `SKILL.md` body under 500 lines (this repo's `skill-check.config.json` enforces the same limit) and move detail into a sibling file rather than growing the body. A referenced file costs nothing until it is read.
+- **References stay one level deep.** Every supporting file links directly from `SKILL.md`. A file that is only reachable through another file gets partially read (`head -100`) instead of read whole.
+- **Say whether a script is executed or read.** *"Run `scripts/validate.sh`"* and *"see `scripts/validate.sh` for the algorithm"* are different instructions; execution is the default because it is cheaper and more reliable than regenerating the logic.
+- **Name files for their content and forward-slash every path.** `references/finance.md`, never `docs/file2.md`; `scripts/helper.sh`, never `scripts\helper.sh`.
+- **A reference file over 100 lines opens with a table of contents**, so a partial read still shows the full scope.
+
+Keep the folder names above rather than inventing synonyms — `references/`, `scripts/`, `templates/` are what the existing skills in this repo already use, and a consistent tree is what makes a skill portable to another Agent Skills host.
 
 ### 3. Write the frontmatter
 Required keys:
@@ -78,18 +96,23 @@ Rules from `skill-check.config.json`:
 - `name`: ≤ 64 chars
 - Body: ≤ 500 lines and ≤ 5000 tokens
 
+Portability rules from the Agent Skills spec — a skill that breaks one of these stops loading on another host even though `skill-check` passes:
+- `name`: lowercase letters, numbers, and hyphens only; no XML tags; never the reserved words `anthropic` or `claude`. It must match the directory name, which is what the `/<slug>` invocation resolves from.
+- `description`: non-empty, ≤ 1024 chars, no XML tags, written in the **third person** ("Resolves…", never "I can help you…"). It is injected into the system prompt and is the only thing a host sees before deciding to load the skill, so it states both *what the skill does* and *when to use it*. The repo's "Use when …" opening satisfies the *when* half — keep the *what* in the same sentence.
+
 ### 4. Compose the body
 The repo accepts two body layouts. Pick one and stay consistent within the file.
 
 **Layout A — Constraints-first (preferred for new skills):**
 
 1. `## Constraints` — applied rules and hard limits (one bullet per item)
-2. `## Use when` — concrete triggers
-3. `## Required approach` or `## Execution` — numbered steps the agent must follow
-4. `## Output` or `## Output Format` — structure of what the skill returns
-5. `## Done when` — verifiable completion criteria
+2. `## Scope` *(optional)* — what the skill covers, what it deliberately leaves to another skill, and the focus areas it works through. Write it only when the skill carries scope the `description:` field does not already state; never restate the frontmatter here.
+3. `## Use when` — concrete triggers
+4. `## Required approach` or `## Execution` — numbered steps the agent must follow
+5. `## Output` or `## Output Format` — structure of what the skill returns
+6. `## Done when` — verifiable completion criteria
 
-Examples in the repo: `refactor-entry-point-to-action`, `smartest-project-addition`, `test-driven-development`, `test-like-human`, `security-review`.
+Examples in the repo: `refactor-entry-point-to-action`, `smartest-project-addition`, `test-driven-development`, `tester-cookbook`, `security-review`.
 
 **Layout B — Title + Purpose (legacy, still acceptable):**
 
@@ -101,12 +124,12 @@ Examples in the repo: `refactor-entry-point-to-action`, `smartest-project-additi
 6. `## Principles` — short guiding rules (optional)
 7. `## Done when`
 
-Examples in the repo: `code-review`, `class-refactoring`, `create-test`, `analyze-problem`.
+No skill in this repo uses Layout B any more — issue #278 migrated the last 24 to Layout A. It stays documented so a skill imported from elsewhere in this shape is still recognized; never pick it for a new skill.
 
 Omit a section only when it does not apply.
 
 ### 5. Reference rules and other skills
-- Reference rule files as `@rules/<area>/<file>.mdc` or `.md` exactly as they exist on disk.
+- Reference rule files as `@rules/<area>/<file>.md` exactly as they exist on disk.
 - Reference other skills as `@skills/<slug>/SKILL.md`.
 - Never invent paths. Verify every reference points to a real file before saving.
 
@@ -121,7 +144,7 @@ Omit a section only when it does not apply.
 Run before declaring the skill done:
 - `composer skill-check` — must report `PASS` with no warnings on the new file
 - If `skill-check` flags an auto-fixable warning, run `npx skill-check check skills/<slug> --fix --no-security-scan` (path-scoped) instead of `composer skill-check-fix`, which rewrites every skill in the tree and can pollute the diff with unrelated formatting changes
-- `composer build` — full project build (must finish without errors)
+- The full build is **not** run here — the project's gate runs once at the end of the work (`@skills/resolve-issue/references/quality-gates.md` *Gate placement — deferred to the merge boundary*), and `composer skill-check` above is a diff-scoped check, not that gate
 
 Do not silence checks; fix the SKILL.md content until the report is clean.
 
@@ -131,8 +154,7 @@ Do not silence checks; fix the SKILL.md content until the report is clean.
 After the new SKILL.md passes validation:
 - Add a `CHANGELOG.md` entry under `[Unreleased]` describing the new skill and referencing the issue (e.g. `(#432)`).
 - Update `README.md`:
-  - bump the skill count in the "Skills Overview" header and the "Why This Package" bullet
-  - add the new skill to the appropriate table (Issue Resolution, Code Review, Testing, Platform & Data, etc.)
+  - bump the skill count in the "Why This Package" bullet
 
 Skip the README update only when the skill is intentionally internal and not part of the public catalog — state this explicitly in the PR description.
 
@@ -163,7 +185,7 @@ Skip the README update only when the skill is intentionally internal and not par
 ## Done when
 - `skills/<slug>/SKILL.md` exists with valid frontmatter and required sections
 - `composer skill-check` passes with no warnings on the new file
-- `composer build` finishes without errors
+- `composer skill-check` reports `PASS` (the full build is not run here — it runs once at the end of the work)
 - `CHANGELOG.md` and `README.md` reflect the new skill (or the omission is justified)
 - The summary lists the slug, references, and validation result
 

@@ -37,15 +37,15 @@
                 </div>
             </a>
 
-            <!-- Project 3: cursor-rules -->
-            <a href="https://github.com/pekral/cursor-rules" target="_blank" rel="noopener noreferrer" class="block bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 no-underline hover:border-[#4b5563] transition-colors">
+            <!-- Project 3: ai-olympus -->
+            <a href="https://github.com/pekral/ai-olympus" target="_blank" rel="noopener noreferrer" class="block bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 no-underline hover:border-[#4b5563] transition-colors">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
-                        <h3 class="text-white font-mono text-base font-medium mb-2">cursor-rules</h3>
-                        <p class="text-[#9ca3af] text-sm leading-relaxed">{{ __('guest.projects.section_items.cursor-rules') }}</p>
+                        <h3 class="text-white font-mono text-base font-medium mb-2">ai-olympus</h3>
+                        <p class="text-[#9ca3af] text-sm leading-relaxed">{{ __('guest.projects.section_items.ai-olympus') }}</p>
                     </div>
                     <div class="flex items-center gap-3 ml-4">
-                        <span class="bg-[#374151] text-[#d1d5db] font-mono text-xs px-2.5 py-1 rounded">Markdown</span>
+                        <span class="bg-[#374151] text-[#d1d5db] font-mono text-xs px-2.5 py-1 rounded">PHP</span>
                     </div>
                 </div>
             </a>

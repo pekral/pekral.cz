@@ -6,13 +6,6 @@ metadata:
   author: Petr Král (pekral.cz)
 ---
 
-# Create Issues from Text
-
-## Purpose
-Split a complex assignment into multiple clear, structured issues.
-
----
-
 ## Constraints
 - Preserve original assignment (store in parent or first issue)
 - Do not implement code
@@ -34,7 +27,7 @@ Split a complex assignment into multiple clear, structured issues.
 ### 3. Create Issues
 - One issue per step
 - Ensure each is independently deliverable
-- Assign the most relevant existing label to each issue (per `@rules/compound-engineering/general.mdc` *Assign the most relevant existing label when creating a tracker issue*)
+- For every issue created — flat breakdown, EPIC parent, and sub-issues alike — select and apply the single most relevant existing label per `@rules/compound-engineering/general.md` *Label newly created tracker issues*; this is additive to, and independent of, the structural `EPIC` label from *EPIC parent & sub-issues* below
 
 ### 4. Output
 - Return list of created issues with URLs
@@ -57,7 +50,7 @@ Use this when the assignment is a **cross-cutting mix of requirements spanning m
 4. **Link every sub-issue back to the parent (both directions).**
    - In each sub-issue body, reference the parent with `Part of #<parent>` so the relationship is visible from the child.
    - In the parent body, keep a checkable task list of the children — `- [ ] #<child>` per sub-issue — under a `## Sub-issues` heading, so the parent shows the full breakdown and progress.
-5. **Order.** Fill each sub-issue's `## Dependencies` so a resolving run can pick a dependency-aware order — dependencies before dependents.
+5. **Order.** Fill each sub-issue's `## Dependencies` so a resolving run (e.g. `daedalus`) can pick a dependency-aware order — dependencies before dependents.
 6. **Output.** Return the `EPIC`-labelled parent URL plus the list of linked sub-issue URLs and the planned resolve order.
 
 ## Output Humanization

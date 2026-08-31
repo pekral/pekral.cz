@@ -6,20 +6,19 @@ metadata:
   author: "Petr Král (pekral.cz)"
 ---
 
-# Vite Patterns (Laravel)
+## Constraints
+- Apply `@rules/laravel/laravel.md`
+- Apply `@rules/laravel/livewire.md` and `@rules/laravel/filament.md` when bundling assets for those layers
+- Apply `@rules/php/core-standards.md` for any PHP touched (Blade config exposure, service providers)
+- This stack uses `laravel-vite-plugin` only. Never introduce React/Vue plugins, SSR frameworks, library mode, Bun, or Next.js.
+- Secrets never go into `VITE_`-prefixed vars — those are inlined into the public bundle.
+- Keep examples to `npm`, `php artisan serve`, and `npm run dev` / `npm run build`.
 
+## Scope
 Asset bundling and dev-server patterns for Laravel apps using the official
 `laravel-vite-plugin`. Covers `vite.config.js`, the `@vite` Blade directive,
 HMR in development, env vars, aliases, manifests, production builds, code
 splitting, and bundling for Livewire / Filament / Alpine.
-
-## Constraints
-- Apply `@rules/laravel/laravel.mdc`
-- Apply `@rules/laravel/livewire.mdc` and `@rules/laravel/filament.mdc` when bundling assets for those layers
-- Apply `@rules/php/core-standards.mdc` for any PHP touched (Blade config exposure, service providers)
-- This stack uses `laravel-vite-plugin` only. Never introduce React/Vue plugins, SSR frameworks, library mode, Bun, or Next.js.
-- Secrets never go into `VITE_`-prefixed vars — those are inlined into the public bundle.
-- Keep examples to `npm`, `php artisan serve`, and `npm run dev` / `npm run build`.
 
 ## Use when
 - Setting up or editing `vite.config.js` with the `laravel()` plugin.
@@ -252,12 +251,12 @@ Alpine.start();
 
 - **Livewire**: Livewire ships its own JS; keep your `@vite` bundle additive
   (custom Alpine components, hooks) and let Livewire manage its own assets per
-  `@rules/laravel/livewire.mdc`. Do not bundle a second Alpine copy — Livewire
+  `@rules/laravel/livewire.md`. Do not bundle a second Alpine copy — Livewire
   already includes one; if you import Alpine yourself, follow Livewire's
   guidance to avoid a duplicate instance.
 - **Filament**: Filament publishes and serves its own compiled assets; use a
   Filament theme + its asset pipeline for panel styling rather than forcing it
-  through your app entrypoint (`@rules/laravel/filament.mdc`). Reserve your Vite
+  through your app entrypoint (`@rules/laravel/filament.md`). Reserve your Vite
   bundle for front-end (non-panel) views.
 
 ## Building for production in CI

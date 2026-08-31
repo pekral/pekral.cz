@@ -1,21 +1,29 @@
 # Code Review
 
-> **Technical review.** This comment is the **Technical review** half of the two-part CR output (`@rules/code-review/general.mdc` *Two-part CR output — Technical & Functional review*) — strict rule compliance only. The **Functional review** (full acceptance-criteria checklist, `Goal met: Yes/No`) is published separately on the linked-issue comment via `@skills/pr-summary/SKILL.md`; its one-line verdict mirrors onto this comment's `Summary` line as `assignment conformance: …`.
-
-> **Section visibility — render only sections that have content.** Always render the header block (Status / Counts / Last updated / Issue tracker summary) and the final `Summary` line. The `Coverage:` header line, the `## Coverage` section, and the `coverage …` slot in the summary line are conditional — render them **only** when the coverage gate produced something to report (uncovered changed lines or unavailable / non-runnable tooling, both Critical findings per `@skills/code-review/SKILL.md` Coverage gate). When every changed line is at 100% coverage and the tool ran successfully, drop all three coverage surfaces; the Counts line is the clean signal. The `## Architecture` section follows the same conditional rule (issue #530): on Laravel projects the walk runs on every CR run, but the heading is rendered **only when the walk produces at least one finding** — when the walk is clean, omit the heading entirely (no "walked, 0 findings" line, no "clean" placeholder, no confirmation that the check ran). On non-Laravel projects (`laravel/framework` not in `composer.json` `require`), omit the `## Architecture` section entirely. Every section is conditional: omit its heading and body entirely when it has no items. Never emit `None.` / `Not applicable.` / `n/a` / `100%` / `walked, 0 findings` placeholders for empty sections or omitted coverage surfaces — drop them entirely. The Counts line in the header is the single source of "zero" signal; the goal is a clean, scannable PR comment a human can read at a glance — only items that still need action remain in the body.
-
+> **Section visibility — render only sections that have content.** Always render the header block (Status / Counts / Last updated / tracker-mirror field) and the final `Summary` line. The `Coverage:` header line, the `## Coverage` section, and the `coverage …` slot in the summary line are conditional — render them **only** when the coverage gate produced something to report (uncovered changed lines or unavailable / non-runnable tooling, both Critical findings per `@skills/code-review/SKILL.md` Coverage gate). When every changed line is at 100% coverage and the tool ran successfully, drop all three coverage surfaces; the Counts line is the clean signal. The `## Architecture` section follows the same conditional rule (issue #530):
+> on Laravel projects the walk runs on every CR run, but the heading is rendered **only when the walk produces at least one finding** — when the walk is clean, omit the heading entirely (no "walked, 0 findings" line, no "clean" placeholder, no confirmation that the check ran). On non-Laravel projects (`laravel/framework` not in `composer.json` `require`), omit the `## Architecture` section entirely. Every section is conditional: omit its heading and body entirely when it has no items. Never emit `None.` / `Not applicable.` / `n/a` / `100%` / `walked, 0 findings` placeholders for empty sections or omitted coverage surfaces — drop them entirely. The Counts line in the header is the single source of "zero" signal;
+> the goal is a clean, scannable PR comment a human can read at a glance — only items that still need action remain in the body.
+>
+> **Incremental review scope (rounds after the first).** A round with a resolved baseline reviews the **delta since the last reviewed revision** (`git diff <baseline>..HEAD`), not the whole PR: new findings come from the delta, every unsettled finding from an earlier round is carried over at its original severity, and the Coverage / Assignment Conformance / Reviewer Comment Fulfillment gates still read the whole PR. Render both header lines below on every run, and a `Provenance` field on every finding. Canonical contract: `@rules/code-review/general.md` *Incremental Review Scope — Diff Since the Last Reviewed Revision*.
+>
+> **Late-iteration report scope (CR iteration > 2).** When the caller passed `iteration > 2`, render Critical and Moderate findings only: drop every **Minor** sub-heading (in the Findings, Architecture, and Database Analysis sections) and drop the *Refactoring (DRY / tech debt)* and *Refactoring proposals* sections entirely, and render the `Report scope:` header line below. The `Counts:` line still carries the **real** detected numbers — never zero a suppressed severity. On iterations 1–2 and on standalone runs (no `iteration` passed) nothing is suppressed. Canonical contract: `@rules/code-review/general.md` *Late-Iteration Report Scope — Critical & Moderate Only (CR iteration > 2)*.
+>
 > **Always-new comment:** this template is rendered into a fresh comment on every CR run. The hidden marker `<!-- cr-comment:actor=<gh-login> -->` (auto-appended by `skills/code-review-github/scripts/upsert-comment.sh`) stays in the body for per-actor traceability but does not drive an in-place edit — each run POSTs a new comment, so the PR thread keeps a chronological audit trail of CR outputs. The `Last updated` line below carries this run's timestamp.
 
-> **Late-iteration report scope (`iteration > 2`).** When the CR wrapper is invoked with `iteration = <n>` from the Review loop of `@skills/process-code-review/SKILL.md` and `n > 2`, render **Critical and Moderate findings only**: drop every Minor finding (in `## Findings`, `## Architecture`, `## Database Analysis`, and every specialized-review sub-section), drop the whole `## Refactoring (DRY / tech debt)` section, and drop the whole `## Refactoring proposals` section. The `Counts` and `Summary` lines stay **unchanged in shape and content** — every slot, carrying the real number for every severity, including the suppressed Minor and refactoring items — and the header block gains the line `**Report scope:** critical+moderate only (iteration {n}) — Minor findings and refactoring sections not rendered` directly under `Counts`; never drop a slot, never emit a placeholder for a suppressed item, and never report it as a zero count. A run with no `iteration` input is `iteration = 1` and renders the full report. Canonical: `@rules/code-review/general.mdc` *Late-Iteration Report Scope — Critical & Moderate Only (CR iteration > 2)*.
-
 **Status:** clean / needs-fix
-**Counts:** Critical {n} · Moderate {n} · Minor {n} · Refactoring {n}
-**Report scope:** critical+moderate only (iteration {n}) — Minor findings and refactoring sections not rendered  *(render this line only on a late-iteration run, i.e. the caller passed `iteration > 2`; the `Counts` line above keeps its real, unchanged numbers)*
+**Counts:** Critical {n} · Moderate {n} · Minor {n} · Refactoring {n}  *(always the real detected counts — never zeroed to match a narrowed report scope)*
+**Reviewed revision:** {full head SHA this round reviewed}  *(always rendered — the next round resolves its baseline from this line)*
+**Review scope:** delta since {baseline SHA} (round {n}) — carried-over findings re-reported  *(or `full PR ({reason: no prior reviewed revision | baseline {sha} not an ancestor of HEAD after a history rewrite})` — always rendered, never omitted as an empty section)*
+**Report scope:** Critical + Moderate only (iteration {n} — Minor findings and refactoring sections suppressed)  *(render this line **only** when the caller passed `iteration > 2` — see `@rules/code-review/general.md` *Late-Iteration Report Scope — Critical & Moderate Only (CR iteration > 2)*; omit it entirely on iterations 1–2 and on standalone runs)*
 **Coverage:** {result} (tool: {name or "not available — <reason>"})  *(render this line only when the `## Coverage` section is rendered — i.e. uncovered changed lines or unavailable tooling)*
 **Last updated:** {ISO-8601 timestamp of this CR run}
-**Issue tracker summary:** {posted summary to issue #N | no linked issue — issue summary skipped | failed to post on issue #N: <reason>}
+**{tracker-mirror field}:** {tracker-mirror status}  *(field name and status wording are defined per-wrapper in that skill's own Output Rules section — see `@skills/code-review-github/SKILL.md`, `@skills/code-review-jira/SKILL.md`, or `@skills/code-review-bugsnag/SKILL.md` for the concrete values)*
 
 ---
+
+## Technical Review
+
+> Strict, rule-by-rule compliance check of the diff against every applicable project rule (`@rules/**/*.md`) — architecture, security, style, refactoring, testing. Wraps `## Findings` through `## Coverage` below, unchanged in content and conditional-rendering behavior (see `@rules/code-review/general.md` *Two-Part CR Output — Technical & Functional Review*). This heading always renders, even when every subsection beneath it is empty — the header block's `Status: clean` / `Counts: Critical 0 · Moderate 0 · Minor 0` above is the "nothing to fix" signal in that case.
 
 ## Findings
 
@@ -24,7 +32,8 @@
 ### 🔴 Critical 1. <short title>
 
 - **Location:** `path/to/file.php:42`
-- **Rule:** `@rules/<area>/<file>.mdc#<section>`
+- **Rule:** `@rules/<area>/<file>.md#<section>`
+- **Provenance:** `regression — introduced in this revision` | `pre-existing — carried from round {n}` | `pre-existing — untouched by this revision`
 - **Impact:** one sentence — what breaks or what risk this introduces.
 - **Faulty Example:**
   ```php
@@ -34,34 +43,46 @@
 - **Test hint:** test layer (unit / integration / feature) + entry point, in one sentence.
 - **Suggested fix:**
   ```php
-  // minimal corrected snippet — must comply with @rules/php/core-standards.mdc (and @rules/laravel/architecture.mdc on Laravel projects). Use `n/a — <reason>` only when a snippet adds no value.
+  // minimal corrected snippet — must comply with @rules/php/core-standards.md (and @rules/laravel/architecture.md on Laravel projects). Use `n/a — <reason>` only when a snippet adds no value.
   ```
 
 ### 🟠 Moderate 1. <short title>
 
-(same six fields as Critical)
+(same fields as Critical, Provenance included)
 
-### 🟡 Minor 1. <short title>
+### 🟡 Minor 1. <short title>  *(suppressed entirely when the report scope is narrowed — `iteration > 2`)*
 
 - **Location:** `path/to/file.php:42`
+- **Provenance:** `regression — introduced in this revision` | `pre-existing — carried from round {n}` | `pre-existing — untouched by this revision`
 - **Note:** one sentence — naming, dead code, etc. Faulty Example / Expected behavior / Test hint / Suggested fix may be omitted when no behavior change is implied.
+
+---
+
+## Documentation Requests
+
+> Render only when **Third-Party API & Service Analysis** step 7 in `@skills/code-review/SKILL.md` produced at least one blocking documentation request — i.e. the ordered source walk in step 2 resolved no reference for a third-party contract the diff touches. Each entry accompanies (never replaces) the Moderate finding raised for that contract; it is what lets the author close it with a single link. Omit the entire section when every affected contract resolved a reference — no `None.` placeholder.
+
+1. **Vendor / service:** {name of the API, SDK, or webhook provider}
+   **Version in use:** {resolved version + where it was read from — `composer.json` / lock file / pinned API version in config — or `could not determine`}
+   **Verifying:** the concrete endpoints / SDK methods / webhook events / message contracts under review, one per line
+   **Needed:** a link to the official documentation for that version covering the items above.
 
 ---
 
 ## Refactoring (DRY / tech debt)
 
-> Render only when at least one in-scope refactoring item exists. Only items on lines touched by this PR (added or modified). Each item must reduce tech debt — no stylistic preferences. Omit the entire section when there are no items.
+> Render only when at least one in-scope refactoring item exists. Only items on lines touched by this PR (added or modified). Each item must reduce tech debt — no stylistic preferences. Omit the entire section when there are no items, and omit it entirely when the report scope is narrowed (`iteration > 2`).
 
 1. **Location:** `path/to/file.php:42`
    **Problem:** one sentence — duplicated logic or structural breach in the changed code.
    **Refactor:** concrete consolidation step (Data Builder / DTO / Service / Action / Repository / ModelManager).
-   **Why:** the rule reference the item satisfies (`@rules/laravel/architecture.mdc#<section>`, `@rules/code-review/general.mdc#<section>`, …); for a lens-produced item, also the matched `@skills/class-refactoring/SKILL.md` guideline.
+   **Why:** rule reference (`@rules/laravel/architecture.md#<section>` or `@skills/class-refactoring/SKILL.md`) satisfied by the change.
 
 ---
 
 ## Refactoring proposals
 
-> Render only when at least one out-of-scope structural improvement is justified by a rule. Omit the entire section when there are no items.
+> Render only when at least one out-of-scope structural improvement is justified by a rule. Omit the entire section when there are no items, and omit it entirely when the report scope is narrowed (`iteration > 2`).
 
 1. **Title:** short, actionable issue title
    **Scope:** affected file(s) or area
@@ -72,28 +93,13 @@
 
 ## Database Analysis
 
-> Render only when the diff touches database operations (raw SQL, Eloquent / query-builder calls, eager loads, model scopes, ModelManager / Repository methods, migrations, seeders, DynamoDB / NoSQL access) **and** at least one finding is produced by `@skills/mysql-problem-solver/SKILL.md` or by the deployment-safety walk. Omit the entire section when no DB operations are present in the diff, or when DB ops are present but no findings result — never leave a placeholder or fold it into Coverage.
->
-> Report only findings (errors) and their fix recommendations. Never include the trigger decision, an inspected `file:line` list, or an EXPLAIN / static-analysis summary — those belong to the internal investigation, not the published review.
->
-> This section carries **both** halves of the database review: **performance** findings and **deployment-safety** findings per `@rules/code-review/general.mdc` *Database Change Deployment Safety* (destructive change shipped with the code that reads the old surface, blocking `ALGORITHM=COPY` DDL, missing / no-op `down()`, non-replayable migration, backfill inside a migration, an un-pre-flighted new constraint, a missing index for a newly queried column, an unstated deploy order).
->
-> Every finding must carry the **concrete optimization artifact** in a fenced code block — the rewritten query in full, the exact index DDL, the rewritten batching code, or, for a deployment-safety finding, the corrected migration `up()` / `down()` pair, the explicit `ALGORITHM=…, LOCK=…` / `pt-online-schema-change` command, the pre-flight counting query, or the deploy-order + rollback block. A prose description of the fix ("add an index on `user_id`", "rewrite it to be SARGable") does not satisfy this section; see `@rules/code-review/general.mdc` *Database Analysis section*. Each **DB-performance** defect is rendered here exactly once and is never duplicated into `## Findings` — but a **security** finding on the same `file:line` is a different defect and always keeps its own `## Findings` entry with the full finding shape.
+> Render only when the diff touches database operations (raw SQL, Eloquent / query-builder calls, eager loads, model scopes, ModelManager / Repository methods, migrations, seeders, DynamoDB / NoSQL access) **and** at least one finding is produced by `@skills/mysql-problem-solver/SKILL.md`. Omit the entire section when no DB operations are present in the diff, or when DB ops are present but no findings result — never leave a placeholder or fold it into Coverage. Report only findings and their fix recommendations — never the trigger decision, an inspected `file:line` list, or an EXPLAIN / static-analysis summary.
 
 - **Findings:**
   1. **{Critical / Moderate / Minor}** — `file:line` — one-sentence problem
-     **Suggested Fix:** {one sentence naming the fix category per `@rules/sql/optimalize.mdc` — existing-index reuse, query rewrite, pagination change, batching, new index, the documented justification for a slower query, or the deployment-safety fix}
+     **Suggested Fix:** {one-sentence fix category — query rewrite to reuse an existing index per `@rules/sql/optimalize.md`, batch operation per "Batch over per-row operations", or new-index proposal justified by EXPLAIN when no existing index covers the query}
      ```sql
-     -- Mandatory: the concrete artifact itself, never a prose description of it.
-     -- user-supplied values stay bound (?/:named) — never inlined or concatenated
-     -- query rewrite / index reuse / pagination  → the rewritten query in full
-     -- new index                                 → the exact DDL, e.g.
-     --   ALTER TABLE orders ADD INDEX idx_user_status_created (user_id, status, created_at);
-     -- application-level fix (Eloquent chain, batchUpdate / batchInsert,
-     --   whereIn(...)->delete(), keyed bulk read) → render a php-fenced block instead of this one
-     -- deployment safety (migration up()/down(), ALGORITHM=…/LOCK=…, online-DDL command,
-     --   pre-flight counting query, extracted chunked backfill) → render the statement or php block
-     -- slower-but-justified query / unstated deploy order → the documentation block replaces this snippet
+     -- concrete rewritten query, index DDL, or batch-operation replacement implementing the fix above (issue #132) — never a category label alone
      ```
 
 ---
@@ -106,16 +112,17 @@
 
 ### 🔴 Critical 1. <short title>
 
-(same six fields as `## Findings` — Location / Rule / Impact / Faulty Example / Expected behavior / Test hint / Suggested fix)
+(same fields as `## Findings` — Location / Rule / Provenance / Impact / Faulty Example / Expected behavior / Test hint / Suggested fix)
 
 ### 🟠 Moderate 1. <short title>
 
-(same six fields as Critical)
+(same fields as Critical, Provenance included)
 
-### 🟡 Minor 1. <short title>
+### 🟡 Minor 1. <short title>  *(suppressed entirely when the report scope is narrowed — `iteration > 2`)*
 
 - **Location:** `path/to/file.php:42`
-- **Rule:** `@rules/laravel/architecture.mdc#<subsection>`
+- **Rule:** `@rules/laravel/architecture.md#<subsection>`
+- **Provenance:** `regression — introduced in this revision` | `pre-existing — carried from round {n}` | `pre-existing — untouched by this revision`
 - **Note:** one sentence. Faulty Example / Expected behavior / Test hint / Suggested fix may be omitted when no behavior change is implied.
 
 ---
@@ -130,4 +137,18 @@
 
 ---
 
-**Summary:** {n} Critical · {n} Moderate · {n} Minor · {n} Refactoring · assignment conformance: {conformant | N gap(s) | no linked issue}{` · coverage {result}` — appended only when the `## Coverage` section is rendered; omitted on a clean 100% pass} · {issue-tracker summary status}
+## Functional Review
+
+> Always rendered — never omitted, the one exception to the omit-empty-section convention that governs `## Technical Review` above (see `@rules/code-review/general.md` *Two-Part CR Output — Technical & Functional Review*). Computed from the same Assignment Conformance Gate direction 1 already behind the `assignment conformance:` token on the Summary line below — no new analysis, only this explicit, always-present placement. Direction 2 (changes → requirements traceability / scope-creep) stays in `## Findings` above — it is diff hygiene, not "did the code satisfy the requirement".
+
+{conformant → "All stated assignment requirements are satisfied." | gaps → list every Critical functional / business-logic gap below — still counted in the Counts line above}
+
+### 🔴 Critical 1. <short title>  *(gaps case only)*
+
+(same fields as `## Findings` — Location / Rule / Provenance / Impact / Faulty Example / Expected behavior / Test hint / Suggested fix; **Rule** cites the unmet requirement / acceptance criterion and its source instead of a `@rules/*.md` path)
+
+(Repeat for every gap.)
+
+---
+
+**Summary:** {n} Critical · {n} Moderate · {n} Minor · {n} Refactoring · assignment conformance: {conformant | N gap(s) | no linked issue}{` · coverage {result}` — appended only when the `## Coverage` section is rendered; omitted on a clean 100% pass}{` · security: owned by athena (<url of athena's security comment>)` — appended **only** when the inline `security-review` pass was skipped because the caller set `SECURITY_OWNER=athena`; omitted when the pass ran here. **The URL is mandatory**: the token records a delegation, and without a link to the delivered review there is nothing to distinguish a security pass that ran from one that died mid-run. A token with no URL is itself the visible gap, and `@skills/merge-github-pr/SKILL.md` blocks the merge on it} · {tracker-mirror status}

@@ -56,7 +56,7 @@ return [
         'section_items' => [
             'rector-rules' => 'Custom Rector rules for automated code refactoring and PHP upgrades.',
             'arch-app-services' => 'Simple architecture for PHP services with clean separation of concerns.',
-            'cursor-rules' => 'Preferred rules for generating code in the Cursor editor.',
+            'ai-olympus' => 'AI development team for Laravel inside Claude Code — subagents, coding-standard rules, and agent skills.',
         ],
     ],
     'skills' => [

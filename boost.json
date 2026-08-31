@@ -1,9 +1,6 @@
 {
     "agents": [
-        "cursor"
+        "claude_code"
     ],
-    "editors": [
-        "cursor"
-    ],
-    "guidelines": []
+    "guidelines": false
 }

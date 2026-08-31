@@ -1,22 +1,20 @@
 ---
 name: laravel-security
-description: "Use when building, configuring, or hardening security-sensitive Laravel features — authentication, authorization, Eloquent safety, CSRF/XSS, API security, file uploads, secrets, and production configuration. Provides condensed, copy-ready secure defaults for Laravel 11 / PHP 8.3."
+description: "Use when building, configuring, or hardening security-sensitive Laravel features — authentication, authorization, Eloquent safety, CSRF/XSS, API security, file uploads, secrets, and production configuration. Provides condensed, copy-ready secure defaults for Laravel 12/13 / PHP 8.4/8.5."
 license: MIT
 metadata:
   author: "Petr Král (pekral.cz)"
 ---
 
-# Laravel Security Best Practices
-
 ## Constraints
 - Apply `@rules/security/backend.md` and `@rules/security/frontend.md`
-- Apply `@rules/php/core-standards.mdc` — `final` classes, `declare(strict_types=1)`, typed signatures
-- If the project uses Laravel, also apply `@rules/laravel/laravel.mdc`, `@rules/laravel/architecture.mdc`, `@rules/laravel/filament.mdc`, `@rules/laravel/livewire.mdc`
-- Stack: Laravel 11 / PHP 8.3, Filament, Livewire, Alpine.js, Blade, Tailwind, Pest, Vite, MySQL, Redis
+- Apply `@rules/php/core-standards.md` — `final` classes, `declare(strict_types=1)`, typed signatures
+- If the project uses Laravel, also apply `@rules/laravel/laravel.md`, `@rules/laravel/architecture.md`, `@rules/laravel/filament.md`, `@rules/laravel/livewire.md`
+- Stack: Laravel 12/13 / PHP 8.4/8.5, Filament, Livewire, Alpine.js, Blade, Tailwind, Pest, Vite, MySQL, Redis
 - Never hardcode secrets; never reveal them in output
 - Hard limits: this file stays <= 500 lines and <= 5000 tokens
 
-## Purpose
+## Scope
 Secure-by-default building blocks for security-sensitive Laravel work. Use the matching section, copy the minimal snippet, and verify against the checklist. For an audit of existing code use `@skills/security-review/SKILL.md`.
 
 ## Use when
@@ -161,7 +159,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 ```
 
-For Filament, enforce access via policies and `canAccessPanel()`; for Livewire, re-check authorization inside actions — a mounted component is not an authorization boundary (`@rules/laravel/filament.mdc`, `@rules/laravel/livewire.mdc`).
+For Filament, enforce access via policies and `canAccessPanel()`; for Livewire, re-check authorization inside actions — a mounted component is not an authorization boundary (`@rules/laravel/filament.md`, `@rules/laravel/livewire.md`).
 
 ## Eloquent Security
 

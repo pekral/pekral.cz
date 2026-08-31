@@ -56,7 +56,7 @@ return [
         'section_items' => [
             'rector-rules' => 'Vlastní Rector pravidla pro automatické refaktorování a upgrade PHP.',
             'arch-app-services' => 'Jednoduchá architektura pro PHP služby s čistým oddělením odpovědností.',
-            'cursor-rules' => 'Preferovaná pravidla pro generování kódu v editoru Cursor.',
+            'ai-olympus' => 'AI vývojářský tým pro Laravel v Claude Code — subagenti, pravidla kódování a agentní dovednosti.',
         ],
     ],
     'skills' => [
