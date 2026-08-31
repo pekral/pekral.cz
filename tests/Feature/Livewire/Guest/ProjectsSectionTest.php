@@ -31,11 +31,11 @@ it('displays arch-app-services project', function (): void {
     $component->assertSee('Simple architecture for PHP services');
 });
 
-it('displays cursor-rules project', function (): void {
+it('displays ai-olympus project', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(ProjectsSection::class);
-    $component->assertSee('cursor-rules');
-    $component->assertSee('Preferred rules for generating code');
+    $component->assertSee('ai-olympus');
+    $component->assertSee('AI development team for Laravel inside Claude Code');
 });
 
 it('displays view all repositories link', function (): void {

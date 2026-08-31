@@ -13,7 +13,7 @@ final class ProjectsSection extends Component
     private const array PROJECTS = [
         ['name' => 'rector-rules', 'url' => 'https://github.com/pekral/rector-rules', 'language' => 'PHP'],
         ['name' => 'arch-app-services', 'url' => 'https://github.com/pekral/arch-app-services', 'language' => 'PHP'],
-        ['name' => 'cursor-rules', 'url' => 'https://github.com/pekral/cursor-rules', 'language' => 'Markdown'],
+        ['name' => 'ai-olympus', 'url' => 'https://github.com/pekral/ai-olympus', 'language' => 'PHP'],
     ];
 
     /**
