@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\View;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome2');
+    return view('welcome');
 })->name('home');
 
 Route::get('/locale/{locale}', function (string $locale) {
@@ -85,7 +85,7 @@ Route::get('sitemap.xml', function () {
 
     $staticUrls = collect($pages)->map(function (array $page) use ($supportedLocales, $defaultLocale): array {
         $viewFile = match ($page['path']) {
-            '/' => resource_path('views/welcome2.blade.php'),
+            '/' => resource_path('views/welcome.blade.php'),
             '/about' => resource_path('views/about.blade.php'),
             '/skills' => resource_path('views/skills.blade.php'),
             '/projects' => resource_path('views/projects.blade.php'),
