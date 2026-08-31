@@ -6,7 +6,7 @@
 
 > **Always-new comment:** this template is rendered into a fresh comment on every CR run. The hidden marker `<!-- cr-comment:actor=<gh-login> -->` (auto-appended by `skills/code-review-github/scripts/upsert-comment.sh`) stays in the body for per-actor traceability but does not drive an in-place edit — each run POSTs a new comment, so the PR thread keeps a chronological audit trail of CR outputs. The `Last updated` line below carries this run's timestamp.
 
-> **Late-iteration report scope (`iteration > 2`).** When the CR wrapper is invoked with `iteration = <n>` from the Review loop of `@skills/process-code-review/SKILL.md` and `n > 2`, render **Critical and Moderate findings only**: drop every Minor finding (in `## Findings`, `## Architecture`, `## Database Analysis`, and every specialized-review sub-section), drop the whole `## Refactoring (DRY / tech debt)` section, and drop the whole `## Refactoring proposals` section. The `## Commit Split Proposal` section is **Critical** and is **never** dropped — it renders on every iteration together with its `commit split: …` slot on the `Summary` line. The `Counts` and `Summary` lines stay **unchanged in shape and content** — every slot, carrying the real number for every severity, including the suppressed Minor and refactoring items — and the header block gains the line `**Report scope:** critical+moderate only (iteration {n}) — Minor findings and refactoring sections not rendered` directly under `Counts`; never drop a slot, never emit a placeholder for a suppressed item, and never report it as a zero count. A run with no `iteration` input is `iteration = 1` and renders the full report. Canonical: `@rules/code-review/general.mdc` *Late-Iteration Report Scope — Critical & Moderate Only (CR iteration > 2)*.
+> **Late-iteration report scope (`iteration > 2`).** When the CR wrapper is invoked with `iteration = <n>` from the Review loop of `@skills/process-code-review/SKILL.md` and `n > 2`, render **Critical and Moderate findings only**: drop every Minor finding (in `## Findings`, `## Architecture`, `## Database Analysis`, and every specialized-review sub-section), drop the whole `## Refactoring (DRY / tech debt)` section, and drop the whole `## Refactoring proposals` section. The `Counts` and `Summary` lines stay **unchanged in shape and content** — every slot, carrying the real number for every severity, including the suppressed Minor and refactoring items — and the header block gains the line `**Report scope:** critical+moderate only (iteration {n}) — Minor findings and refactoring sections not rendered` directly under `Counts`; never drop a slot, never emit a placeholder for a suppressed item, and never report it as a zero count. A run with no `iteration` input is `iteration = 1` and renders the full report. Canonical: `@rules/code-review/general.mdc` *Late-Iteration Report Scope — Critical & Moderate Only (CR iteration > 2)*.
 
 **Status:** clean / needs-fix
 **Counts:** Critical {n} · Moderate {n} · Minor {n} · Refactoring {n}
@@ -22,8 +22,6 @@
 > Render only when at least one Critical, Moderate, or Minor finding exists. Within this section, render only the severity sub-headings that have items — omit the others entirely. When all three severities are empty, omit the entire `## Findings` parent heading.
 
 ### 🔴 Critical 1. <short title>
-
-(the commit-split finding per `@rules/code-review/general.mdc` *Commit Split & Atomic Deployability Proposal — canonical walk-through* is listed here by title only and is exempt from Faulty Example / Expected behavior / Test hint — its body is the `## Commit Split Proposal` section below)
 
 - **Location:** `path/to/file.php:42`
 - **Rule:** `@rules/<area>/<file>.mdc#<section>`
@@ -50,30 +48,6 @@
 
 ---
 
-## Commit Split Proposal
-
-> **Render only when the Commit Split & Atomic Deployability Gate fires** (`@rules/code-review/general.mdc` *Commit Split & Atomic Deployability Proposal — canonical walk-through*). The gate runs on every CR run, but this section appears only when the history under review is **not** already a logical, independently cherry-pickable partition of the change set. When it is — or when the change is genuinely atomic — omit the heading and body entirely; never render a "history is clean" line.
->
-> The finding is **Critical**, always: it is listed by title in the `## Findings` Critical bucket with this section as its body, it counts toward the Counts line, it may never be downgraded, and it is **never** dropped by the late-iteration filter. It is exempt from the Faulty Example / Expected behavior / Test hint fields — the proposal below plus the Suggested fix is the whole finding.
->
-> **Behavior-preservation invariant:** this is a repartition of the existing change set and nothing else. The union of the proposed commits equals the current diff byte for byte; no line of production code is added, removed, or rewritten, and no work is deferred.
->
-> **Green- and live-commit invariants:** every proposed commit passes the project's gate at its own point of the history, and everything it adds is already reached there — the callee travels with its call site and its coverage. A commit that ships dead code (a symbol, route, config key, or asset whose first use lands in a later commit) is itself a trigger; hunks that cannot be separated without leaving an intermediate commit red or dead stay in one commit. The `Green` column always carries `yes`, and the `Live` column carries `yes` or `inert prerequisite — consumed by #k` for the single declared exception (config key, off-by-default flag, additive expand migration) — a proposed commit is never rendered with `green: no` or `live: no`.
-
-- **Verdict:** {splittable into N commits | blocked — <reason>}
-
-| # | Proposed subject | Contains | Assembled from | Assignment item | Cherry-pick | Green | Live | Reversible |
-|---|------------------|----------|----------------|-----------------|-------------|-------|------|------------|
-| 1 | `type(scope): short description` | one sentence | `<sha>` hunks in `path/to/file.php` | item ID / `pre-existing` / `support` / `noise` | independent | yes | yes | yes |
-| 2 | `type(scope): short description` | one sentence | `<sha>`, `<sha>` | item ID | depends on #1 | yes | yes | no |
-
-- **Rollback notes:** one line per commit marked `reversible: no` — what must be done to undo it. Omit when every commit is reversible.
-- **Reconciliation:** the union of the proposed commits equals `<base>..<head>`; verify with `git diff <old-head> HEAD` (must be empty after the rewrite), replay the range with `git rebase --exec '<gate command>' <base>` (no commit is red), and check reachability per commit with `git grep -n '<symbol>' <sha>` for every symbol a commit adds (no commit is dead).
-- **Blockers:** commits that cannot be split under any ordering, files two proposed commits both touch (the split will conflict on cherry-pick — name the file), destructive migrations — or `none`.
-- **Suggested fix:** ``Repartition `<base>..<head>` into <N> commits — <1. `type(scope): subject`; 2. `type(scope): subject`; …> — with `git rebase -i <base>` (split a bundled commit via `git reset HEAD^` and re-commit the hunks separately; fold a repair commit into its target with `fixup`), then verify the repartition changed nothing: `git diff <old-head> HEAD` must be empty, verify every commit of the new range is green: `git rebase --exec '<gate command>' <base>` must replay the whole range without stopping, and verify every commit is live: for each symbol a commit adds, `git grep -n '<symbol>' <sha>` must return a use outside its own declaration. Publish with `git push --force-with-lease`.``
-
----
-
 ## Refactoring (DRY / tech debt)
 
 > Render only when at least one in-scope refactoring item exists. Only items on lines touched by this PR (added or modified). Each item must reduce tech debt — no stylistic preferences. Omit the entire section when there are no items.
@@ -93,6 +67,34 @@
    **Scope:** affected file(s) or area
    **Reason:** rule violated + why it matters
    **Approach:** brief description of the expected refactoring
+
+---
+
+## Database Analysis
+
+> Render only when the diff touches database operations (raw SQL, Eloquent / query-builder calls, eager loads, model scopes, ModelManager / Repository methods, migrations, seeders, DynamoDB / NoSQL access) **and** at least one finding is produced by `@skills/mysql-problem-solver/SKILL.md` or by the deployment-safety walk. Omit the entire section when no DB operations are present in the diff, or when DB ops are present but no findings result — never leave a placeholder or fold it into Coverage.
+>
+> Report only findings (errors) and their fix recommendations. Never include the trigger decision, an inspected `file:line` list, or an EXPLAIN / static-analysis summary — those belong to the internal investigation, not the published review.
+>
+> This section carries **both** halves of the database review: **performance** findings and **deployment-safety** findings per `@rules/code-review/general.mdc` *Database Change Deployment Safety* (destructive change shipped with the code that reads the old surface, blocking `ALGORITHM=COPY` DDL, missing / no-op `down()`, non-replayable migration, backfill inside a migration, an un-pre-flighted new constraint, a missing index for a newly queried column, an unstated deploy order).
+>
+> Every finding must carry the **concrete optimization artifact** in a fenced code block — the rewritten query in full, the exact index DDL, the rewritten batching code, or, for a deployment-safety finding, the corrected migration `up()` / `down()` pair, the explicit `ALGORITHM=…, LOCK=…` / `pt-online-schema-change` command, the pre-flight counting query, or the deploy-order + rollback block. A prose description of the fix ("add an index on `user_id`", "rewrite it to be SARGable") does not satisfy this section; see `@rules/code-review/general.mdc` *Database Analysis section*. Each **DB-performance** defect is rendered here exactly once and is never duplicated into `## Findings` — but a **security** finding on the same `file:line` is a different defect and always keeps its own `## Findings` entry with the full finding shape.
+
+- **Findings:**
+  1. **{Critical / Moderate / Minor}** — `file:line` — one-sentence problem
+     **Suggested Fix:** {one sentence naming the fix category per `@rules/sql/optimalize.mdc` — existing-index reuse, query rewrite, pagination change, batching, new index, the documented justification for a slower query, or the deployment-safety fix}
+     ```sql
+     -- Mandatory: the concrete artifact itself, never a prose description of it.
+     -- user-supplied values stay bound (?/:named) — never inlined or concatenated
+     -- query rewrite / index reuse / pagination  → the rewritten query in full
+     -- new index                                 → the exact DDL, e.g.
+     --   ALTER TABLE orders ADD INDEX idx_user_status_created (user_id, status, created_at);
+     -- application-level fix (Eloquent chain, batchUpdate / batchInsert,
+     --   whereIn(...)->delete(), keyed bulk read) → render a php-fenced block instead of this one
+     -- deployment safety (migration up()/down(), ALGORITHM=…/LOCK=…, online-DDL command,
+     --   pre-flight counting query, extracted chunked backfill) → render the statement or php block
+     -- slower-but-justified query / unstated deploy order → the documentation block replaces this snippet
+     ```
 
 ---
 
@@ -128,4 +130,4 @@
 
 ---
 
-**Summary:** {n} Critical · {n} Moderate · {n} Minor · {n} Refactoring · assignment conformance: {conformant | N gap(s) | no linked issue}{` · commit split: {n} commit(s) proposed` — appended only when the `## Commit Split Proposal` section is rendered; omitted when the history is already an atomic, cherry-pickable partition}{` · coverage {result}` — appended only when the `## Coverage` section is rendered; omitted on a clean 100% pass} · {issue-tracker summary status}
+**Summary:** {n} Critical · {n} Moderate · {n} Minor · {n} Refactoring · assignment conformance: {conformant | N gap(s) | no linked issue}{` · coverage {result}` — appended only when the `## Coverage` section is rendered; omitted on a clean 100% pass} · {issue-tracker summary status}
