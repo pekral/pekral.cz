@@ -29,7 +29,7 @@
         "laravel/sail": "^1.67",
         "mockery/mockery": "^1.6.15",
         "nunomaduro/collision": "^8.9.5",
-        "pekral/cursor-rules": "dev-master",
+        "pekral/ai-olympus": "dev-master",
         "pekral/phpcs-rules": "^0.4.8",
         "pekral/rector-rules": "dev-master",
         "pestphp/pest": "^4.7.8",
@@ -71,7 +71,7 @@
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
       "analyse": "vendor/bin/phpstan analyse --memory-limit=4G",
-      "build": "vendor/bin/cursor-rules install --force --editor=claude && composer fix && composer check",
+      "build": "vendor/bin/ai-olympus install --force && composer fix && composer check",
       "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
       "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
@@ -94,7 +94,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "pekral/cursor-rules": true,
+            "pekral/ai-olympus": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         },

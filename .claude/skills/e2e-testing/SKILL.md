@@ -7,7 +7,7 @@ metadata:
 ---
 
 ## Constraints
-- Apply `@rules/code-testing/general.mdc` for the deterministic-test contract: tests must be reliable, isolated, and free of arbitrary sleeps.
+- Apply `@rules/code-testing/general.md` for the deterministic-test contract: tests must be reliable, isolated, and free of arbitrary sleeps.
 - GATED skill: proceed only when the consuming project already ships Playwright. Never install Playwright unprompted.
 - Stable selectors over brittle ones: prefer role and `data-testid` over CSS/structure.
 - No arbitrary `waitForTimeout`. Rely on auto-waiting locators and explicit conditions.
@@ -25,9 +25,7 @@ ls playwright.config.* 2>/dev/null
 grep -q '@playwright/test' package.json 2>/dev/null && echo "playwright present"
 ```
 
-- If neither a `playwright.config.*` file nor `@playwright/test` in `package.json` exists, STOP. Do not install Playwright. Defer to:
-  - `@skills/test-like-human/SKILL.md` for manual, scenario-based testing, or
-  - Pest feature tests / Laravel Dusk for browser coverage inside the PHP stack.
+- If neither a `playwright.config.*` file nor `@playwright/test` in `package.json` exists, STOP. Do not install Playwright. Defer to manual, scenario-based testing, or Pest feature tests / Laravel Dusk for browser coverage inside the PHP stack.
 - Only when Playwright IS present, continue with the patterns below.
 
 ## File organization
@@ -195,7 +193,7 @@ jobs:
 ```
 
 ## Flaky-test avoidance
-Per `@rules/code-testing/general.mdc`, tests must be deterministic.
+Per `@rules/code-testing/general.md`, tests must be deterministic.
 
 - Use auto-waiting locators (`locator.click()`), never `page.click(selector)` on a maybe-not-ready node.
 - Replace `await page.waitForTimeout(...)` with `waitForResponse`, `waitForURL`, or `expect(locator).toBeVisible()`.

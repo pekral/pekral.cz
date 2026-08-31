@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47a23343a329950e832909444ca18edb",
+    "content-hash": "a18c01ccd4eb2303eaa734a35eb1838f",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -8902,34 +8902,34 @@
             "time": "2026-07-15T19:09:14+00:00"
         },
         {
-            "name": "pekral/cursor-rules",
+            "name": "pekral/ai-olympus",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pekral/cursor-rules.git",
-                "reference": "f20ab61e09021d206145568d9efd1dcbddac779b"
+                "url": "https://github.com/pekral/ai-olympus.git",
+                "reference": "740ce12e913c6e858f2ec0201abfc4c1aecb9af0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/cursor-rules/zipball/f20ab61e09021d206145568d9efd1dcbddac779b",
-                "reference": "f20ab61e09021d206145568d9efd1dcbddac779b",
+                "url": "https://api.github.com/repos/pekral/ai-olympus/zipball/740ce12e913c6e858f2ec0201abfc4c1aecb9af0",
+                "reference": "740ce12e913c6e858f2ec0201abfc4c1aecb9af0",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0"
             },
             "require-dev": {
-                "composer/composer": "^2.10.2",
+                "composer/composer": "^2.10.3",
                 "ergebnis/composer-normalize": "^2.52.0",
                 "laravel/pint": "^1.30.5",
                 "pekral/phpcs-rules": "dev-master",
                 "pekral/phpstan-rules": "dev-master",
-                "pekral/rector-rules": "dev-master",
+                "pekral/rector-rules": "^0.5",
                 "pestphp/pest": "^4.7.8",
                 "pestphp/pest-plugin": "^4.0",
                 "pestphp/pest-plugin-type-coverage": "^4.0.4",
                 "phpstan/extension-installer": "^1.4.3",
-                "phpstan/phpstan": "^2.2.8",
+                "phpstan/phpstan": "^2.2.10",
                 "phpstan/phpstan-deprecation-rules": "^2.0.5",
                 "phpstan/phpstan-mockery": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0.18",
@@ -8938,15 +8938,15 @@
             },
             "default-branch": true,
             "bin": [
-                "bin/cursor-rules"
+                "bin/ai-olympus"
             ],
             "type": "composer-plugin",
             "extra": {
-                "class": "Pekral\\CursorRules\\ComposerPlugin"
+                "class": "Pekral\\AiOlympus\\ComposerPlugin"
             },
             "autoload": {
                 "psr-4": {
-                    "Pekral\\CursorRules\\": "src/"
+                    "Pekral\\AiOlympus\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -8956,33 +8956,35 @@
             "authors": [
                 {
                     "name": "Petr Král",
+                    "email": "kral.petr.88@gmail.com",
                     "homepage": "https://pekral.cz",
                     "role": "lead"
                 }
             ],
-            "description": "Composer plugin for PHP and Laravel projects that installs Cursor/Claude/Codex rules and agent skills — coding standards, testing, and conventions",
+            "description": "AI Olympus — a Composer plugin for PHP and Laravel projects that installs Claude Code rules and agent skills: coding standards, testing, and conventions",
             "homepage": "https://pekral.cz",
             "keywords": [
                 "PHPStan",
+                "ai-agents",
+                "ai-olympus",
+                "claude",
+                "claude-code",
                 "clean-code",
                 "coding-standards",
                 "composer-plugin",
-                "cursor",
-                "cursor-editor",
-                "cursor-rules",
                 "laravel",
-                "laravel-cursor-rules",
+                "llm",
                 "pest",
                 "php",
-                "php-cursor-rules",
+                "php-ai-olympus",
                 "rules"
             ],
             "support": {
-                "docs": "https://github.com/pekral/cursor-rules#readme",
-                "issues": "https://github.com/pekral/cursor-rules/issues",
-                "source": "https://github.com/pekral/cursor-rules"
+                "docs": "https://github.com/pekral/ai-olympus#readme",
+                "issues": "https://github.com/pekral/ai-olympus/issues",
+                "source": "https://github.com/pekral/ai-olympus"
             },
-            "time": "2026-08-31T08:12:46+00:00"
+            "time": "2026-08-31T09:18:27+00:00"
         },
         {
             "name": "pekral/phpcs-rules",
@@ -12677,8 +12679,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "pekral/ai-olympus": 20,
         "pekral/arch-app-services": 20,
-        "pekral/cursor-rules": 20,
         "pekral/rector-rules": 20,
         "roave/security-advisories": 20
     },

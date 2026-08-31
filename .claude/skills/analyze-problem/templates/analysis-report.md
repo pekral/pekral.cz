@@ -2,8 +2,17 @@
 
 ## 1. Summary
 
-<!-- Short summary of the problem in 2–5 sentences.
-Explain what is happening, where it is happening, and the most likely reason. -->
+**Task type:**
+<!-- The primary classification of this task, stated first so a reader sees it immediately.
+Pick the single value that best fits the assignment context:
+Feature / Bug / Regression / Performance / Data issue / Security / UX / Refactor / Tooling / Unclear requirement / Other.
+A feature adds new behavior; a bug fixes incorrect existing behavior. -->
+
+...
+
+<!-- Short summary in 2–5 sentences.
+For a bug: what is happening, where, and the most likely reason.
+For a feature: the target behavior to build and where it belongs. -->
 
 ...
 
@@ -28,11 +37,6 @@ Explain what is happening, where it is happening, and the most likely reason. --
 
 **Affected area:**
 <!-- Module, feature, page, API endpoint, command, job, database table, external service, etc. -->
-
-...
-
-**Problem type:**
-<!-- Bug / regression / performance / data issue / security / UX / unclear requirement / other -->
 
 ...
 
@@ -170,48 +174,7 @@ Do not put assumptions here. -->
 
 ---
 
-## 9. Task Decomposition
-
-<!-- Render this section ONLY when the recommended solution is too large for one change —
-see the trigger rules in the skill's "Large-Task Decomposition Proposal" section.
-When the solution fits a single change, DELETE this whole section (heading included).
-Never leave a "no split needed" note, and never render it during a code-review invocation. -->
-
-**Why this needs splitting:** <!-- one sentence naming the trigger that fired -->
-
-...
-
-**Tracker shape:** <!-- GitHub: EPIC parent + sub-issues · JIRA: parent issue + sub-tasks · Bugsnag: split proposed on the mirrored GitHub issue -->
-
-...
-
-**Parent:** <!-- existing issue / JIRA key that becomes the parent, or "to be created" + the proposed title -->
-
-...
-
-### Proposed parts
-
-<!-- 2–8 parts. One part = one independently deliverable, independently reviewable unit that can merge
-on its own. Split by deliverable, never by activity ("write the tests" is not a part).
-More than 8 parts → hand the objective to @skills/blueprint/SKILL.md instead of listing them here. -->
-
-| # | Part (proposed issue / sub-task title) | What it delivers | Depends on | Ships independently |
-| - | -------------------------------------- | ---------------- | ---------- | ------------------- |
-| 1 | ... | ... | — | yes |
-| 2 | ... | ... | #1 | yes |
-
-**Order and parallelism:** <!-- which parts are sequential, which may run in parallel, and any expand-before-contract constraint -->
-
-...
-
-**Handoff:** <!-- the exact next step — e.g. "run @skills/create-issues-from-text/SKILL.md to create the EPIC parent and the N sub-issues",
-or for JIRA "create the N sub-tasks under <KEY>". This skill proposes only; it never creates or links tracker items. -->
-
-...
-
----
-
-## 10. Solution Verification
+## 9. Solution Verification
 
 ### Manual Verification
 
@@ -243,7 +206,7 @@ or for JIRA "create the N sub-tasks under <KEY>". This skill proposes only; it n
 
 ---
 
-## 11. Non-Technical Explanation
+## 10. Non-Technical Explanation
 
 <!-- Explanation for someone outside development: PM, support, client, product owner.
 Without unnecessary technical detail. -->
@@ -252,7 +215,7 @@ Without unnecessary technical detail. -->
 
 ---
 
-## 12. Final Recommendation
+## 11. Final Recommendation
 
 <!-- Clearly state what should be done first and why. -->
 
@@ -269,7 +232,7 @@ Without unnecessary technical detail. -->
 
 ---
 
-## 13. Sources
+## 12. Sources
 
 <!-- Every source the analysis was actually built from. Mandatory — never leave empty.
 List the issue / error and its comments and replies, linked / sub-issues, attachments,

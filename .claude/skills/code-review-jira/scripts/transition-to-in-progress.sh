@@ -2,7 +2,7 @@
 # transition-to-in-progress.sh — move a JIRA issue to the project's In Progress
 # status at the start of work (the "claim" transition).
 #
-# Status transitions are otherwise human-only (rules/jira/general.mdc). This
+# Status transitions are otherwise human-only (rules/jira/general.md). This
 # script is the second sanctioned exception: it can ONLY land an issue in an
 # In Progress (start-of-work) status. It structurally refuses any other target
 # (Done, Closed, Review, …) so an AI agent cannot use it to push work through
@@ -12,7 +12,7 @@
 #   transition-to-in-progress.sh <KEY|URL> [<STATUS>]
 #
 # Inputs:
-#   KEY|URL  Bare JIRA key (e.g. ECOMAIL-1234), a /browse/<KEY> URL, or any URL
+#   KEY|URL  Bare JIRA key (e.g. ACME-1234), a /browse/<KEY> URL, or any URL
 #            containing ?selectedIssue=<KEY>.
 #   STATUS   Optional exact target status name. Resolution order:
 #              1. this argument
@@ -62,7 +62,7 @@ usage() {
   cat >&2 <<'EOF'
 Usage: transition-to-in-progress.sh <KEY|URL> [<STATUS>]
 
-  KEY     JIRA issue key (e.g. ECOMAIL-1234)
+  KEY     JIRA issue key (e.g. ACME-1234)
   URL     /browse/<KEY> URL or any URL containing ?selectedIssue=<KEY>
   STATUS  optional exact target status name (default: $JIRA_IN_PROGRESS_STATUS
           or "In Progress"); must be a progress status per the progress-name guard
@@ -117,7 +117,7 @@ elif [[ -n "${JIRA_IN_PROGRESS_SYNONYMS:-}" ]]; then
 fi
 
 if [[ "$is_progress" != true ]]; then
-  echo "transition-to-in-progress.sh: refused — '$TARGET' is not an In Progress status. This script only transitions to an in-progress (start-of-work) status; every other transition is human-only (rules/jira/general.mdc)." >&2
+  echo "transition-to-in-progress.sh: refused — '$TARGET' is not an In Progress status. This script only transitions to an in-progress (start-of-work) status; every other transition is human-only (rules/jira/general.md)." >&2
   exit 1
 fi
 
@@ -147,7 +147,7 @@ fi
 # treat it as claimed-by-another-run so the caller can abort rather than re-transition.
 current_lower="$(printf '%s' "${CURRENT_STATUS:-}" | tr '[:upper:]' '[:lower:]')"
 is_past=false
-for keyword in review done closed resolved cancelled; do
+for keyword in review 'done' closed resolved cancelled; do
   if [[ "$current_lower" == *"$keyword"* ]]; then
     is_past=true
     break

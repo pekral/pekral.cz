@@ -1,26 +1,56 @@
 {assignment_verdict}
 
-## TL;DR
-
-[One or two sentences — what changed and why, in plain language, readable on its own without the rest of the comment. Name the user-visible outcome, not the implementation. Always rendered; never omitted.]
-
 **Authors:** [@github-handle-1, @github-handle-2 — or `Name <email>` when no GitHub handle is known, comma-separated in commit order; never the agent / CR identity]
 **Available behind:** [optional — present only when the change is reachable only behind a test parameter; name the toggle (e.g. `config('feature.new_pricing')`, ENV `BETA_PRICING=1`, query `?preview=1`, admin switch *New pricing preview*) and the value required to reach it; omit this line entirely when the change is reachable unconditionally]
 
 ## Summary of changes
 
-**[Short headline naming the change — one line]**
+**[Short headline naming the change — one line, terse]**
 
-[One paragraph (3–5 sentences) in plain language explaining the business reason, the affected area, and just enough technical context (integration, payload, table, endpoint, …) that a developer can locate the change without reading the diff. Phrase impersonally — "The change …", "This update …" — never first person.]
+[Terse paragraph — 1–3 short sentences or fragments: business reason, affected area, just enough technical context (integration, payload, table, endpoint, …) to locate the change without reading the diff. No filler, no hedging, drop articles where the language has them; all substance stays. Phrase impersonally — never first person.]
 
 ## How to test
 
 1. [If *Available behind* is set, this step **must** enable the toggle / supply the parameter / switch the admin flag — naming the exact value]
-2. [Next action a tester performs]
-3. [Outcome the tester verifies]
+2. [Next action the tester performs — short imperative, no filler; exact names / values / URLs verbatim]
+3. [Outcome the tester verifies — terse but complete; keep every word needed for unambiguous verification]
 
 {embedded_blocks}
 
-> Render the `{embedded_blocks}` slot only when the calling CR wrapper passes one or more markdown blocks (typically the `## Assignment Compliance` block returned by `@skills/assignment-compliance-check/SKILL.md`). Each block is appended verbatim, in the order received, separated by a single blank line. When no blocks are passed, omit this slot entirely — including the surrounding blank lines — so the comment ends right after `How to test`.
+<!-- ─────────────────────────────────────────────────────────────────────────────
+     TEMPLATE GUIDANCE — never part of the published comment.
 
-> Render the `{assignment_verdict}` slot at the very top **whenever the calling CR wrapper passes an `## Assignment Compliance` block** (i.e. a tracker is linked). It is a single bold line in the assignment language stating the `Goal met` outcome and pointing the reader to the detail below — on a gap run: non-compliance and the gap count `N` (taken from the block's `Goal met: No` verdict / count of Not met, Partial, and Divergent entries) — e.g. `⚠️ **Changes do not satisfy the assignment — N gap(s). See Assignment Compliance below.**` (Czech assignment → `⚠️ **Změny nesplňují zadání — N nedostatk(ů). Viz Assignment Compliance níže.**`); on a clean run: the fully affirmative report naming the total acceptance-criteria count `N` (taken from the block's `Goal met: Yes` verdict) — e.g. `✅ **Changes satisfy the assignment — all N acceptance criteria met. See Assignment Compliance below.**` (Czech assignment → `✅ **Změny splňují zadání — všech N acceptance criteria splněno. Viz Assignment Compliance níže.**`). When no tracker is linked (no Assignment Compliance block passed), omit this slot entirely — including the surrounding blank line — so the comment begins at `## TL;DR`. Rendering the positive line on a clean run is the deliberate, narrow **affirmative exception** to the report-only-what-needs-action convention (`@rules/code-review/general.mdc` *Two-part CR output — Technical & Functional review*), scoped to this banner alone.
+     Everything above this marker is the comment body. Everything below it is an
+     HTML comment: GitHub renders nothing for it, so it cannot reach a reader even
+     if the whole file is copied into a comment by mistake. Keep it that way — a
+     blockquote (`>`) would render as a visible, official-looking quotation, which
+     is exactly how meta-instructions leak unnoticed.
+
+     {embedded_blocks}
+       Render this slot only when the calling CR wrapper passes one or more markdown
+       blocks (typically the `## Assignment Compliance` block returned by
+       `@skills/assignment-compliance-check/SKILL.md`). Each block is appended
+       verbatim, in the order received, separated by a single blank line. When no
+       blocks are passed, omit this slot entirely — including the surrounding blank
+       lines — so the comment ends right after `How to test`.
+
+     {assignment_verdict}
+       Render this slot at the very top only when the calling CR wrapper passes an
+       `## Assignment Compliance` block — i.e. the changes do not satisfy the
+       assignment. It is a single bold line in the assignment language stating
+       non-compliance and the gap count `N` (taken from the block's
+       `Critical gaps found: N` verdict / count of gap entries), pointing the reader
+       to the detail below — e.g.
+       `⚠️ **Changes do not satisfy the assignment — N gap(s). See Assignment Compliance below.**`
+       (Czech assignment → `⚠️ **Změny nesplňují zadání — N nedostatk(ů). Viz Assignment Compliance níže.**`).
+
+       When the changes satisfy the assignment (no Assignment Compliance block
+       passed) or no tracker is linked, omit this slot entirely — including the
+       surrounding blank line — so the comment begins at `Authors`. Never render a
+       positive "satisfies the assignment" line; only non-compliance is surfaced.
+
+     The canonical statement of both rules lives in `@skills/pr-summary/SKILL.md`
+     (*Embedded blocks* and *Assignment non-compliance verdict (top banner)*). This
+     block restates the slot mechanics for whoever is filling the template in; the
+     skill is the source of truth if the two ever disagree.
+     ───────────────────────────────────────────────────────────────────────────── -->
