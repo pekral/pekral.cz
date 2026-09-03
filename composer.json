@@ -10,10 +10,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "laravel/framework": "^13.29.0",
-        "laravel/tinker": "^3.0",
+        "laravel/framework": "^13.30.1",
+        "laravel/tinker": "^3.0.2",
         "league/commonmark": "^2.10.0",
-        "livewire/flux": "^2.17.1",
+        "livewire/flux": "^2.18.0",
         "livewire/volt": "^1.11.2",
         "spatie/laravel-cookie-consent": "^3.5.0",
         "symfony/yaml": "^7.4.18",
@@ -22,8 +22,8 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
-        "larastan/larastan": "^3.10.0",
-        "laravel/boost": "^2.0",
+        "larastan/larastan": "^3.11.0",
+        "laravel/boost": "^2.7",
         "laravel/pail": "^1.2.7",
         "laravel/pint": "^1.30.5",
         "laravel/sail": "^1.67",
@@ -33,7 +33,7 @@
         "pekral/phpcs-rules": "^0.4.8",
         "pekral/rector-rules": "dev-master",
         "pestphp/pest": "^4.7.8",
-        "phpstan/phpstan": "^2.2.10",
+        "phpstan/phpstan": "^2.2.12",
         "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpstan/phpstan-mockery": "^2.0",
         "roave/security-advisories": "dev-latest"
