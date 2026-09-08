@@ -8769,12 +8769,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/ai-olympus.git",
-                "reference": "775e28f44baf57abc50d39d55081ea62ce78b2aa"
+                "reference": "4e6811a2569a8ef13711d05a0f778e7b66db3977"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/ai-olympus/zipball/775e28f44baf57abc50d39d55081ea62ce78b2aa",
-                "reference": "775e28f44baf57abc50d39d55081ea62ce78b2aa",
+                "url": "https://api.github.com/repos/pekral/ai-olympus/zipball/4e6811a2569a8ef13711d05a0f778e7b66db3977",
+                "reference": "4e6811a2569a8ef13711d05a0f778e7b66db3977",
                 "shasum": ""
             },
             "require": {
@@ -8848,7 +8848,7 @@
                 "issues": "https://github.com/pekral/ai-olympus/issues",
                 "source": "https://github.com/pekral/ai-olympus"
             },
-            "time": "2026-09-08T05:36:56+00:00"
+            "time": "2026-09-08T10:04:41+00:00"
         },
         {
             "name": "pekral/phpcs-rules",
@@ -8937,12 +8937,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/rector-rules.git",
-                "reference": "b02d0d57646880eae99dd8c67972f0aa408fad46"
+                "reference": "b621d1a085417ca79f3c93ecff659a4a08505e62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/rector-rules/zipball/b02d0d57646880eae99dd8c67972f0aa408fad46",
-                "reference": "b02d0d57646880eae99dd8c67972f0aa408fad46",
+                "url": "https://api.github.com/repos/pekral/rector-rules/zipball/b621d1a085417ca79f3c93ecff659a4a08505e62",
+                "reference": "b621d1a085417ca79f3c93ecff659a4a08505e62",
                 "shasum": ""
             },
             "require": {
@@ -8999,7 +8999,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-02T19:29:30+00:00"
+            "time": "2026-09-08T06:32:26+00:00"
         },
         {
             "name": "pestphp/pest",
@@ -10223,12 +10223,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "52e7bbf74e5fd05322eacacde4392730efd6a8ee"
+                "reference": "85f13ab68f74b04ea01cdfd8548beeb372df5cf7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/52e7bbf74e5fd05322eacacde4392730efd6a8ee",
-                "reference": "52e7bbf74e5fd05322eacacde4392730efd6a8ee",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/85f13ab68f74b04ea01cdfd8548beeb372df5cf7",
+                "reference": "85f13ab68f74b04ea01cdfd8548beeb372df5cf7",
                 "shasum": ""
             },
             "conflict": {
@@ -11170,7 +11170,7 @@
                 "twig/twig": "<3.27",
                 "typicms/core": "<12.0.5|>=13,<13.0.9|>=14,<14.0.27|>=15,<15.0.29|>=16,<16.1.7",
                 "typo3/cms": "<9.5.29|>=10,<10.4.35|>=11,<11.5.23|>=12,<12.2",
-                "typo3/cms-backend": "<10.4.57|>=11,<11.5.51|>=12,<12.4.46|>=13,<13.4.34|>=14,<14.3.3",
+                "typo3/cms-backend": "<10.4.60|>=11,<11.5.54|>=12,<12.4.49|>=13,<13.4.35|>=14,<14.3.7",
                 "typo3/cms-belog": ">=10,<=10.4.47|>=11,<=11.5.41|>=12,<=12.4.24|>=13,<=13.4.2",
                 "typo3/cms-beuser": ">=9,<9.5.55|>=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
                 "typo3/cms-core": "<10.4.57|>=11,<11.5.51|>=12,<12.4.46|>=13,<13.4.34|>=14,<14.3.6",
@@ -11184,7 +11184,7 @@
                 "typo3/cms-frontend": "<4.3.9|>=4.4,<4.4.5",
                 "typo3/cms-indexed-search": ">=10,<=10.4.47|>=11,<=11.5.41|>=12,<=12.4.24|>=13,<13.4.31|>=14,<14.3.3",
                 "typo3/cms-install": "<4.1.14|>=4.2,<4.2.16|>=4.3,<4.3.9|>=4.4,<4.4.5|>=12.2,<12.4.8|==13.4.2",
-                "typo3/cms-lowlevel": ">=11,<=11.5.41",
+                "typo3/cms-lowlevel": ">=11,<=11.5.41|>=14.2,<14.3.7",
                 "typo3/cms-recordlist": ">=11,<11.5.48",
                 "typo3/cms-recycler": "<10.4.57|>=11,<11.5.51|>=12,<12.4.46|>=13,<13.4.31|>=14,<14.3.3",
                 "typo3/cms-redirects": ">=10,<=10.4.54|>=11,<=11.5.48|>=12,<=12.4.40|>=13,<=13.4.22|>=14,<=14.0.1",
@@ -11359,7 +11359,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-02T17:38:20+00:00"
+            "time": "2026-09-08T10:40:34+00:00"
         },
         {
             "name": "sebastian/cli-parser",
