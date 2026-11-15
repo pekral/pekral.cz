@@ -90,3 +90,5 @@ Jedno omezení je dobré vědět předem. CI balíčku ověřuje, že se soubory
 Tenhle web má AI Olympus mezi závislostmi taky. Pravidla, skilly a agenty si z něj vygeneruje při každém buildu.
 
 Zdrojový kód a dokumentace jsou na [GitHubu](https://github.com/pekral/ai-olympus), balíček najdete na [Packagistu](https://packagist.org/packages/pekral/ai-olympus). Pokud vám něco chybí nebo narazíte na chybu, založte issue. A když se vám balíček hodí, dejte repozitáři hvězdičku.
+
+Grafika: [AI Olympus](https://github.com/pekral/ai-olympus/blob/master/assets/social-preview.png), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Převod do JPEG a doplnění okrajů. [Zdroje grafiky a log](https://github.com/pekral/ai-olympus/blob/master/assets/ATTRIBUTION.md).
