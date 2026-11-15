@@ -40,12 +40,27 @@ Model::index('status-createdAt-index')                                  // Query
     ->get();
 ```
 
+## Local Scopes on DynamoDB Models
+- `baopham/laravel-dynamodb` supports local scopes: `DynamoDbQueryBuilder::__call()` forwards `->name()` to `scopeName()` on the model. Name a repeated condition with a scope exactly as on an Eloquent model (`@rules/laravel/laravel.md` **Database and Eloquent**). An outdated package version is not a reason to fall back to a private Repository method.
+- **The builder adds a scope's conditions flat to the query.** `callScope()` does not group them, so a scope that returns `$query->where('hidden', false)->orWhereNull('hidden')` turns the whole `FilterExpression` into `A AND B AND C OR D`. On a table that holds the rows of every tenant, that expression returns rows of other tenants. Every scope that combines `OR` wraps itself:
+
+```php
+public function scopeOnlyVisible(DynamoDbQueryBuilder $query): DynamoDbQueryBuilder
+{
+    return $query->where(static fn (DynamoDbQueryBuilder $builder): DynamoDbQueryBuilder => $builder->where('hidden', false)->orWhereNull('hidden'));
+}
+```
+
+- **A misspelled scope is silently ignored.** `__call()` returns the builder for every unknown method, and static analysis reports nothing on the call. Only a test catches it: the test proves that the scope narrows the result.
+- Verify every new scope with `toDynamoDbQuery()`: `op` is `Query`, and the `FilterExpression` shows the scope's conditions in parentheses.
+- Severity in code review: **Critical** for a scope that combines `OR` without the nested `where()`, because the read can cross tenants. **Moderate** for a scope that no test exercises.
+
 ## Review Checklist
 For every PR that touches DynamoDB code, reviewers must verify:
 
 - Each new or changed read specifies a partition key or uses `GetItem` / `BatchGetItem`.
 - No new `Scan` requests were introduced.
-- Any pre-existing `Scan` that is modified is re-justified in code or in the PR description.
+- Any pre-existing `Scan` that is modified is re-justified in the PR description.
 - `FilterExpression` is not used as the primary access pattern.
 - When a GSI is used, the index exists in the table definition and the query passes the correct index name.
 
@@ -54,9 +69,9 @@ For every PR that touches DynamoDB code, reviewers must verify:
 - Tinker complements but does not replace the Pest tests required by `@rules/code-testing/general.md` for every behavior change.
 - Use Tinker to:
   - Confirm whether a builder produces a `Query` or a `Scan` before merging — inspect the builder, dump the underlying AWS SDK request, or enable SDK logging.
-  - Verify the shape of items returned by repositories against real data.
-  - Reproduce production-like read paths against the configured DynamoDB endpoint.
-- Never paste secrets or production credentials into Tinker — rely on the project's configured `.env` or IAM role.
+  - Verify the shape of items returned by repositories against test data.
+  - Reproduce production-like read paths against DynamoDB Local, LocalStack, or a documented test table — never a production account (`@rules/security/general.md` *Production is never touched*).
+- Never paste secrets or production credentials into Tinker, and never read them from `.env` (`@rules/security/general.md` *Environment values are never read*); rely on the local endpoint the project's development setup configures.
 
 ## Red Flags
 - A new method on a DynamoDB repository or query builder that has no `where()` on the partition key.

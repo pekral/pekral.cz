@@ -49,11 +49,11 @@ The skill can work with:
 
 - Telescope URL (preferred)
 - request UUID / entry UUID
-- environment access (local, staging, production read-only)
-- DB credentials for Telescope storage
+- a local development or test instance only (`@rules/security/general.md` *Production is never touched*)
+- DB connection details for the local Telescope storage, from the dispatch or the committed development setup — never production credentials and never a value read from `.env`
 - logs or screenshots exported from Telescope
 
-The skill should proceed with whatever is available and not block on perfect input.
+The skill should proceed with whatever is available and not block on perfect input. A Telescope URL on production or on an unknown host stops steps 2 and 3: never open its Telescope UI and never query its database. Analyse only the data a person exported from Telescope.
 
 ---
 
@@ -116,7 +116,7 @@ For every recommendation include:
 
 - what to change
 - why it helps
-- expected impact (latency, DB load, memory, throughput)
+- measured baseline (the Telescope duration, query count, or memory this change targets)
 - implementation risk or side effects
 - verification plan (how to measure after change)
 
@@ -138,7 +138,7 @@ The skill must:
 
 - prefer evidence from Telescope data over assumptions
 - match UI request with DB request whenever possible
-- clearly separate confirmed findings from hypotheses
+- report confirmed findings only, and list every unconfirmed point under *Not verified* with the step that settles it (`@rules/general/general.md` *Verified statements only*)
 - avoid recommending changes without measurable validation
 - keep output concise and implementation-oriented
 

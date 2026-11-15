@@ -26,8 +26,25 @@ Focus on:
 - EXPLAIN-based diagnosis when possible
 - safe, justified optimizations
 
-**In a code review this skill owns query performance and its plan, never the shape of a schema feature.** When the CR's schema-feature trigger fires on the same diff (`@skills/code-review/references/specialized-reviews.md` *Specialized Reviews*), `@skills/mysql-patterns/SKILL.md` with `MODE=cr` runs alongside this skill and owns whether an upsert is one statement over a backing unique index, whether a JSON path is indexed through a generated column, whether the partition key matches the predicate, whether `sticky` survives a read-after-write path, and whether a concurrent transaction carries a deadlock retry.
-Raise one finding per violation: keep index usage, rows examined, `EXPLAIN` shape, and the non-regression gate here, and never restate a schema-shape finding in your own words. Both lenses fold into the review's single `## Database Analysis` section.
+## Modes
+
+- **Default (no `MODE`)** — investigate a reported problem and answer with the full analysis report below.
+- **`MODE=cr-report`** — the code-review report the `casey` agent writes (`agents/casey.md`, `@skills/code-review/references/specialized-reviews.md` *Database report — the `casey` agent*). The review itself never runs this skill inline. In this mode the skill:
+  - runs against a **locally started database only** — never a shared, staging, or production host. With no local database, it analyses statically and says so;
+  - is **read-only** — it never writes a migration, an index, a query, or a configuration change, and never runs a statement that changes data or schema. Plain `EXPLAIN` and `SHOW` only; `EXPLAIN ANALYZE` (MariaDB `ANALYZE`) executes the statement, so run it on a `SELECT` only, inside `START TRANSACTION READ ONLY; … ROLLBACK;` — never on `INSERT` / `UPDATE` / `DELETE`. A `SELECT` that calls a stored or non-aggregate function can have side effects, so it gets plain `EXPLAIN`, never `ANALYZE`;
+  - is **diff-scoped** — every item anchors to a `file:line` the diff added or modified; a pre-existing query the diff does not touch is out of scope;
+  - reports **critical items only** — a full scan, `filesort`, or `temporary` on a realistically large table on a hot path, a per-row query in a loop, an N+1 on a list, a DDL that blocks writes during a deploy, or a comparable outage or data-loss risk. A non-critical observation is omitted, never downgraded into the report;
+  - gives each item its evidence (`file:line`, the reconstructed SQL, the `EXPLAIN` baseline when DB access exists, or the stated limitation when it does not) and one proposed optimization held against *Performance Non-Regression on Query Changes* in `@rules/sql/optimalize.md`;
+  - answers `No critical database item in this diff.` when nothing qualifies. That answer carries no `TL;DR`.
+  - **opens with a `TL;DR` that defends each proposal with facts.** A report with a critical item opens with it, and `templates/cr-report.md` owns its shape. Per item it states the proposal, the facts that support it, and the consequence of leaving the code as it is.
+    A fact names its source, and the only sources are a `file:line`, a value read from the `EXPLAIN` output, and a table size the run read. On MySQL and MariaDB a table size is the `Cardinality` that `SHOW INDEX` prints for the `PRIMARY` index, on its row with the highest `Seq_in_index`, and the fact names it as an estimate; a table with no `PRIMARY` index has no table size. On PostgreSQL no statement that `agents/casey.md` *Bash boundary* allows prints a table size, so a fact about the size of a PostgreSQL table is a value read from the `EXPLAIN` output and names that source. A statement with no such source goes under *Not verified* with the step that settles it (`@rules/general/general.md` *Verified statements only*).
+    The `DB access:` line of the report names how the facts were obtained, and `templates/cr-report.md` owns its values.
+  - **explains the `EXPLAIN` result in plain language when `EXPLAIN` ran.** The `TL;DR` says which table the database reads, how it reads it, how many rows it examines against how many it keeps, and what an extra step such as a sort or a temporary table means for this query.
+    Where the proposal was tested, it says the same for the proposed query. The raw output stays in the item's evidence. `references/explain-reading.md` owns which output forms get a reading, the reading of each MySQL / MariaDB column and value, and the reading of each PostgreSQL figure, node, and detail line.
+    When `EXPLAIN` did not run, one line states that the proposal rests on static analysis and gives the reason, and the report explains no plan.
+
+**In a code review this skill owns query performance and its plan, never the shape of a schema feature.** When the CR's schema-feature trigger fires on the same diff (`@skills/code-review/references/specialized-reviews.md` *Specialized Reviews*), `@skills/mysql-patterns/SKILL.md` with `MODE=cr` runs in the review beside this skill's `casey` report and owns whether an upsert is one statement over a backing unique index, whether a JSON path is indexed through a generated column, whether the partition key matches the predicate, whether `sticky` survives a read-after-write path, and whether a concurrent transaction carries a deadlock retry.
+Raise one point per violation: keep index usage, rows examined, `EXPLAIN` shape, and the non-regression gate here, and never restate a schema-shape finding in your own words. The schema-pattern findings stay in the review's `## Database Analysis` section; this skill's items stay in the `casey` report.
 
 The same division holds against the CR's latency lens. When `@skills/latency-critical-systems/SKILL.md` with `MODE=cr` runs over the same diff, it owns **the budget of the path and the freshness of its data** — the stated p50 / p95 / p99 target, the mapped hot path, the staleness window on a cached or broadcast read, and the backpressure that bounds queue depth. This skill keeps the query and its plan, including N+1. The two divide the *dimensions* of a hot-path change, never its lines: a `foreach` issuing a query per row on a queue path carries this skill's query-plan finding, and the latency lens speaks on the same change only when it also leaves the path with no stated budget or no freshness window — a different defect, never this skill's finding restated.
 
@@ -45,15 +62,7 @@ The same division holds against the CR's latency lens. When `@skills/latency-cri
     - DB tools when available
 
 ### 3. Run EXPLAIN
-- If MySQL access is available, run `EXPLAIN`
-- Review:
-    - table
-    - type
-    - possible_keys
-    - key
-    - rows
-    - filtered
-    - Extra
+- If MySQL access is available, run `EXPLAIN` on the query and read its plan.
 
 ### 4. Diagnose the Problem
 Look for:
@@ -105,9 +114,12 @@ When the input is Laravel code, also inspect:
 
 ## Terminal Guidance
 When terminal access is available, inspect DB connection details from:
-- `.env`
+- the dispatch or the caller's input
 - `config/database.php`
-- docker/dev setup
+- `.env.example`
+- docker/dev setup (`docker-compose*.yml`)
+
+Never read `.env` or an environment-variable value (`@rules/security/general.md` *Environment values are never read*).
 
 Use MySQL tools when possible for:
 - `SHOW CREATE TABLE`
@@ -118,7 +130,7 @@ If access fails, continue statically and say so.
 
 ## Output Format
 
-Use the template defined in `templates/analysis-report.md`.
+Use the template defined in `templates/analysis-report.md`. In `MODE=cr-report`, use `templates/cr-report.md` instead.
 ---
 
 ## Principles

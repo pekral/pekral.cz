@@ -11,6 +11,7 @@ metadata:
 - Apply `@rules/git/general.md`
 - Apply `@rules/jira/general.md` — compose with the supported intermediate source and publish real ADF through the canonical helper
 - Apply `@rules/reports/general.md` — the cookbook JIRA comment must be written in the language of the JIRA task description (e.g. `ACME-*` tasks → Czech). Do not mix languages within a single comment; UI-visible labels stay verbatim as they appear in the admin screen.
+- Apply `@skills/agent-voice/SKILL.md` to the prose of every comment this skill publishes. Every marker, heading, field, identifier, link, and language rule stated in this skill stays unchanged.
 - Read-only relative to the codebase. The skill never modifies code; it only publishes a JIRA comment.
 - Never change the JIRA task status — per `@rules/jira/general.md`, status transitions are handled by humans only.
 - The audience is an internal QA tester who is not a programmer. Everything in the report must be verifiable by clicking in the application, opening a report screen, reading a delivered email/SMS, or checking the account balance. Anything that cannot be verified that way belongs in the dev-team report as a flag for the development team, not as a tester action.
@@ -54,22 +55,22 @@ For each impact identified in step 2, look up the corresponding visible label in
 - **Internal-only changes (no UI footprint)** — surface them in the dev-team report ("ask dev team to confirm X"); do not invent UI steps the tester cannot perform.
 
 ### 4. Compose the comment
-Every comment opens with two metadata lines, then the body sections. Compose them in the supported intermediate source format. The canonical helper converts the result to ADF. The body skips the first section when it does not add value (for example when the change is verifiable purely from the dev-team report — a notification text change, a label rename in the report).
+Render the comment from `skills/tester-cookbook/templates/test-report-jira.md`, which owns the order of the lines and sections and which of them are present. Compose it in the supported intermediate source format. The canonical helper converts the result to ADF. Publish only the part above the `=== END OF COMMENT BODY` line of the template.
 
-**Metadata lines (always at the top of the comment, in this order):**
+**Fill the metadata lines:**
 
 - *Authors:* the real change author(s), resolved here — this skill owns the algorithm, no other skill resolves authorship for it:
     1. Collect the commit authors with `git log --pretty='%an <%ae>' base..HEAD | awk 'NF' | sort -u`.
-    2. When PR metadata is available, also collect `author.login` and the unique `commits[].author.login` set.
+    2. When PR metadata is available, also collect the loader's `author` value and the unique `commits[].authors[]` set.
     3. On a JIRA target, prefer the JIRA-account display name when the loader's user lookup — or `assignee` / `reporter` matching the committer — resolves one. Otherwise prefer the GitHub handle `@handle`. Otherwise fall back to the git `Name <email>` form.
     4. List the identities comma-separated in commit order, deduped.
   Never list the agent / publishing identity. When authorship cannot be determined, write *Authors: unknown — git history did not yield a recognisable identity*.
-- *Available behind:* present only when the verified change is reachable only behind a test parameter (admin switch label _NovaSMS API version_, ENV {{BETA_PRICING=1}}, query {{?preview=1}}, feature toggle, allow-listed account). Name the switch label exactly as it appears in the admin UI when one exists (per the forbidden-vocabulary rule — UI labels, not feature keys). When the change is reachable for every user unconditionally, omit the line entirely.
+- *Available behind:* the test parameter that the verified change is reachable behind (admin switch label _NovaSMS API version_, query {{?preview=1}}, feature toggle, allow-listed account). Name the switch label exactly as it appears in the admin UI when one exists (per the forbidden-vocabulary rule — UI labels, not feature keys). A gate with no UI footprint, such as an environment setting, goes to the dev-team report instead.
 
-**Body sections:**
+**Fill the body sections:**
 
-- **Brief steps to reach the result** (optional) — at most a handful of bullets, each one a single click-path line, just enough for the tester to land on the affected screen. No precondition tables, no scenario enumeration, no edge-case matrices. When *Available behind* is set, the **first** bullet must be the click-path that enables the gating switch. Example: *"Open Administration → switches → enable *NovaSMS API version v2* → Campaigns → new SMS campaign → send to test number `+420600000000` → open *Recipient status* on the campaign detail."*
-- **What to report back to the dev team** (required) — concrete visible symptoms the tester should flag if observed, written so the tester only needs to recognise them in the UI. Each bullet is one symptom, framed in plain language: *"contacts stuck in status *Waiting* for over an hour"*, *"credits charged even for contacts marked *Invalid number*"*, *"the SMS arrived but the report shows *Not delivered*"*, *"the *NovaSMS API version* switch is missing from the admin screen"*. Never list error codes, never mention Bugsnag, never reference internal class or queue names.
+- **Brief steps to reach the result** — at most a handful of bullets, each one a single click-path line, just enough for the tester to land on the affected screen. No precondition tables, no scenario enumeration, no edge-case matrices. When *Available behind* is set, the **first** bullet must be the click-path that enables the gating switch. Example: *"Open Administration → switches → enable *NovaSMS API version v2* → Campaigns → new SMS campaign → send to test number `+420600000000` → open *Recipient status* on the campaign detail."*
+- **What to report back to the dev team** — concrete visible symptoms the tester should flag if observed, written so the tester only needs to recognise them in the UI. Each bullet is one symptom, framed in plain language: *"contacts stuck in status *Waiting* for over an hour"*, *"credits charged even for contacts marked *Invalid number*"*, *"the SMS arrived but the report shows *Not delivered*"*, *"the *NovaSMS API version* switch is missing from the admin screen"*. Never list error codes, never mention Bugsnag, never reference internal class or queue names.
 
 ### 5. Compose the JIRA source for ADF conversion
 - Headings: `h2.`, `h3.` (never `#`).
@@ -87,13 +88,13 @@ Before sending the comment, scan the body for every forbidden token listed in **
 Repeat until the body is clean. **Do not publish a comment that still contains forbidden vocabulary.**
 
 ### 7. Publish the comment
-- Send through `skills/code-review-jira/scripts/upsert-comment.sh <KEY|URL> <report-file>`. The helper converts the source to ADF and applies it through `acli jira workitem comment update --body-adf`.
-- Fall back to the JIRA MCP server only when `acli` is unavailable.
+- Send through `skills/code-review-jira/scripts/upsert-comment.sh --create <KEY|URL> <report-file>`. The helper converts the source to ADF, appends the `_cr-comment:actor=<actor-digest>_` marker, creates a new comment, and applies the ADF to it through `acli jira workitem comment update --body-adf`. The `--create` flag is mandatory: the report shares the `cr-comment` namespace with the code-review report, and without the flag the helper rewrites the newest code-review report (`@rules/jira/general.md`). On exit code 2/3 follow `@rules/code-review/general.md` *A retry identifies the comment of this run*.
+- Fall back to the JIRA MCP server only when `acli` is unavailable, appending the same `_cr-comment:actor=<actor-digest>_` marker line to the ADF payload — an agent marker per `@rules/code-review/general.md` *Authorship trust*, on this fallback as on the helper.
 - Never change the JIRA task status.
 
 ## Related skills (to disambiguate)
-- `@skills/pr-summary/SKILL.md` — the non-technical *What changed* / *How to test* comment for a PR, JIRA ticket, or Bugsnag error. Different audience (project managers, not QA testers), and it credits no authors — this skill resolves its own.
-- **interactive-testing** (when available in the host environment, not shipped with this package) — interactive browser-driven validation. Different flow: an agent walks through scenarios live in a browser instead of producing written instructions for a human tester.
+- `@skills/pr-summary/SKILL.md` — the non-technical comment for a PR, JIRA ticket, or Bugsnag error (*What changed* / *How to test*; on JIRA the verdict, the review findings, and *What changed*). Different audience (project managers, not QA testers), and it credits no authors — this skill resolves its own.
+- `@skills/interactive-testing/SKILL.md` — interactive browser-driven validation. Different flow: an agent walks through scenarios live in a browser instead of producing written instructions for a human tester.
 
 ## Output
 - A single ADF-formatted JIRA comment posted to the originating task.

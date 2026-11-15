@@ -3,10 +3,14 @@
 # user and move it to the project's In Progress status before work starts.
 #
 # Status transitions are otherwise human-only (rules/jira/general.md). This
-# script is one of three sanctioned exceptions: it can ONLY land an issue in an
+# script is one of two sanctioned exceptions: it can ONLY land an issue in an
 # In Progress (start-of-work) status. It structurally refuses any other target
 # (Done, Closed, Review, …) so an AI agent cannot use it to push work through
-# the board in unintended directions.
+# the board in unintended directions. An issue already in a review status is
+# never moved: once the code review has started, no agent changes the status
+# (rules/jira/general.md). The owner's issue is left in review and the helper
+# succeeds; another run's issue aborts. Ready to Merge is set by a human and is
+# never returned, whoever owns it.
 #
 # Usage:
 #   transition-to-in-progress.sh <KEY|URL> [<STATUS>]
@@ -35,9 +39,15 @@
 #   3. Read the current status via load-issue.sh. If already in the target
 #      status, continue only when currentUser() already owns it; otherwise abort
 #      instead of stealing another run's claim.
-#   4. If already in a status that is lexically past In Progress (contains
-#      "review", "done", "closed", "resolved", "cancelled"), treat it as
-#      claimed-by-another-run and exit 4 (caller should abort).
+#   4. If already in a finished status (contains "done", "closed", "resolved",
+#      "cancelled", "canceled", "merged", "hotovo", "deploy", "testování", or
+#      "testovani"), exit 4 (caller should abort). If already in a
+#      ready-to-merge status (contains "merge", or matches
+#      $JIRA_READY_TO_MERGE_SYNONYMS), exit 4 unconditionally — never returned,
+#      whoever owns it. If already in a review status (contains "review", or
+#      matches $JIRA_CODE_REVIEW_SYNONYMS), leave the status unchanged and exit
+#      0 when currentUser() owns the issue; otherwise exit 4 instead of taking
+#      back another run's issue.
 #   5. Run `acli jira workitem transition --key <KEY> --status <target> --yes`.
 #   6. Run `acli jira workitem assign --key <KEY> --assignee "@me" --yes` and
 #      verify it with JQL `key = <KEY> AND assignee = currentUser()`.
@@ -52,14 +62,24 @@
 #
 # Output:
 #   The issue URL on stdout. `action=transitioned|noop` plus the resolved status
-#   and `assignee=@me` on stderr.
+#   and `assignee=@me` on stderr, or `action=unchanged` plus the current status
+#   when an owned issue already sits in review.
+#
+# Audit trail:
+#   The write appends its own line to the run's `.audit` file at the moment it
+#   happens, through `skills/_shared/audit-trail.sh record`: an `external-write`
+#   line, or a `note` line for a failed attempt, both with the acting role and
+#   the real exit status of the write. The ledger comes from AUDIT_TRAIL_FILE
+#   and AUDIT_TRAIL_ROLE; a missing ledger prints a hint on stderr and never
+#   changes the output or the exit codes.
 #
 # Exit codes:
 #   1  usage / argument error, or refused target (not a progress status)
 #   2  missing required tool (acli, jq)
 #   3  JIRA API call failed (read, transition, assignment, or verification;
 #      transition failures classified as 4/5 retain those exit codes)
-#   4  issue is already past In Progress — treat as claimed-by-another, abort
+#   4  issue is finished, or claimed by another run (in progress or in review
+#      and not owned by currentUser()) — abort
 #   5  target status not available in this project — discover via MCP / ask
 set -euo pipefail
 
@@ -131,7 +151,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 assign_to_current_user() {
   local assignment_error assignment_status
 
-  if ! assignment_error="$(acli jira workitem assign --key "$KEY" --assignee "@me" --yes --json 2>&1 >/dev/null)"; then
+  local assign_rc=0
+  assignment_error="$(acli jira workitem assign --key "$KEY" --assignee "@me" --yes --json 2>&1 >/dev/null)" || assign_rc=$?
+  bash "$SCRIPT_DIR/../../_shared/audit-trail.sh" record --target "jira assign $KEY to the current acli user" --status "$assign_rc" || true
+  if [[ "$assign_rc" -ne 0 ]]; then
     echo "transition-to-in-progress.sh: could not assign $KEY to the current acli user: $assignment_error" >&2
     return 3
   fi
@@ -151,14 +174,36 @@ assign_to_current_user() {
   return 3
 }
 
+# The search requests summary, not key: key is a top-level attribute, and acli
+# answers a search whose only requested field is key with [null], so an owned
+# issue would read as unowned.
 current_user_owns_issue() {
   local assignment_json
 
-  if ! assignment_json="$(acli jira workitem search --jql "key = $KEY AND assignee = currentUser()" --fields key --limit 1 --json 2>/dev/null)"; then
+  if ! assignment_json="$(acli jira workitem search --jql "key = $KEY AND assignee = currentUser()" --fields summary --limit 1 --json 2>/dev/null)"; then
     return 3
   fi
 
   printf '%s' "$assignment_json" | jq -e --arg key "$KEY" '[.. | objects | .key? // empty] | index($key) != null' >/dev/null
+}
+
+# $1 = a lower-cased status, $2 = a comma-separated synonym list. Matches the
+# same trim/lowercase handling as the progress-name guard above and the
+# review-name guard in transition-to-code-review.sh.
+status_in_list() {
+  local status="$1" list="$2" entry entry_trimmed
+
+  [[ -z "$list" ]] && return 1
+
+  IFS=',' read -ra entries <<<"$list"
+  for entry in "${entries[@]}"; do
+    entry_trimmed="$(printf '%s' "$entry" | sed -E 's#^[[:space:]]+|[[:space:]]+$##g' | tr '[:upper:]' '[:lower:]')"
+    if [[ -n "$entry_trimmed" && "$status" == "$entry_trimmed" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 # Read current status for the idempotence check and past-In-Progress guard.
@@ -171,7 +216,7 @@ SITE="$(printf '%s' "$ISSUE_JSON" | jq -r '.url // empty' | sed -nE 's#https?://
 # Fall back to the authenticated acli site when the loaded JSON carries no URL,
 # so the emitted link never degrades to a malformed https:///browse/<KEY>.
 if [[ -z "$SITE" ]]; then
-  SITE="$(acli jira auth status 2>/dev/null | awk -F': *' 'tolower($0) ~ /site:/ { gsub(/[[:space:]]+$/, "", $2); print $2; exit }')"
+  SITE="$(acli jira auth status 2>/dev/null | awk -F': *' 'tolower($0) ~ /site:/ && !seen++ { gsub(/[[:space:]]+$/, "", $2); print $2 }')"
 fi
 
 # Idempotent no-op: already in the target status.
@@ -193,25 +238,67 @@ if [[ -n "$CURRENT_STATUS" && "$(printf '%s' "$CURRENT_STATUS" | tr '[:upper:]' 
   exit 4
 fi
 
-# Past-In-Progress guard: if the issue is already in a review/done/closed status,
-# treat it as claimed-by-another-run so the caller can abort rather than re-transition.
+# Past-In-Progress guard: a finished issue is never re-opened, a ready-to-merge
+# issue is never returned by anyone, and an issue in review keeps its status. The finished check runs first so a
+# resolution status such as "Merged" is never misread as the ready-to-merge
+# column below.
 current_lower="$(printf '%s' "${CURRENT_STATUS:-}" | tr '[:upper:]' '[:lower:]')"
-is_past=false
-for keyword in review 'done' closed resolved cancelled; do
+is_finished=false
+for keyword in 'done' closed resolved cancelled canceled merged hotovo deploy 'testování' testovani; do
   if [[ "$current_lower" == *"$keyword"* ]]; then
-    is_past=true
+    is_finished=true
     break
   fi
 done
 
-if [[ "$is_past" == true ]]; then
+if [[ "$is_finished" == true ]]; then
   echo "transition-to-in-progress.sh: $KEY is already in '${CURRENT_STATUS}' (past In Progress) — treat as claimed-by-another-run and abort." >&2
   exit 4
 fi
 
+# Ready-to-merge guard: Ready to Merge already means an approved code review
+# sits behind the issue and it is ready to merge into the main branch, so it
+# is refused unconditionally here — like the finished check, before any
+# ownership lookup, transition, or assignment.
+if [[ "$current_lower" == *merge* ]] || status_in_list "$current_lower" "${JIRA_READY_TO_MERGE_SYNONYMS:-}"; then
+  echo "transition-to-in-progress.sh: $KEY is in '${CURRENT_STATUS}' (Ready to Merge) — never returned to In Progress; a human owns this status." >&2
+  exit 4
+fi
+
+# Review-phase guard: the same synonym-aware detection transition-to-code-review.sh
+# uses for its own target, so a board whose review column carries no "review"
+# substring is still recognised here. No agent changes the status once the
+# code review has started: the owner's issue stays in review.
+if [[ "$current_lower" == *review* ]] || status_in_list "$current_lower" "${JIRA_CODE_REVIEW_SYNONYMS:-}"; then
+  if current_user_owns_issue; then
+    ownership_status=0
+  else
+    ownership_status=$?
+  fi
+
+  if [[ "$ownership_status" -eq 3 ]]; then
+    echo "transition-to-in-progress.sh: could not verify who owns $KEY in '${CURRENT_STATUS}'" >&2
+    exit 3
+  fi
+
+  if [[ "$ownership_status" -ne 0 ]]; then
+    echo "transition-to-in-progress.sh: $KEY is in '${CURRENT_STATUS}' and is not assigned to currentUser() — another run owns the review; abort." >&2
+    exit 4
+  fi
+
+  echo "https://${SITE:-}/browse/${KEY}"
+  echo "action=unchanged status=${CURRENT_STATUS} (no status change once the code review has started)" >&2
+  exit 0
+fi
+
 # acli transitions by target status name. Capture stderr so a "status not
 # available / not found" failure can be distinguished and surfaced as exit 5.
-TRANSITION_ERR="$(acli jira workitem transition --key "$KEY" --status "$TARGET" --yes 2>&1 >/dev/null)" && TRANSITION_OK=true || TRANSITION_OK=false
+TRANSITION_RC=0
+TRANSITION_ERR="$(acli jira workitem transition --key "$KEY" --status "$TARGET" --yes 2>&1 >/dev/null)" || TRANSITION_RC=$?
+[[ "$TRANSITION_RC" -eq 0 ]] && TRANSITION_OK=true || TRANSITION_OK=false
+# The audit line is written at the moment of the write, with the real exit status of `acli`
+# (`skills/_shared/audit-trail.sh`; a missing ledger prints a hint and changes nothing else).
+bash "$SCRIPT_DIR/../../_shared/audit-trail.sh" record --target "jira transition $KEY to $TARGET" --status "$TRANSITION_RC" || true
 
 # acli can return success for a "looped transition" that performs an action but
 # keeps the current status, or match a transition that does not actually land in
@@ -232,7 +319,7 @@ if [[ "$TRANSITION_OK" == true ]]; then
   exit 5
 fi
 
-if printf '%s' "$TRANSITION_ERR" | grep -qiE 'not (found|available|valid)|no transition|invalid|does not exist'; then
+if grep -qiE 'not (found|available|valid)|no transition|invalid|does not exist' <<<"$TRANSITION_ERR"; then
   echo "transition-to-in-progress.sh: status '$TARGET' is not available for $KEY (current: ${CURRENT_STATUS:-?})." >&2
   echo "transition-to-in-progress.sh: discover the real in-progress status via JIRA MCP (available next transitions), then re-run with it as STATUS, or ask a human." >&2
   exit 5

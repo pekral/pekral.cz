@@ -54,7 +54,7 @@ Length
   the Clarifying questions block and/or the Assignment Compliance block returned
   by @skills/assignment-compliance-check/SKILL.md. Each block is already
   converted to plain text by the wrapper; append it verbatim, in the order
-  received, separated by a single blank line. When no blocks are passed,
+  received (only the part of a block above its `=== END OF COMMENT BODY` line), separated by a single blank line. When no blocks are passed,
   omit this slot entirely — including the surrounding blank lines — so the
   comment runs straight from the test steps to the closing links line; that is the
   shape of a non-CR invocation, never of a clean CR result. This is the only route
@@ -68,6 +68,15 @@ Length
   Do not add an Authors line, an Available behind line, a Summary of changes
   section, severity counts, file paths, line numbers, or code snippets — none of
   those belongs on any target this skill publishes to.
+
+Review findings (review-only run, in place of the test steps)
+  The findings new in this review come first. The line "Already reported in an
+  earlier review" renders only when that group has a finding. The groups, the
+  answer sentence, and the rule that each finding is a TL;DR of its solution
+  backed by evidence are owned by @skills/pr-summary/SKILL.md (Review-only run).
+  The section lists only the points that must be resolved before the merge: a
+  defect or an open question. It lists every such point, and never an
+  assumption, a hypothesis, or a point with no evidence.
 
 Closing links line
   One line, the pull request and the source tracker item, separated by " · ",

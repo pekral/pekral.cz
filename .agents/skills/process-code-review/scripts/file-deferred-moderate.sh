@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# file-deferred-moderate.sh — file one round-3 deferred Moderate finding as a
+# file-deferred-moderate.sh — file one cap-round deferred Moderate finding as a
 # SUB-ISSUE of the source tracker item, and nothing else.
 #
 # Called by skills/process-code-review/SKILL.md *Review loop* step 6 (the
 # deferral boundary), once per finding that (a) is not Critical, (b) does not
 # meet the S1-S3 security carve-out, and (c) passes the filing bar in
-# rules/compound-engineering/general.md *File deferred points as follow-up
+# rules/compound-engineering/tracker.md *File deferred points as follow-up
 # tracker issues*. The caller makes all three judgments; this script only
 # performs the write and proves it landed.
 #
@@ -17,8 +17,8 @@
 #              a bare JIRA key (ACME-1234), or a /browse/<KEY> URL.
 #   TITLE      Sub-issue title / summary.
 #   BODY-FILE  File holding the sub-issue body, or "-" to read stdin.
-#   LABEL      Optional content label per rules/compound-engineering/general.md
-#              *Label newly created tracker issues*. Selecting it is a semantic
+#   LABEL      Optional content label per rules/compound-engineering/tracker.md
+#              *Label tracker issues, and keep the labels true*. Selecting it is a semantic
 #              judgment the caller makes; this script only applies what it is
 #              given. Omitted means no label, which that rule permits.
 #
@@ -38,6 +38,9 @@
 #           (`--parent  Parent work item ID`, confirmed against acli's own
 #           --help). The subtask type name is project-configurable, so it is
 #           resolved from $JIRA_SUBTASK_TYPE and defaults to "Subtask".
+#           The body is JIRA Wiki Markup, converted to ADF through the same
+#           wiki-markup-to-adf.php the comment helper uses, so the description
+#           renders instead of showing `h2.` and `{{code}}` as literal text.
 #   Bugsnag Has no sub-issue concept at all. Refused with exit 1 and a pointer
 #           at the error's linked GitHub issue, which is the parent to pass
 #           instead — the same precedent *File deferred points as follow-up
@@ -47,9 +50,17 @@
 #   The created sub-issue URL (or, under DRY_RUN, the resolved parent) on
 #   stdout. `action=created|dry-run` plus the parent on stderr.
 #
+# Audit trail:
+#   Each tracker write appends its own line to the run's `.audit` file at the
+#   moment it happens, through `skills/_shared/audit-trail.sh record`: the
+#   sub-issue creation, the GitHub parent link, each with the real exit status.
+#   A failed attempt leaves a `note` line. The ledger comes from AUDIT_TRAIL_FILE
+#   and AUDIT_TRAIL_ROLE; a missing ledger prints a hint on stderr and never
+#   changes the output or the exit codes.
+#
 # Exit codes:
 #   1  usage / argument error, or an unsupported tracker (Bugsnag)
-#   2  missing required tool (gh / acli / jq)
+#   2  missing required tool (gh / acli / jq / php)
 #   3  tracker API call failed
 #   4  the sub-issue was created but the parent relation could not be verified
 set -euo pipefail
@@ -91,6 +102,8 @@ if [[ -z "${BODY//[[:space:]]/}" ]]; then
   echo "file-deferred-moderate.sh: refused — the sub-issue body is empty. A deferred finding is filed verbatim, never as a title alone." >&2
   exit 1
 fi
+
+AUDIT_TRAIL="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../_shared/audit-trail.sh"
 
 need() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -174,9 +187,11 @@ GRAPHQL
   CREATE_ARGS=(issue create --repo "$OWNER/$REPO" --title "$TITLE" --body-file -)
   [[ -n "$LABEL" ]] && CREATE_ARGS+=(--label "$LABEL")
   CHILD_URL="$(printf '%s' "$BODY" | gh "${CREATE_ARGS[@]}")" || {
+    bash "$AUDIT_TRAIL" record --target "gh issue create on $OWNER/$REPO" --status "$?" || true
     echo "file-deferred-moderate.sh: gh issue create failed for $OWNER/$REPO" >&2
     exit 3
   }
+  bash "$AUDIT_TRAIL" record --target "$CHILD_URL" --status 0 --detail "sub-issue created under $PARENT" || true
   CHILD_NUMBER="$(printf '%s' "$CHILD_URL" | sed -nE 's#.*/issues/([0-9]+).*#\1#p')"
 
   # The child issue already exists at this point, so every failure below must still name its URL
@@ -195,9 +210,12 @@ GRAPHQL
 
   ADD_OUT="$(gh api graphql -f query="$ADD_SUBISSUE_MUTATION" \
     -f parent="$PARENT_ID" -f child="$CHILD_ID" 2>&1)" || {
+    bash "$AUDIT_TRAIL" record --target "addSubIssue $CHILD_URL under $PARENT" --status "$?" || true
     echo "file-deferred-moderate.sh: created $CHILD_URL but addSubIssue failed against $PARENT: $ADD_OUT" >&2
     exit 4
   }
+
+  bash "$AUDIT_TRAIL" record --target "addSubIssue $CHILD_URL under $PARENT" --status 0 || true
 
   # An external write can be silently blocked in auto-mode, so a zero exit is
   # not evidence: re-read the parent and confirm the child is actually attached.
@@ -220,13 +238,14 @@ fi
 # JIRA
 need acli
 need jq
+need php
 
 PROJECT="${KEY%%-*}"
 SUBTASK_TYPE="${JIRA_SUBTASK_TYPE:-Subtask}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
   {
-    echo "would run: acli jira workitem create --project $PROJECT --parent $KEY --type \"$SUBTASK_TYPE\" --summary <TITLE> --description-file <BODY> ${LABEL:+--label \"$LABEL\"} --json"
+    echo "would run: acli jira workitem create --project $PROJECT --parent $KEY --type \"$SUBTASK_TYPE\" --summary <TITLE> --description-file <BODY-AS-ADF> ${LABEL:+--label \"$LABEL\"} --json"
     echo "would run: skills/code-review-jira/scripts/load-issue.sh <CREATED-KEY>   # verify the subtask landed"
     echo "action=dry-run parent=$KEY project=$PROJECT type=$SUBTASK_TYPE title=$TITLE label=${LABEL:-<none>}"
   } >&2
@@ -234,19 +253,34 @@ if [[ "$DRY_RUN" == "1" ]]; then
   exit 0
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# JIRA Cloud stores a description as ADF and shows Wiki Markup sent as plain
+# text verbatim, so the body is converted before the write, exactly as
+# code-review-jira/scripts/upsert-comment.sh converts a comment.
 BODY_FILE="$(mktemp)"
 trap 'rm -f "$BODY_FILE"' EXIT
-printf '%s' "$BODY" >"$BODY_FILE"
+if ! printf '%s' "$BODY" | php "$SCRIPT_DIR/../../code-review-jira/scripts/wiki-markup-to-adf.php" >"$BODY_FILE"; then
+  echo "file-deferred-moderate.sh: failed to convert the sub-issue body to ADF; nothing was created" >&2
+  exit 3
+fi
+if ! jq -e '.version == 1 and .type == "doc" and (.content | type == "array")' "$BODY_FILE" >/dev/null 2>&1; then
+  echo "file-deferred-moderate.sh: converter produced invalid ADF; nothing was created" >&2
+  exit 3
+fi
 
 CREATE_ARGS=(jira workitem create --project "$PROJECT" --parent "$KEY" --type "$SUBTASK_TYPE"
   --summary "$TITLE" --description-file "$BODY_FILE" --json)
 [[ -n "$LABEL" ]] && CREATE_ARGS+=(--label "$LABEL")
 
 CREATED="$(acli "${CREATE_ARGS[@]}" 2>&1)" || {
+  bash "$AUDIT_TRAIL" record --target "acli jira workitem create under $KEY" --status "$?" || true
   echo "file-deferred-moderate.sh: acli workitem create failed for parent $KEY: $CREATED" >&2
   echo "file-deferred-moderate.sh: when the project names its subtask type differently, re-run with JIRA_SUBTASK_TYPE=<name>." >&2
   exit 3
 }
+
+bash "$AUDIT_TRAIL" record --target "acli jira workitem create under $KEY" --status 0 --detail "subtask created" || true
 
 CHILD_KEY="$(printf '%s' "$CREATED" | jq -r '.key // .issueKey // empty' 2>/dev/null || true)"
 if [[ -z "$CHILD_KEY" ]]; then
@@ -257,7 +291,6 @@ if [[ -z "$CHILD_KEY" ]]; then
   exit 4
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOADER="$SCRIPT_DIR/../../code-review-jira/scripts/load-issue.sh"
 if [[ -x "$LOADER" ]] && ! "$LOADER" "$CHILD_KEY" >/dev/null 2>&1; then
   echo "file-deferred-moderate.sh: created $CHILD_KEY but it could not be read back through the deterministic loader" >&2
