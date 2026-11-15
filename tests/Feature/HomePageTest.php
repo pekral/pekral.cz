@@ -60,10 +60,12 @@ test('homepage shows at most three latest articles with links', function (): voi
     $response = $this->get('/');
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
+    $response->assertSee(route('blog.show', 'ai-olympus-ai-agenti-pro-php-laravel'));
+    $response->assertSee(route('blog.show', 'github-readme-generator-evidence-based-readmes'));
     $response->assertSee(route('blog.show', 'cursor-editor-ai-productivity-developer'));
-    $response->assertSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
+    $response->assertDontSee(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
+    $response->assertSee('AI Olympus: AI agenti pro PHP a Laravel');
     $response->assertSee('Cursor Editor for developers');
-    $response->assertSee('Vibe coding with AI');
 });
 
 test('homepage contains contact section with id and CTA', function (): void {
