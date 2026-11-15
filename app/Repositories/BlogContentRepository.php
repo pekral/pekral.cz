@@ -167,7 +167,7 @@ final readonly class BlogContentRepository
 
             $heading = $this->buildHeadingFromNode($node);
 
-            if ($heading !== null) {
+            if ($heading instanceof ArticleHeadingData) {
                 $headings[] = $heading;
             }
         }
