@@ -82,7 +82,7 @@
       "rector-check": "vendor/bin/rector process --dry-run",
       "rector-fix": "vendor/bin/rector process",
       "security-audit": "composer audit",
-      "test:coverage": "php -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off -dpcov.exclude=\"~vendor~\" vendor/bin/pest --coverage --min=100"
+      "test:coverage": "php -dzend.assertions=1 -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off -dpcov.exclude=\"~vendor~\" vendor/bin/pest --coverage --min=100"
     },
     "extra": {
         "laravel": {
