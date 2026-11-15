@@ -49,7 +49,8 @@
        Render this slot only when the calling CR wrapper passes one or more markdown
        blocks (typically the `## Assignment Compliance` block returned by
        `@skills/assignment-compliance-check/SKILL.md`). Each block is appended
-       verbatim, in the order received, separated by a single blank line. When no
+       verbatim, in the order received (only the part of a block above its
+       `=== END OF COMMENT BODY` line), separated by a single blank line. When no
        blocks are passed, omit this slot entirely — including the surrounding blank
        lines — so the comment runs straight from `How to test` to the closing links
        line; that is the shape of a non-CR invocation, never of a clean CR result.
@@ -60,6 +61,15 @@
        template itself still renders no verdict, no banner, and no
        "satisfies the assignment" line of its own; it appends the passed block
        verbatim.
+
+     Review findings (review-only run, in place of `How to test`)
+       The findings new in this review come first. `### Already reported in an
+       earlier review` renders only when that group has a finding. The groups, the
+       answer sentence, and the rule that each finding is a TL;DR of its solution
+       backed by evidence are owned by `@skills/pr-summary/SKILL.md`
+       *Review-only run*. The section lists only the points that must be resolved
+       before the merge: a defect or an open question. It lists every such point,
+       and never an assumption, a hypothesis, or a point with no evidence.
 
      Closing links line
        One line, the pull request and the source tracker item, separated by ` · `.

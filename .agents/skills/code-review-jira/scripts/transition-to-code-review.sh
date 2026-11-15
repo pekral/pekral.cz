@@ -45,6 +45,14 @@
 #   The issue URL on stdout. `action=transitioned|noop` plus the resolved status
 #   on stderr.
 #
+# Audit trail:
+#   The write appends its own line to the run's `.audit` file at the moment it
+#   happens, through `skills/_shared/audit-trail.sh record`: an `external-write`
+#   line, or a `note` line for a failed attempt, both with the acting role and
+#   the real exit status of the write. The ledger comes from AUDIT_TRAIL_FILE
+#   and AUDIT_TRAIL_ROLE; a missing ledger prints a hint on stderr and never
+#   changes the output or the exit codes.
+#
 # Exit codes:
 #   1  usage / argument error, or refused target (not a review status)
 #   2  missing required tool (acli, jq)
@@ -127,7 +135,7 @@ SITE="$(printf '%s' "$ISSUE_JSON" | jq -r '.url // empty' | sed -nE 's#https?://
 # Fall back to the authenticated acli site when the loaded JSON carries no URL,
 # so the emitted link never degrades to a malformed https:///browse/<KEY>.
 if [[ -z "$SITE" ]]; then
-  SITE="$(acli jira auth status 2>/dev/null | awk -F': *' 'tolower($0) ~ /site:/ { gsub(/[[:space:]]+$/, "", $2); print $2; exit }')"
+  SITE="$(acli jira auth status 2>/dev/null | awk -F': *' 'tolower($0) ~ /site:/ && !seen++ { gsub(/[[:space:]]+$/, "", $2); print $2 }')"
 fi
 
 if [[ -n "$CURRENT_STATUS" && "$(printf '%s' "$CURRENT_STATUS" | tr '[:upper:]' '[:lower:]')" == "$target_lower" ]]; then
@@ -138,7 +146,12 @@ fi
 
 # acli transitions by target status name. Capture stderr so a "status not
 # available / not found" failure can be distinguished and surfaced as exit 5.
-TRANSITION_ERR="$(acli jira workitem transition --key "$KEY" --status "$TARGET" --yes 2>&1 >/dev/null)" && TRANSITION_OK=true || TRANSITION_OK=false
+TRANSITION_RC=0
+TRANSITION_ERR="$(acli jira workitem transition --key "$KEY" --status "$TARGET" --yes 2>&1 >/dev/null)" || TRANSITION_RC=$?
+[[ "$TRANSITION_RC" -eq 0 ]] && TRANSITION_OK=true || TRANSITION_OK=false
+# The audit line is written at the moment of the write, with the real exit status of `acli`
+# (`skills/_shared/audit-trail.sh`; a missing ledger prints a hint and changes nothing else).
+bash "$SCRIPT_DIR/../../_shared/audit-trail.sh" record --target "jira transition $KEY to $TARGET" --status "$TRANSITION_RC" || true
 
 # acli can return success for a "looped transition" that performs an action but
 # keeps the current status, or match a transition that does not actually land in
@@ -158,7 +171,7 @@ if [[ "$TRANSITION_OK" == true ]]; then
   exit 5
 fi
 
-if printf '%s' "$TRANSITION_ERR" | grep -qiE 'not (found|available|valid)|no transition|invalid|does not exist'; then
+if grep -qiE 'not (found|available|valid)|no transition|invalid|does not exist' <<<"$TRANSITION_ERR"; then
   echo "transition-to-code-review.sh: status '$TARGET' is not available for $KEY (current: ${CURRENT_STATUS:-?})." >&2
   echo "transition-to-code-review.sh: discover the real review status via JIRA MCP (available next transitions), then re-run with it as STATUS, or ask a human." >&2
   exit 5

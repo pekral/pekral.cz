@@ -2,20 +2,25 @@
 # Delete one top-level GitHub issue/PR comment after proving that it belongs to
 # the current actor and exact target. Protected IDs make publication-before-
 # deletion and preservation of current merge evidence enforceable.
+#
+# The delete appends its own line to the run's `.audit` file at the moment it
+# happens, through audit-trail.sh in this directory: an `external-write` line,
+# or a `note` line for a failed attempt, with the acting role and the real exit
+# status of the delete request (`AUDIT_TRAIL_FILE`, `AUDIT_TRAIL_ROLE`).
 set -euo pipefail
 
 PROG="${0##*/}"
 
 usage() {
   cat >&2 <<EOF
-Usage: $PROG <GitHub issue-or-PR URL> <comment-id> <final-tldr-id> <current-cr-id> <current-cr-status-id>
+Usage: $PROG <GitHub issue-or-PR URL> <comment-id> <final-tldr-id> <current-cr-id>
 
 Deletes only an authenticated actor-owned top-level issue/PR comment. The final
 TL;DR and current CR evidence must be passed as protected IDs.
 EOF
 }
 
-if [[ "$#" -ne 5 ]]; then
+if [[ "$#" -ne 4 ]]; then
   usage
   exit 1
 fi
@@ -24,7 +29,7 @@ TARGET_URL="$1"
 COMMENT_ID="$2"
 shift 2
 PROTECTED_IDS=("$@")
-PROTECTED_MARKERS=("merge-readiness" "cr-comment" "cr-status")
+PROTECTED_MARKERS=("merge-readiness" "cr-comment")
 
 if [[ ! "$COMMENT_ID" =~ ^[1-9][0-9]*$ ]]; then
   printf '%s\n' "$PROG: comment id must be a positive integer" >&2
@@ -63,13 +68,15 @@ if [[ "$ACTUAL_NAME" != "$EXPECTED_NAME" ]]; then
 fi
 
 ACTOR="$(gh api user --jq .login)"
-EXPECTED_REPOSITORY_URL="https://api.github.com/repos/$OWNER/$REPOSITORY"
+# The comment endpoint carries no repository_url; issue_url names the repository
+# and the issue or pull request the comment sits on.
+EXPECTED_ISSUE_URL_PREFIX="$(printf '%s' "https://api.github.com/repos/$OWNER/$REPOSITORY/issues/" | tr '[:upper:]' '[:lower:]')"
 
 for index in "${!PROTECTED_IDS[@]}"; do
   protected_id="${PROTECTED_IDS[$index]}"
   protected_json="$(gh api "repos/$OWNER/$REPOSITORY/issues/comments/$protected_id")"
   protected_actor="$(printf '%s' "$protected_json" | jq -r '.user.login // empty')"
-  protected_repository_url="$(printf '%s' "$protected_json" | jq -r '.repository_url // empty')"
+  protected_issue_url="$(printf '%s' "$protected_json" | jq -r '.issue_url // empty' | tr '[:upper:]' '[:lower:]')"
   protected_body="$(printf '%s' "$protected_json" | jq -r '.body // empty')"
   expected_marker="<!-- ${PROTECTED_MARKERS[$index]}:actor=$ACTOR -->"
 
@@ -78,7 +85,7 @@ for index in "${!PROTECTED_IDS[@]}"; do
     exit 4
   fi
 
-  if [[ "$(printf '%s' "$protected_repository_url" | tr '[:upper:]' '[:lower:]')" != "$(printf '%s' "$EXPECTED_REPOSITORY_URL" | tr '[:upper:]' '[:lower:]')" ]]; then
+  if [[ "$protected_issue_url" != "$EXPECTED_ISSUE_URL_PREFIX"* || ! "${protected_issue_url#"$EXPECTED_ISSUE_URL_PREFIX"}" =~ ^[1-9][0-9]*$ ]]; then
     printf '%s\n' "$PROG: protected comment $protected_id belongs to a different repository" >&2
     exit 4
   fi
@@ -104,7 +111,11 @@ if [[ "$(printf '%s' "$COMMENT_ISSUE_URL" | tr '[:upper:]' '[:lower:]')" != "$(p
   exit 4
 fi
 
-gh api --method DELETE "repos/$OWNER/$REPOSITORY/issues/comments/$COMMENT_ID" >/dev/null
+DELETE_RC=0
+gh api --method DELETE "repos/$OWNER/$REPOSITORY/issues/comments/$COMMENT_ID" >/dev/null || DELETE_RC=$?
+# The audit line is written at the moment of the delete, with the real exit status of the request.
+bash "$SCRIPT_DIR/audit-trail.sh" record --target "delete comment $COMMENT_ID on $TARGET_URL" --status "$DELETE_RC" || true
+[[ "$DELETE_RC" -eq 0 ]] || exit "$DELETE_RC"
 
 VERIFY_OUTPUT=""
 if VERIFY_OUTPUT="$(gh api --include "repos/$OWNER/$REPOSITORY/issues/comments/$COMMENT_ID" 2>&1)"; then
@@ -112,7 +123,7 @@ if VERIFY_OUTPUT="$(gh api --include "repos/$OWNER/$REPOSITORY/issues/comments/$
   exit 3
 fi
 
-if ! printf '%s\n' "$VERIFY_OUTPUT" | grep -Eq '^HTTP/[^ ]+ 404([[:space:]]|$)'; then
+if ! grep -Eq '^HTTP/[^ ]+ 404([[:space:]]|$)' <<<"$VERIFY_OUTPUT"; then
   printf '%s\n' "$PROG: deletion could not be verified as HTTP 404" >&2
   exit 3
 fi

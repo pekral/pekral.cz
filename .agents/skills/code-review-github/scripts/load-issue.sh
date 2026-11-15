@@ -22,7 +22,7 @@
 #     "kind": "issue" | "pr",
 #     "number": <int>,
 #     "url": <string>,
-#     "repo": { "owner", "name", "nameWithOwner" },
+#     "repo": { "owner", "name", "nameWithOwner", "isPrivate" },
 #     "title", "body", "state", "stateReason",
 #     "author", "assignees", "labels", "milestone",
 #     "createdAt", "updatedAt", "closedAt",
@@ -30,21 +30,25 @@
 #     "reactionsCount": <int>,
 #
 #     # issue-only (null / [] when kind == "pr")
+#     "authorAssociation": <string|null>,
 #     "closingPullRequests": [ { "number", "title", "url", "state" } ],
 #     "subIssues": [ {
 #         "number", "title", "url", "state", "author", "body",
 #         "labels", "createdAt", "updatedAt", "closedAt",
 #         "comments": [ { "author", "body", "createdAt", "updatedAt", "url" } ]
 #     } ],
+#     "subIssuesComplete": <bool>,
 #
 #     # pr-only (null / [] when kind == "issue")
 #     "baseRefName", "headRefName", "baseRefOid", "headRefOid",
-#     "isDraft", "mergeable", "mergeStateStatus",
+#     "isDraft", "isCrossRepository", "mergeable", "mergeStateStatus",
 #     "mergedAt", "mergedBy", "mergeCommit",
 #     "additions", "deletions", "changedFiles",
 #     "files":             [ { "path", "additions", "deletions" } ],
 #     "commits":           [ { "oid", "messageHeadline", "authoredDate", "authors" } ],
 #     "reviews":           [ { "author", "authorAssociation", "state", "body", "submittedAt", "url" } ],
+#     "reviewComments":    [ { "author", "authorAssociation", "body", "createdAt", "url" } ],
+#     "reviewCommentsComplete": <bool>,
 #     "reviewRequests":    [ <login> ],
 #     "reviewDecision":    <string|null>,
 #     "statusCheckRollup": [ { "context", "state", "description", "targetUrl" } ],
@@ -64,6 +68,9 @@
 #   - `closingPullRequests` (for issues) is sourced from
 #     `closedByPullRequestsReferences` and surfaces the PRs that will close the
 #     issue when merged. `closingIssues` (for PRs) lists issues the PR closes.
+#   - `authorAssociation` (for issues) is the association of the issue's author
+#     with the repository, read by the same GraphQL call as `subIssues`. It is
+#     null when that call fails, so a caller reads null as untrusted.
 #   - `subIssues` (for issues) is sourced from the GraphQL `subIssues` connection
 #     (the `gh` CLI `--json` projection does not expose it). Each entry carries
 #     the sub-issue's full body and comments so the assignment context is
@@ -71,10 +78,15 @@
 #     field — uploaded files live as inline URLs inside the body / comments, so
 #     embedding both already covers "attachments". Sub-issues are loaded one
 #     level deep (sub-issues of sub-issues are not traversed) and capped at the
-#     first 50 sub-issues with the first 100 comments each.
+#     first 50 sub-issues with the first 100 comments each. `subIssuesComplete` is false when the GraphQL
+#     read failed and `subIssues` fell back to [], or when the list reached the cap of 50, so a caller can
+#     tell an empty list from an unread one.
+#   - `repo.isPrivate` is the repository visibility from `gh repo view --json isPrivate`: true, false, or null when
+#     the read failed. A caller that decides what may be published reads null as public.
+#   - `reviewComments` (for PRs) are the line-anchored review comments, read in full from the REST list of
+#     the pull request. `reviewCommentsComplete` is false when that read failed and the list fell back to [].
 #
 # Known limitations (intentionally out of scope, fall back to GitHub MCP):
-#   - Review thread / line-anchored review comments (`gh api .../pulls/<N>/comments`)
 #   - Per-commit check runs and detailed CI logs
 #   - Attachment binary contents (only URLs and metadata are returned)
 #   - Sub-issues beyond one level / the first 50, and beyond 100 comments each
@@ -152,7 +164,7 @@ fi
 NWO="${OWNER}/${REPO}"
 
 ISSUE_FIELDS="assignees,author,body,closed,closedAt,closedByPullRequestsReferences,comments,createdAt,labels,milestone,number,reactionGroups,state,stateReason,title,updatedAt,url"
-PR_FIELDS="additions,assignees,author,baseRefName,baseRefOid,body,changedFiles,closed,closedAt,closingIssuesReferences,comments,commits,createdAt,deletions,files,headRefName,headRefOid,isDraft,labels,latestReviews,maintainerCanModify,mergeCommit,mergeStateStatus,mergeable,mergedAt,mergedBy,milestone,number,reactionGroups,reviewDecision,reviewRequests,reviews,state,statusCheckRollup,title,updatedAt,url"
+PR_FIELDS="additions,assignees,author,baseRefName,baseRefOid,body,changedFiles,closed,closedAt,closingIssuesReferences,comments,commits,createdAt,deletions,files,headRefName,headRefOid,isCrossRepository,isDraft,labels,latestReviews,maintainerCanModify,mergeCommit,mergeStateStatus,mergeable,mergedAt,mergedBy,milestone,number,reactionGroups,reviewDecision,reviewRequests,reviews,state,statusCheckRollup,title,updatedAt,url"
 
 ISSUE_JSON='null'
 PR_JSON='null'
@@ -187,11 +199,12 @@ fi
 # PRs and on any GraphQL failure we fall back to an empty array so the script
 # never breaks on a repo without the feature enabled.
 SUBISSUES_JSON='[]'
+ISSUE_ASSOCIATION='null'
 if [[ "$KIND" == "issue" ]]; then
   # `$owner` / `$repo` / `$n` are GraphQL variables bound by the `-F` flags below, not shell ones.
   # The single quotes are what keeps the shell out of them, so expanding here would break the query.
   # shellcheck disable=SC2016
-  SUBISSUES_QUERY='query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){issue(number:$n){subIssues(first:50){nodes{number title url state body createdAt updatedAt closedAt author{login} labels(first:50){nodes{name}} comments(first:100){nodes{author{login} body createdAt updatedAt url}}}}}}}'
+  SUBISSUES_QUERY='query($owner:String!,$repo:String!,$n:Int!){repository(owner:$owner,name:$repo){issue(number:$n){authorAssociation subIssues(first:50){nodes{number title url state body createdAt updatedAt closedAt author{login} labels(first:50){nodes{name}} comments(first:100){nodes{author{login} body createdAt updatedAt url}}}}}}}'
   if RAW_SUBISSUES="$(gh api graphql -f query="$SUBISSUES_QUERY" -F owner="$OWNER" -F repo="$REPO" -F n="$NUMBER" 2>/dev/null)" && [[ -n "$RAW_SUBISSUES" ]]; then
     SUBISSUES_JSON="$(printf '%s' "$RAW_SUBISSUES" | jq -c '
       [ (.data.repository.issue.subIssues.nodes // [])[] | {
@@ -213,10 +226,39 @@ if [[ "$KIND" == "issue" ]]; then
             url: (.url // null)
           } ]
         } ]' 2>/dev/null || printf '[]')"
+    ISSUE_ASSOCIATION="$(printf '%s' "$RAW_SUBISSUES" | jq -c '.data.repository.issue.authorAssociation | if type == "string" then . else null end' 2>/dev/null || printf 'null')"
   fi
 fi
 if ! printf '%s' "$SUBISSUES_JSON" | jq -e . >/dev/null 2>&1; then
   SUBISSUES_JSON='[]'
+fi
+# The sub-issue list is complete only when the GraphQL read succeeded and stayed under its cap of 50.
+SUBISSUES_COMPLETE=false
+if [[ "$KIND" == "issue" && -n "${RAW_SUBISSUES:-}" ]] \
+  && printf '%s' "$RAW_SUBISSUES" | jq -e '(.data.repository.issue.subIssues.nodes | type) == "array"' >/dev/null 2>&1 \
+  && printf '%s' "$SUBISSUES_JSON" | jq -e 'length < 50' >/dev/null 2>&1; then
+  SUBISSUES_COMPLETE=true
+fi
+
+# The repository visibility. A failed read stays null, never a guessed value.
+REPO_PRIVATE='null'
+if RAW_PRIVATE="$(gh repo view "$NWO" --json isPrivate --jq '.isPrivate' 2>/dev/null)" && [[ "$RAW_PRIVATE" == true || "$RAW_PRIVATE" == false ]]; then
+  REPO_PRIVATE="$RAW_PRIVATE"
+fi
+
+# The line-anchored review comments of a pull request come from the REST list of the pull request, read in
+# full with --paginate. A failed read degrades to [] and REVIEW_COMMENTS_COMPLETE records that it did.
+REVIEW_COMMENTS_JSON='[]'
+REVIEW_COMMENTS_COMPLETE=false
+if [[ "$KIND" == "pr" ]] \
+  && RAW_REVIEW_COMMENTS="$(gh api --method GET --paginate "repos/$NWO/pulls/$NUMBER/comments" \
+    --jq '.[] | {author: (.user.login // null), authorAssociation: (.author_association // null), body: (.body // ""), createdAt: (.created_at // null), url: (.html_url // null)}' 2>/dev/null)" \
+  && PARSED_REVIEW_COMMENTS="$(printf '%s' "$RAW_REVIEW_COMMENTS" | jq -s -c '.' 2>/dev/null)" && [[ -n "$PARSED_REVIEW_COMMENTS" ]]; then
+  REVIEW_COMMENTS_JSON="$PARSED_REVIEW_COMMENTS"
+  REVIEW_COMMENTS_COMPLETE=true
+fi
+if ! printf '%s' "$ISSUE_ASSOCIATION" | jq -e 'type == "string" or . == null' >/dev/null 2>&1; then
+  ISSUE_ASSOCIATION='null'
 fi
 
 jq -n \
@@ -224,7 +266,12 @@ jq -n \
   --arg owner "$OWNER" \
   --arg repo "$REPO" \
   --argjson payload "$PAYLOAD" \
-  --argjson subIssues "$SUBISSUES_JSON" '
+  --argjson subIssues "$SUBISSUES_JSON" \
+  --argjson subIssuesComplete "$SUBISSUES_COMPLETE" \
+  --argjson reviewComments "$REVIEW_COMMENTS_JSON" \
+  --argjson reviewCommentsComplete "$REVIEW_COMMENTS_COMPLETE" \
+  --argjson association "$ISSUE_ASSOCIATION" \
+  --argjson repoPrivate "$REPO_PRIVATE" '
 def total_reactions:
   ([ (.reactionGroups // [])[] | (.users.totalCount // .reactors.totalCount // 0) ] | add) // 0;
 
@@ -260,7 +307,7 @@ def map_reviews:
 def map_status_checks:
   [ (. // [])[] | {
       context: (.context // .name // null),
-      state: (.state // .conclusion // .status // null),
+      state: (.state // (if (.conclusion // "") == "" then .status else .conclusion end) // null),
       description: (.description // null),
       targetUrl: (.targetUrl // .detailsUrl // null)
   } ];
@@ -277,7 +324,7 @@ $payload as $p
     kind: $kind,
     number: ($p.number // null),
     url: ($p.url // null),
-    repo: { owner: $owner, name: $repo, nameWithOwner: ($owner + "/" + $repo) },
+    repo: { owner: $owner, name: $repo, nameWithOwner: ($owner + "/" + $repo), isPrivate: $repoPrivate },
     title: ($p.title // null),
     body: ($p.body // ""),
     state: ($p.state // null),
@@ -292,10 +339,12 @@ $payload as $p
     comments: ($p.comments | map_comments),
     reactionsCount: ($p | total_reactions),
 
+    authorAssociation: (if $kind == "issue" then $association else null end),
     closingPullRequests: (if $kind == "issue"
       then ($p.closedByPullRequestsReferences | map_refs)
       else [] end),
     subIssues: (if $kind == "issue" then $subIssues else [] end),
+    subIssuesComplete: (if $kind == "issue" then $subIssuesComplete else null end),
 
     baseRefName: (if $kind == "pr" then ($p.baseRefName // null) else null end),
     headRefName: (if $kind == "pr" then ($p.headRefName // null) else null end),
@@ -304,6 +353,8 @@ $payload as $p
     # No `// null` here: the jq alternative operator treats `false` as empty,
     # so `$p.isDraft // null` would collapse a non-draft PR `false` to `null`.
     isDraft:     (if $kind == "pr" then $p.isDraft else null end),
+    # Same reason: a same-repository PR carries `false`, which `// null` would collapse.
+    isCrossRepository: (if $kind == "pr" then $p.isCrossRepository else null end),
     mergeable:   (if $kind == "pr" then ($p.mergeable   // null) else null end),
     mergeStateStatus: (if $kind == "pr" then ($p.mergeStateStatus // null) else null end),
     mergedAt:    (if $kind == "pr" then ($p.mergedAt    // null) else null end),
@@ -315,6 +366,8 @@ $payload as $p
     files:           (if $kind == "pr" then ($p.files       | map_files)       else [] end),
     commits:         (if $kind == "pr" then ($p.commits     | map_commits)     else [] end),
     reviews:         (if $kind == "pr" then ($p.reviews     | map_reviews)     else [] end),
+    reviewComments:  (if $kind == "pr" then $reviewComments else [] end),
+    reviewCommentsComplete: (if $kind == "pr" then $reviewCommentsComplete else null end),
     reviewRequests:  (if $kind == "pr" then [ ($p.reviewRequests // [])[] | (.login // .slug // .name // null) ] else [] end),
     reviewDecision:  (if $kind == "pr" then ($p.reviewDecision // null) else null end),
     statusCheckRollup: (if $kind == "pr" then ($p.statusCheckRollup | map_status_checks) else [] end),

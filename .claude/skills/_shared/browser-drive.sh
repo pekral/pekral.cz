@@ -4,7 +4,7 @@
 # Exists so an acceptance run can drive a real browser WITHOUT adding a dependency to the
 # project under test. `@skills/e2e-testing` writes Playwright tests that live in a project
 # which has adopted Playwright; this script is the other case — the project has not adopted
-# it, and `agents/argus.md` still has to click through a UI to verify a criterion. It never
+# it, and `agents/raphael.md` still has to click through a UI to verify a criterion. It never
 # writes into the project: the Playwright runtime is resolved from whatever is already
 # installed (the project's own node_modules first, then the global npm root), and the
 # scenario file is supplied by the caller from a temporary path.
@@ -74,7 +74,7 @@ MSG
 
     printf '%s\n' "$output"
 
-    if [ "$status" -ne 0 ] && printf '%s' "$output" | grep -q "Executable doesn't exist"; then
+    if [ "$status" -ne 0 ] && grep -q "Executable doesn't exist" <<<"$output"; then
         echo "browser-drive.sh: Playwright is installed but its browsers are not. Run: playwright install chromium" >&2
 
         return "$EXIT_NO_BROWSER"
@@ -118,7 +118,7 @@ self_test() {
     status=$?
     set -e
     check "no playwright runtime anywhere" "$EXIT_NO_RUNTIME" "$status"
-    if printf '%s' "$out" | grep -q 'npm install -g playwright'; then
+    if grep -q 'npm install -g playwright' <<<"$out"; then
         printf 'ok    %-46s names the install command\n' "no-runtime message"
     else
         printf 'FAIL  %-46s does not name the install command\n' "no-runtime message"

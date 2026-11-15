@@ -44,7 +44,7 @@ Before generating any file, gather:
 - **Integrations** — issue tracker, GitHub, MySQL, Telescope, etc. (or none)
 - **Output expectations** — markdown report, code change, PR comment, etc.
 
-If running interactively, confirm the inputs with the user. If running autonomously (e.g. invoked by `resolve-issue` or a scheduled workflow), infer the inputs from the triggering issue / PR description and state the assumptions in the final summary.
+If running interactively, confirm the inputs with the user. If running autonomously (e.g. invoked by `resolve-issue` or a scheduled workflow), take the inputs from the triggering issue / PR description, cite where each one came from, and list every input the source does not settle as not verified in the final summary.
 
 ---
 
@@ -58,7 +58,7 @@ If running interactively, confirm the inputs with the user. If running autonomou
 - Slug must be kebab-case, ≤ 64 chars, and not collide with an existing folder under `skills/`.
 - Create `skills/<slug>/SKILL.md`. Add a subfolder only when the skill genuinely needs one — see the layout below.
 
-**Directory layout (Anthropic's recommended structure).** A skill is a directory whose entrypoint is `SKILL.md`; every other file is optional and exists so `SKILL.md` stays the overview rather than the whole payload ([skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/ai-olympus/best-practices), [Claude Code skills](https://code.claude.com/docs/en/skills)):
+**Directory layout (Anthropic's recommended structure).** A skill is a directory whose entrypoint is `SKILL.md`; every other file is optional and exists so `SKILL.md` stays the overview rather than the whole payload ([skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices), [Claude Code skills](https://code.claude.com/docs/en/skills)):
 
 ```text
 <slug>/
@@ -124,7 +124,7 @@ Examples in the repo: `refactor-entry-point-to-action`, `smartest-project-additi
 6. `## Principles` — short guiding rules (optional)
 7. `## Done when`
 
-No skill in this repo uses Layout B any more — issue #278 migrated the last 24 to Layout A. It stays documented so a skill imported from elsewhere in this shape is still recognized; never pick it for a new skill.
+Layout B is documented only so a skill imported from elsewhere in this shape is still recognized; never pick it for a new skill.
 
 Omit a section only when it does not apply.
 
@@ -137,6 +137,14 @@ Omit a section only when it does not apply.
 - One skill, one workflow. Split into separate skills if the scope grows.
 - Do not paste rule content into the skill — link to it.
 - Do not add humanizer, marketing, or third-party links unless the user requests them.
+
+### 7. Prune the draft
+Read the finished SKILL.md once more, sentence by sentence, before the quality gates. Write it in the style of `@rules/writing/general.md`.
+- **No-ops.** Delete every sentence that does not change what the agent does compared to its default behavior. A sentence that restates the frontmatter, a rule the agent already follows, or a general good practice is a no-op.
+- **Negations.** State each instruction as the target behavior: *"Keep each skill narrow"*, not *"Do not let a skill grow"*. Keep a `never` / `do not` form only for a hard safety guard, such as a security boundary or a merge gate.
+- **Completion criteria.** End every numbered step with a check that the agent can observe, such as a file that exists, a command that exits `0`, or a count that matches. Rewrite a step that ends with "make sure it is good" until it names that check.
+
+The step is done when the summary lists every sentence the step deleted or rewrote, and names the safety guard behind every `never` / `do not` it kept.
 
 ---
 
@@ -184,8 +192,8 @@ Skip the README update only when the skill is intentionally internal and not par
 
 ## Done when
 - `skills/<slug>/SKILL.md` exists with valid frontmatter and required sections
+- The summary lists the sentences the pruning step deleted or rewrote, and the guard behind every kept `never` / `do not`
 - `composer skill-check` passes with no warnings on the new file
-- `composer skill-check` reports `PASS` (the full build is not run here — it runs once at the end of the work)
 - `CHANGELOG.md` and `README.md` reflect the new skill (or the omission is justified)
 - The summary lists the slug, references, and validation result
 

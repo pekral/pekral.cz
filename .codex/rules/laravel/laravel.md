@@ -43,9 +43,10 @@ paths:
 - DTOs should be simple, explicit, and immutable where practical.
 
 ## Controllers
-- Use method injection.
+- Inject the FormRequest and route-bound models as action parameters; inject services through the constructor (see **Dependency Injection**).
 - Never call `validate()` directly in controllers.
 - Never execute database queries directly in controllers.
+- **Return an explicit HTTP response from every controller action.** Never return a raw `array`, scalar, Eloquent model, DTO, `Collection`, or arbitrary object from a controller. Convert the Action's domain value at the HTTP boundary with the response shape the endpoint needs: `response()->json(...)` for JSON, `response(...)` for a regular response, `redirect()` / `back()` for navigation, `view()` for HTML, or Laravel's stream / download response builders for streamed content. A `Responsable` object is allowed only when it is the endpoint's explicit HTTP response contract. Laravel may normalize several raw values, but relying on that implicit conversion hides the status, headers, and representation the client receives.
 - Keep resource controllers CRUD-only:
     - `index`
     - `create`
@@ -65,7 +66,16 @@ paths:
 `$user->sendWelcomeEmail()` (queue dispatch is orchestration → Action), `$order->getRecentForCustomer()` (new query is the repository's job → Repository), `$user->updatePassword(...)` (persistence belongs in a ModelManager → ModelManager / Action).
 - **Accessors and methods that lazy-load relationships count as new database queries.** A method or accessor that touches `$this->relation->...` when the caller has not eager-loaded the relationship issues a query and breaches the simple-logic boundary above. Either eager-load the relationship at the call site (a Repository method) and let the model method consume already-loaded data, or move the logic out of the model entirely.
 - Define relationships, scopes, casts, and accessors in models.
-- Use eager loading to avoid N+1 queries.
+- **A query condition the code applies in two or more places is a local scope on the model, never a private helper method.** A scope is the model's own name for the condition, so every Repository method and every other consumer of the model reads one definition. A private Repository method or a shared closure (`onlyVisible(Builder $builder)`, `->where($this->onlyVisible(...))`) hides the same condition inside one class: the next Repository for that model re-implements it, and the copies drift. Define `scope{Name}()` on the model and call it from the Repository (`->onlyVisible()`). The query still lives in the Repository; only the name of the condition moves to the model.
+  - **A scope that combines `orWhere` wraps its conditions in a nested `where(fn ($query) => …)`.** Never rely on the query builder to group a scope's conditions — some builders add them flat to the query, and an ungrouped `OR` then changes the meaning of every other condition.
+  - **A test proves that the scope narrows the result**, through a Repository method that uses it, including the `OR` branch.
+  - Severity in code review: **Moderate** for a private method or a closure that repeats a query condition a scope should name.
+- **Before you add a query scope, prove that no existing scope already expresses the filter.** A scope is the reusable name of a condition, so a second scope for a condition the model already carries splits one filter into two definitions. They drift apart the moment one of them is corrected, and the caller that reads the stale one keeps working while it returns the wrong rows. Search the model, every trait it uses, and its parent classes before you write the scope.
+  - **Match on the condition, never on the name.** `scopeActive()` and `scopeNotDeleted()` over the same column are one filter under two names. Read the `where` each existing scope applies.
+  - **When an existing scope already expresses the filter, call it.** The new query composes that scope; it never restates the condition.
+  - **When an existing scope almost fits, widen that scope.** Give it the parameter the new call site needs, or compose it with one further condition at the call site. A near-copy under a new name is the violation.
+  - **A condition no existing scope expresses is a new scope.** Two scopes over the same column stay two scopes when they apply genuinely different conditions — `scopePublished()` on `published_at <= now()` beside `scopeScheduled()` on `published_at > now()`.
+- Use eager loading to avoid N+1 queries. Code review detects them with the *N+1 queries* walk in `@rules/code-review/core-analysis.md`.
 - Do not query inside loops.
 - Use `withCount()` for counts where appropriate.
 - Use chunking for large datasets.
@@ -104,11 +114,18 @@ paths:
 - **Never allow real external HTTP calls in tests.** Every test that exercises an outbound HTTP integration must register `Http::fake()` (or an equivalent fake / mock client). A test that can reach a real network endpoint is a defect, even when the endpoint happens to be available.
 - **Never let tests run real system processes outside the application.** Tests must not shell out to or spawn real OS processes via `Process::run()` / `Process::start()` (Laravel), `Symfony\Component\Process`, `exec()`, `shell_exec()`, `system()`, `passthru()`, `proc_open()`, or backticks. **Tests must never invoke an external binary or script directly on the system** (`git`, `node`, `npm`, `composer`, `ffmpeg`, `docker`, a `.sh` / `.py` script, or any other host executable) — the process layer must be mocked. Fake them with `Process::fake()` (Laravel 10+) or inject a test double, so the test asserts the intended command without executing it on the host.
 The only exception is a process the test itself owns end-to-end (e.g. the project's own Artisan command run through `Artisan::call()`), never an external binary or system command.
+- **Never let tests perform a real DNS lookup or open a raw network socket.** Production code calls `dns_get_record()`, `gethostbynamel()`, `fsockopen()`, and similar functions only through an injectable seam class dedicated to that capability — a resolver seam for DNS lookups, a separate connector seam for raw sockets. `tests/TestCase.php` binds a fake of each such seam in `setUp()` with `$this->app->instance(...)`, so no test reaches the real resolver or a real socket. The full contract is `@rules/code-testing/general.md` *External Calls*.
 - Use factories for Eloquent persistence in tests.
 - Prefer storing real data in the database and using it in tests over mocking ModelManager or Repository classes. Only mock external services that cannot run in test environment.
 - Add or update tests for every meaningful behavior change.
 - Use `Artisan::call(CommandClass::class)` for console command execution in tests.
 - Use `app()->call([$job, 'handle'])` to invoke a job under test. The container resolves the `handle()` dependencies, so the test needs no doubles and runs the same wiring the queue worker runs. See `@rules/code-testing/general.md` *Jobs* for the full contract, including when to swap a container binding instead.
+
+## Agent Tool Output (`laravel/pao`)
+Applies only when the project installs `laravel/pao`. The package detects an agent through `CLAUDECODE=1` and replaces the human output of Pest, PHPUnit, Paratest, PHPStan, Rector, and Artisan with compact JSON.
+- **Run every such tool whose output you read with `CLAUDECODE=1`.** The manifest `env` provides it when the project sets it there (`@rules/general/general.md` *Project manifest*). Do not add it to a command a human reads.
+- **The process exit code is the only green signal.** pao can print `passed` while the process exits non-zero — for example a risky test under `failOnRisky`. Read the exit code, never the summary.
+- **Never parse pao's JSON in committed code.** It is an output format, not an API. Severity in code review: **Moderate**.
 
 ## Queue and Jobs
 - Queue long-running or external-dependent work.
@@ -125,6 +142,7 @@ The only exception is a process the test itself owns end-to-end (e.g. the projec
 - Queue constructors must only accept lightweight scalar values, DTOs, enums, or value objects. Avoid hydrated models, collections, large arrays, files, and service instances.
 - Use `Bus::bulk()` to dispatch many jobs onto the queue in a single call when you do **not** need batch tracking — bulk notifications, imports, email campaigns, and mass background tasks. It enqueues the jobs without the overhead of a tracked batch.
 - Reserve `Bus::batch()` for cases that genuinely need progress tracking, completion/failure callbacks, or cancellation. When none of those are required, prefer `Bus::bulk()` as the lighter option, and never loop over `dispatch()` per job when a single bulk call covers the same work.
+- **Every queue the code dispatches to has a consumer.** A new queue name — `onQueue()`, a job's `$queue`, a connection's default queue — ships together with its worker entry in the deploy configuration the project already uses: Horizon, supervisor, a Bref / serverless worker, or Vapor. A dispatch target with no consumer enqueues messages nobody processes. This rule never asks a project to adopt a worker technology it does not run; the consumer is added in the one it has. Severity in code review: **Critical**. When the deploy configuration lives outside this repository, record a verification gap instead of a finding.
 
 ## Scheduling
 - Attach structured metadata to scheduled commands with `withAttributes()` (e.g. a tag or a priority) so monitoring, logging, and alerting can group, filter, and prioritize scheduled runs.
@@ -194,7 +212,43 @@ The only exception is a process the test itself owns end-to-end (e.g. the projec
 
 ## String Emptiness Checks
 - In conditions, prefer the Laravel `filled()` / `blank()` helpers over `!== ''` / `=== ''` comparisons. Write `filled($value)` instead of `$value !== ''` and `blank($value)` instead of `$value === ''`.
-- Keep the raw `!== ''` / `=== ''` form only when the exact PHP semantics matter (e.g. a `null`, whitespace-only, or empty-collection value must be treated as non-empty).
+- **`''` is never the only empty case, and that is why the helper exists.** Wherever the code decides a string is empty, whitespace-only input — `' '`, a tab, a newline, a non-breaking space — must reach the same decision. A comparison against `''` alone lets a single space through as if it were content: it satisfies a *required* guard, passes a uniqueness lookup, and is stored as a value that renders as nothing. `blank()` trims first, so it answers `true` for all of them.
+- **`empty()` is not the substitute.** It additionally treats the legitimate string `'0'` as empty, which is a separate defect in the opposite direction. `strlen($value) === 0` has the same whitespace hole as `=== ''`.
+- The same applies to the **normalisation** side. When a getter maps *no value* to `null`, it maps `'   '` to `null` too, or the whitespace is what gets persisted.
+- Laravel's `required` rule already trims, so `['required', 'string']` needs nothing added. The gap is in `nullable` / `sometimes` combinations and in every hand-written comparison in a FormRequest accessor, a Data Builder, or a DTO — that is where this rule bites.
+- Keep the raw `!== ''` / `=== ''` form only when the exact PHP semantics matter (e.g. a `null`, whitespace-only, or empty-collection value must be treated as non-empty), and state why in the PR description.
+- Severity in code review: **Moderate** for a `''`-only comparison on a value that reaches the application from outside it. The rule is satisfied only when `' '` demonstrably reaches the same branch as `''`.
+
+## Time
+- **When the project manifest sets `timezone`, that zone wins** over `config('app.timezone')` (`@rules/general/general.md` *Project manifest*). Pass it explicitly on every call, exactly as the rest of this section passes the configured zone.
+- **Absent the manifest key, the project's configured timezone is the single source, and `config('app.timezone')` is where it lives.** Read it from there — `now(config('app.timezone'))`, `Carbon::parse($value, config('app.timezone'))` — never from a zone literal repeated at each call site, and never by leaving `now()` to apply it silently.
+- **The explicit argument changes nothing at runtime and everything for the reader.** `now()` already resolves against `config('app.timezone')`, so this is not a behaviour fix — it is what makes the zone reviewable. A bare call is indistinguishable from one whose author never considered the zone, and a literal `'Europe/Prague'` forks the answer the moment the configuration changes.
+- The framework-agnostic half of this rule lives in `@rules/php/core-standards.md` *Time* and applies unchanged: one zone for computing and storing, conversion only at the boundary, no SQL `NOW()`, and a zone on every value that crosses a process boundary.
+- **A queued job, a console command, and a scheduled task resolve it the same way.** A worker is a separate process that loads its own configuration; nothing about the dispatcher's ambient zone travels in the payload.
+- **A per-account or per-user timezone belongs to the presentation and input layers only.** Render in it, interpret typed input in it, and convert back to the configured zone before storing or comparing. A calculation that carries a user's zone into the middle of it has two sources of truth.
+
+## Carbon and Framework Helpers
+
+A Laravel project already ships a date API and a set of helpers. Hand-written code beside them forks the behaviour the framework tests, and it hides the zone, the locale, and the test clock the framework applies.
+
+- **Date and time work uses Carbon or a Laravel date helper.** Create, parse, format, compare, and shift a date or time with `Carbon` / `CarbonImmutable`, `now()`, `today()`, the `Date` facade, or an Eloquent date cast (`date`, `datetime`, `immutable_datetime`). Parsing, formatting, comparison, and interval arithmetic are `Carbon` methods (`Carbon::parse()`, `format()`, `isoFormat()`, `diffInDays()`, `addDays()`, `isBefore()`).
+- **The native functions and classes this replaces:** `date()`, `gmdate()`, `strtotime()`, `mktime()`, `gmmktime()`, `time()`, `strftime()`, `date_create()`, `date_diff()`, `checkdate()`, `new DateTime(...)`, `new DateTimeImmutable(...)`, `DateTime::createFromFormat()`, and `new DateInterval(...)` used for interval arithmetic. `Carbon::setTestNow()` / `travelTo()` freezes a Carbon clock, and a native call ignores it.
+- **The *Time* rule applies unchanged to every Carbon call.** The explicit timezone, the single zone, and the ban on SQL `NOW()` are owned by *Time* above. This section never restates them.
+- **Reuse a helper the framework already ships.** Before you write a loop, a regular expression, or a string, array, number, or nested-key manipulation, check what `Str` / `Stringable`, `Arr`, `Collection`, `Number`, `data_get()` / `data_set()`, `tap()`, `value()`, and `when()` already do. Write `Str::slug($title)` instead of a hand-written `preg_replace` chain, `data_get($payload, 'user.address.city')` instead of a nest of `isset()` checks, and `Number::currency($amount)` instead of a hand-written `number_format()` wrapper. `filled()` / `blank()` are owned by *String Emptiness Checks* above.
+- **Use only a helper the installed Laravel version ships.** The version in `composer.json` decides (`@rules/general/general.md` *Project Context*).
+- **Two owners, no overlap.** This section owns logic the *framework* already provides. `@rules/code-review/general.md` *Reuse Existing Logic* owns logic the *project* already implements, and this section never restates it.
+
+Severity in code review: **Moderate** for a native date function or class from the list above, or a hand-written equivalent of an existing framework helper, that the diff adds. The scope is the changed lines. Existing native calls elsewhere are not a finding, and this rule is never a licence to open a migration pull request for them.
+
+**Not findings:**
+- A vendor or framework contract that requires or returns a native type: a vendor SDK method that takes a `DateTimeImmutable`, a PHP interface signature, or a `DateTimeInterface` type hint, which Carbon satisfies.
+- Elapsed-time measurement with `hrtime()` or `microtime(true)`, because it is not date work.
+- A date that an Eloquent cast already yields as Carbon.
+- Code outside the Laravel application that does not depend on `illuminate/*`, such as a framework-agnostic package in the same repository.
+- A hand-written block whose semantics differ from the helper in a way the PR description states, and a helper that the project's Laravel version does not ship.
+- A real-clock call in a test file, which belongs to the *Date tests stay correct across a daylight saving transition* walk of `@rules/code-review/core-analysis.md`.
+
+**Gating — one finding per line.** A native date call that carries no timezone is raised once, here: its Carbon replacement is where *Time* applies. A Carbon call with no timezone belongs to *Time*, and this section never raises it.
 
 ## Collections
 - **Chain collection operations into one fluent pipeline.** A `Collection` method returns a `Collection`, so a sequence of transformations reads as a single expression that states what the data becomes. Write the pipeline, not a running tally of intermediate variables:
@@ -205,8 +259,9 @@ $results = $coupons->chunk(
         fn (Collection $chunk): CouponImportResult => $this->processChunk($chunk, $folderId),
     );
 ```
-- **Reassigning one variable step by step is the shape to replace.** `$x = $c->filter(...); $x = $x->map(...); $x = $x->values();` names the same value three times, and each name says only *step 2 of something* — the reader reconstructs the pipeline the code took apart. Chain the calls instead. The same applies to a `foreach` that walks a collection only to accumulate into an array a `map()` / `filter()` / `groupBy()` / `sum()` call already expresses.
+- **Reassigning one variable step by step is the shape to replace.** `$x = $c->filter(...); $x = $x->map(...); $x = $x->values();` names the same value three times, and each name says only *step 2 of something* — the reader reconstructs the pipeline the code took apart. Chain the calls instead.
 - **Never leave the collection mid-pipeline.** A `->toArray()` (or `->all()`) followed by an array function and a `collect()` back re-materializes the whole set twice to reach a method the collection already has. Stay on the collection until the pipeline's final value is what the caller consumes. Convert once, at the boundary that requires an array.
 - **Break a long chain across lines, one operation per line**, as in the example above, so the pipeline reads top to bottom. Length is not what makes a chain unreadable — a step whose closure needs more than one statement is, and that step becomes a named method the chain calls (`->map($this->toImportResult(...))`), which is also where the Action / Data Builder boundary already puts it.
 - **Name an intermediate result when it genuinely has more than one consumer.** A collection two later statements both read is a value with a name, not a broken chain, and forcing it back into two pipelines computes it twice. This rule replaces reassignment of a single-use temporary; it never mandates one expression per method.
+- **A `foreach` is never a finding, and this section never makes one.** Everything above is authoring guidance for code that is *already* a collection pipeline. Choosing a `foreach` over a `collect()` chain is a style preference between two constructs with identical behaviour, so a review that spends a finding on it spends the reader's attention on nothing — see `@rules/code-review/general.md` *A `foreach` is never a code-review finding*, which owns that boundary. A defect **inside** the loop keeps its own owner: a per-row query is the batching finding, an unbounded materialization is the volume finding, and a `collect()` chain issuing the same per-row query is exactly as wrong.
 - **A chain is not permission to load the set.** How much the pipeline holds at once is owned by `@rules/code-review/general.md` *Bulk Data & Batch Processing (issue #223)*, and what the database should have done instead by `@rules/sql/optimalize.md` — a fluent `->get()->filter()` over a whole table is that finding, at that severity, never this one's.

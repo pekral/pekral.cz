@@ -9,13 +9,13 @@ metadata:
 
 ## Constraints
 - Apply the shared CR tracker-wrapper contract in `references/cr-wrapper-contract.md` — Constraints, Load Context gates, Run Reviews, Publish Results, and Output Rules all live there and are not restated here. This file carries only what a GitHub-sourced review decides for itself.
-- Publishing is limited to PR / linked-issue comments via `gh`.
+- Publishing is limited to linked-issue comments via `gh` and to one pull-request review of inline comments through `scripts/post-inline-review.sh`, which carries the hidden review record in its body. No `cr-comment` pull-request comment is posted.
 
 ---
 
 ## Scope
-Perform code review for a GitHub pull request and publish results to:
-- GitHub PR (technical findings)
+Perform code review for a GitHub pull request (the review covers exactly the four areas of `@rules/code-review/general.md` *What a code review checks, and nothing else*, with no out-of-scope observation and no follow-up proposal) and publish results to:
+- GitHub PR (technical findings: one inline review comment on each changed line a finding anchors to, and the CR comment for the rest)
 - Every linked GitHub issue in `closingIssues[]` (human-readable summary)
 
 ---
@@ -28,7 +28,7 @@ Perform code review for a GitHub pull request and publish results to:
 - The context-brief and comment-array helpers are `skills/code-review-github/scripts/gather-issue-context.sh <URL>` and `skills/code-review-github/scripts/parse-comments.sh <URL>`. The brief renders the issue/PR plus its body, comments, changed files, commits, reviews, CI checks, recursively-loaded linked issues/PRs, and an inventory of external URLs.
 - Prefer the GitHub MCP fallback for the data the scripts cannot cover: review-thread / line-anchored comments, per-commit check runs, and binary attachment contents.
 - Load each linked issue (from `closingIssues[]`) the same way — pass its `url` field to the same script.
-- If multiple PRs exist for one issue, review each independently.
+- If multiple PRs exist for one issue, review each independently. On the issue, the remarks and findings are split per pull request (`@rules/code-review/general.md` *An issue with several pull requests — remarks and findings split per pull request*).
 
 #### Issue Context Analysis
 The assignment is the **linked GitHub issue**. Fetch it via `skills/code-review-github/scripts/load-issue.sh <URL>` and run the four analysis steps in `references/cr-wrapper-contract.md` *Issue Context Analysis* against its description, comments, and referenced attachments or links.
@@ -40,11 +40,14 @@ The baseline resolves from the PR's own CR comments (`references/cr-wrapper-cont
 - `statusCheckRollup[]` for the CI check map comes off the PR JSON already loaded in step 1.
 
 ### 3. Run Reviews
-Run the always-run set, the conditional set, and the Refactoring & Tech Debt (DRY) analysis exactly as `references/cr-wrapper-contract.md` *3. Run Reviews* defines them. A GitHub-sourced review adds no sub-review of its own and skips none.
+Run the always-run set, the conditional set, and the reuse-first gate exactly as `references/cr-wrapper-contract.md` *3. Run Reviews* defines them. A GitHub-sourced review adds no sub-review of its own and skips none.
 
 ### 4. Publish Results
 
-#### Linked-issue consolidated summary (mandatory — single comment per linked issue)
+#### Inline review (the one publication on the pull request)
+- Publish the round as one pull-request review: the findings that anchor to a line of the diff as inline comments, a visible line for each other finding, and the record rendered from `templates/pr-comment-output.md` as hidden HTML in the review body, exactly as `references/cr-wrapper-contract.md` *GitHub pull-request review* and *Inline review comments* define. The comment shape is `templates/inline-review-comment.md`.
+
+#### Linked-issue consolidated summary (mandatory — one new comment per linked issue and CR run)
 - The linked GitHub issues in `closingIssues[]` are this wrapper's **only** non-technical destination, so the shared *Non-technical tracker summary* and *Linked GitHub issues* blocks collapse into this one delegation: invoke `@skills/pr-summary/SKILL.md` with the **GitHub** tracker target, exactly once per linked issue, under the consolidation contract in `references/cr-wrapper-contract.md`.
 - `pr-summary` mirrors the same format that `@skills/code-review-jira/SKILL.md` posts to JIRA, so reviewers reading either tracker see the same consolidated comment.
 - If `closingIssues[]` is empty, skip this step and note `no linked issue — issue summary skipped` in the PR comment summary line. `assignment-compliance-check` returns the same status in that case, so the wrapper does not even build an embedded block.
@@ -60,7 +63,7 @@ Apply `references/cr-wrapper-contract.md` *Output Rules — GitHub PR comment*. 
 
 ## Output Format
 
-Use the template defined in `templates/pr-comment-output.md`.
+Use the template defined in `templates/pr-comment-output.md` for the hidden record, and `templates/inline-review-comment.md` for the inline comments.
 
 ## References
 
