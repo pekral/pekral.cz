@@ -57,7 +57,8 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@ai-olympus"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
@@ -71,8 +72,9 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
+      "ai-olympus": "vendor/bin/ai-olympus install --force --prune && rm -rf .agents",
       "analyse": "vendor/bin/phpstan analyse --memory-limit=4G",
-      "build": "vendor/bin/ai-olympus install --force && composer fix && composer check",
+      "build": "composer ai-olympus && composer fix && composer check",
       "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
       "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
