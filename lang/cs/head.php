@@ -14,8 +14,8 @@ return [
         'default' => 'Petr Král | PHP vývojář stavějící na Laravelu',
     ],
     'description' => [
-        'home' => 'Petr Král je senior PHP vývojář s 20+ lety zkušeností, který staví webové aplikace v Laravelu s pomocí hlídaných AI agentů: plán, testy, code review, bezpečnost a lidské schválení. Open source nástroje pro PHP týmy.',
-        'about' => 'Seznamte se s Petrem Králem - nadšeným PHP vývojářem s více než 20 lety zkušeností, který staví aplikace na Laravelu. Přispěvatel do open source, backendový architekt a zastánce čistého kódu.',
+        'home' => 'Petr Král je senior PHP vývojář s 25+ lety zkušeností, který staví webové aplikace v Laravelu s pomocí hlídaných AI agentů: plán, testy, code review, bezpečnost a lidské schválení. Open source nástroje pro PHP týmy.',
+        'about' => 'Seznamte se s Petrem Králem - nadšeným PHP vývojářem s více než 25 lety zkušeností, který staví aplikace na Laravelu. Přispěvatel do open source, backendový architekt a zastánce čistého kódu.',
         'skills' => 'Technické dovednosti Petra Krále, PHP vývojáře: Laravel, Symfony, PHP 8, vývoj REST API, MySQL, PostgreSQL, Docker. Zkušený programátor zaměřený na open source a osvědčené postupy.',
         'projects' => 'Open source PHP projekty vývojáře Petra Krále. Aplikace stavěné na Laravelu, PHP knihovny, Rector pravidla a vývojářské nástroje. Aktivní přispěvatel do PHP a open source komunity.',
         'privacy-policy' => 'Zásady ochrany osobních údajů pro portfolio web Petra Krále, senior PHP vývojáře stavějícího na Laravelu.',

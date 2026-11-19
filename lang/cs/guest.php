@@ -36,7 +36,7 @@ return [
     ],
     'footer' => [
         'author_name' => 'Petr Král',
-        'bio' => '<strong class="text-foreground">PHP vývojář</strong> stavějící projekty na <strong class="text-foreground">Laravelu</strong>, s 20+ lety zkušeností. <strong class="text-foreground">Přispěvatel do open source</strong> se zaměřením na backendový vývoj a škálovatelná řešení.',
+        'bio' => '<strong class="text-foreground">PHP vývojář</strong> stavějící projekty na <strong class="text-foreground">Laravelu</strong>, s 25+ lety zkušeností. <strong class="text-foreground">Přispěvatel do open source</strong> se zaměřením na backendový vývoj a škálovatelná řešení.',
         'nav_heading' => 'Navigace',
         'connect' => 'Spojení',
         'github' => 'GitHub',
@@ -79,7 +79,7 @@ return [
     'skills' => [
         'title' => 'Dovednosti',
         'hero_title' => 'Dovednosti a technologie PHP vývojáře',
-        'hero_description' => 'Jako :php_developer stavějící na Laravelu s více než 20 lety zkušeností ovládám :php_ecosystem, moderní JavaScript a osvědčené postupy pro tvorbu :open_source a firemních aplikací.',
+        'hero_description' => 'Jako :php_developer stavějící na Laravelu s více než 25 lety zkušeností ovládám :php_ecosystem, moderní JavaScript a osvědčené postupy pro tvorbu :open_source a firemních aplikací.',
         'php_developer' => 'PHP vývojář',
         'laravel_programmer' => 'vývojář stavějící na Laravelu',
         'php_ecosystem' => 'PHP ekosystém',
@@ -94,7 +94,7 @@ return [
     'about' => [
         'title' => 'O mně',
         'hero_title' => 'O Petru Královi - PHP vývojář stavějící na Laravelu',
-        'paragraph_1' => 'Jsem <strong class="text-foreground">senior PHP vývojář</strong> stavějící projekty na <strong class="text-foreground">Laravelu</strong>, z České republiky. Jako <strong class="text-foreground">backendový vývojář</strong> pracuji již přes <span class="text-primary font-semibold">20 let</span>, od startupů po rozsáhlé platformy.',
+        'paragraph_1' => 'Jsem <strong class="text-foreground">senior PHP vývojář</strong> stavějící projekty na <strong class="text-foreground">Laravelu</strong>, z České republiky. Jako <strong class="text-foreground">backendový vývojář</strong> pracuji již přes <span class="text-primary font-semibold">25 let</span>, od startupů po rozsáhlé platformy.',
         'paragraph_2' => 'Moje zkušenosti jako <strong class="text-foreground">PHP programátora</strong> zahrnují e-commerce platformy, systémy pro e-mailový marketing a vlastní webové aplikace. Jako aktivní <strong class="text-foreground">přispěvatel do open source</strong> se specializuji na <span class="text-primary font-semibold">tvorbu aplikací v Laravelu</span>, REST API a škálovatelná backendová řešení.',
         'experience_heading' => 'Vývojářské zkušenosti a kariéra',
         'focus_heading' => 'Na co se zaměřuji',
@@ -127,7 +127,7 @@ return [
         'role' => 'PHP vývojář stavějící na Laravelu',
         'subtitle' => 'Přispěvatel do open source | Backendový vývojář',
         'location' => 'Chlumec nad Cidlinou, Česká republika',
-        'bio' => 'Jsem senior PHP vývojář s více než 20 lety zkušeností, stavím webové aplikace na Laravelu. Jako nadšený přispěvatel do open source se zaměřuji na čistý kód, backendovou architekturu a vývojářské nástroje. V současnosti pracuji na volné noze, specializuji se na tvorbu aplikací v Laravelu, REST API a škálovatelná PHP řešení.',
+        'bio' => 'Jsem senior PHP vývojář s více než 25 lety zkušeností, stavím webové aplikace na Laravelu. Jako nadšený přispěvatel do open source se zaměřuji na čistý kód, backendovou architekturu a vývojářské nástroje. V současnosti pracuji na volné noze, specializuji se na tvorbu aplikací v Laravelu, REST API a škálovatelná PHP řešení.',
         'img_alt' => ':name - PHP vývojář stavějící na Laravelu',
         'laravel_php_heading' => 'PHP a stavění na Laravelu',
         'laravel_php_intro' => 'Jako oddaný <strong class="text-foreground">PHP vývojář</strong> buduji robustní backendové systémy pomocí <strong class="text-foreground">Laravel frameworku</strong>. Moje práce se zaměřuje na tvorbu udržovatelných a škálovatelných aplikací s čistou architekturou.',
@@ -148,7 +148,7 @@ return [
         'cta_contact' => 'Napište mi',
         'cta_projects' => 'Open source projekty',
         'facts' => [
-            'years' => ['value' => '20+', 'label' => 'let vývoje v PHP'],
+            'years' => ['value' => '25+', 'label' => 'let vývoje v PHP'],
             'ecomail' => ['value' => '2018', 'label' => 'senior vývojář v ECOMAIL.CZ'],
             'stack' => ['value' => 'Laravel', 'label' => 'hlavní framework a specializace'],
         ],

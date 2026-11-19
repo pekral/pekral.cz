@@ -4,6 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Data;
 
+/**
+ * @phpstan-type RepositoryArray array{name: string, description: string, url: string, language: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>}
+ */
 final readonly class RepositoryData
 {
 
@@ -22,7 +25,7 @@ final readonly class RepositoryData
     ) {}
 
     /**
-     * @param array{name: string, description: string, url: string, language: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>} $data
+     * @param RepositoryArray $data
      */
     public static function fromArray(array $data): self
     {
@@ -39,7 +42,7 @@ final readonly class RepositoryData
     }
 
     /**
-     * @return array{name: string, description: string, url: string, language: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>}
+     * @return RepositoryArray
      */
     public function toArray(): array
     {

@@ -36,7 +36,7 @@ return [
     ],
     'footer' => [
         'author_name' => 'Petr Král',
-        'bio' => '<strong class="text-foreground">PHP Developer</strong> building projects with <strong class="text-foreground">Laravel</strong>, with 20+ years of experience. <strong class="text-foreground">Open source contributor</strong> specializing in backend development and scalable solutions.',
+        'bio' => '<strong class="text-foreground">PHP Developer</strong> building projects with <strong class="text-foreground">Laravel</strong>, with 25+ years of experience. <strong class="text-foreground">Open source contributor</strong> specializing in backend development and scalable solutions.',
         'nav_heading' => 'Navigation',
         'connect' => 'Connect',
         'github' => 'GitHub',
@@ -79,7 +79,7 @@ return [
     'skills' => [
         'title' => 'Skills',
         'hero_title' => 'PHP Developer Skills & Technologies',
-        'hero_description' => 'As a :php_developer building with Laravel and over 20 years of experience, I\'ve mastered the :php_ecosystem, modern JavaScript, and best development practices for building :open_source and enterprise applications.',
+        'hero_description' => 'As a :php_developer building with Laravel and over 25 years of experience, I\'ve mastered the :php_ecosystem, modern JavaScript, and best development practices for building :open_source and enterprise applications.',
         'php_developer' => 'PHP developer',
         'laravel_programmer' => 'developer building with Laravel',
         'php_ecosystem' => 'PHP ecosystem',
@@ -94,7 +94,7 @@ return [
     'about' => [
         'title' => 'About',
         'hero_title' => 'About Petr Král - PHP Developer building with Laravel',
-        'paragraph_1' => 'I\'m a <strong class="text-foreground">Senior PHP Developer</strong> building projects with <strong class="text-foreground">Laravel</strong>, based in Czech Republic. I\'ve been working as a <strong class="text-foreground">backend developer</strong> for over <span class="text-primary font-semibold">20 years</span>, building everything from startups to large-scale platforms.',
+        'paragraph_1' => 'I\'m a <strong class="text-foreground">Senior PHP Developer</strong> building projects with <strong class="text-foreground">Laravel</strong>, based in Czech Republic. I\'ve been working as a <strong class="text-foreground">backend developer</strong> for over <span class="text-primary font-semibold">25 years</span>, building everything from startups to large-scale platforms.',
         'paragraph_2' => 'My experience as a <strong class="text-foreground">PHP programmer</strong> includes e-commerce platforms, email marketing systems, and custom web applications. As an active <strong class="text-foreground">open source contributor</strong>, I specialize in <span class="text-primary font-semibold">building applications with Laravel</span>, REST API programming, and scalable backend solutions.',
         'experience_heading' => 'Developer Experience & Career',
         'focus_heading' => 'What I Focus On',
@@ -127,7 +127,7 @@ return [
         'role' => 'PHP Developer building with Laravel',
         'subtitle' => 'Open Source Contributor | Backend Developer',
         'location' => 'Chlumec nad Cidlinou, Czech Republic',
-        'bio' => 'I\'m a Senior PHP Developer with over 20 years of experience, building web applications with Laravel. As a passionate open source contributor, I focus on clean code, backend architecture, and developer tooling. Currently self-employed, I specialize in building applications with Laravel, REST API programming, and scalable PHP solutions.',
+        'bio' => 'I\'m a Senior PHP Developer with over 25 years of experience, building web applications with Laravel. As a passionate open source contributor, I focus on clean code, backend architecture, and developer tooling. Currently self-employed, I specialize in building applications with Laravel, REST API programming, and scalable PHP solutions.',
         'img_alt' => ':name - PHP Developer building with Laravel',
         'laravel_php_heading' => 'PHP & building with Laravel',
         'laravel_php_intro' => 'As a dedicated <strong class="text-foreground">PHP developer</strong>, I build robust backend systems using the <strong class="text-foreground">Laravel framework</strong>. My work focuses on creating maintainable, scalable applications with clean architecture.',
@@ -148,7 +148,7 @@ return [
         'cta_contact' => 'Get in touch',
         'cta_projects' => 'Open source projects',
         'facts' => [
-            'years' => ['value' => '20+', 'label' => 'years of PHP development'],
+            'years' => ['value' => '25+', 'label' => 'years of PHP development'],
             'ecomail' => ['value' => '2018', 'label' => 'senior developer at ECOMAIL.CZ since'],
             'stack' => ['value' => 'Laravel', 'label' => 'main framework and specialisation'],
         ],
