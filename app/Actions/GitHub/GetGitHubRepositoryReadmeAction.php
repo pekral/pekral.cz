@@ -9,6 +9,7 @@ use DOMElement;
 use DOMNameSpaceNode;
 use DOMNode;
 use DOMXPath;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use League\CommonMark\Environment\Environment;
@@ -43,7 +44,11 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
 
     private function renderReadme(string $repositoryName): string
     {
-        $response = Http::timeout(10)->get(sprintf(self::README_URL, $repositoryName));
+        try {
+            $response = Http::timeout(10)->get(sprintf(self::README_URL, $repositoryName));
+        } catch (ConnectionException) {
+            return '';
+        }
 
         if (!$response->successful() || blank($response->body())) {
             return '';
@@ -90,6 +95,11 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
         return $inner;
     }
 
+    private function relativePath(string $value): string
+    {
+        return preg_replace('~^(?:\./)+|^/+~', '', $value) ?? $value;
+    }
+
     private function absolutize(DOMNameSpaceNode|DOMNode $element, string $attribute, string $base): void
     {
         assert($element instanceof DOMElement);
@@ -99,7 +109,7 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
             return;
         }
 
-        $element->setAttribute($attribute, $base . ltrim($value, './'));
+        $element->setAttribute($attribute, $base . $this->relativePath($value));
     }
 
 }

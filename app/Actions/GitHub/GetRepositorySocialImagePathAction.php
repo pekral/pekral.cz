@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Actions\GitHub;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -58,7 +59,11 @@ final readonly class GetRepositorySocialImagePathAction implements ArchAction
 
     private function downloadAndResize(string $repositoryName): ?string
     {
-        $response = Http::timeout(10)->get(sprintf(self::SOURCE_URL, $repositoryName));
+        try {
+            $response = Http::timeout(10)->get(sprintf(self::SOURCE_URL, $repositoryName));
+        } catch (ConnectionException) {
+            return null;
+        }
 
         if (!$response->successful()) {
             return null;

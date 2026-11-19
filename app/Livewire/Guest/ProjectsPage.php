@@ -17,7 +17,7 @@ final class ProjectsPage extends Component
 
         return view('livewire.guest.projects-page', [
             'projects' => $repositories,
-            'starCount' => (int) $repositories->sum(static fn ($repository): int => $repository->stars),
+            'starCount' => $getGitHubRepositories->totalStars($repositories),
         ]);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
+use App\Actions\Company\GetCompanyWebsitesAction;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -46,21 +47,10 @@ final class AboutPage extends Component
         return $focus;
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public function getCompanyLinks(): array
-    {
-        return collect($this->getExperiences())
-            ->filter(static fn (array $experience): bool => $experience['website'] !== '')
-            ->mapWithKeys(static fn (array $experience): array => [$experience['company'] => $experience['website']])
-            ->all();
-    }
-
-    public function render(): View
+    public function render(GetCompanyWebsitesAction $getCompanyWebsites): View
     {
         return view('livewire.guest.about-page', [
-            'companyLinks' => $this->getCompanyLinks(),
+            'companyLinks' => $getCompanyWebsites->execute(),
             'experiences' => $this->getExperiences(),
             'focus' => $this->getFocus(),
         ]);

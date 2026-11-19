@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
-use App\Actions\GitHub\GetGitHubRepositoriesAction;
+use App\Actions\GitHub\GetGitHubRepositoryByNameAction;
 use App\Actions\GitHub\GetGitHubRepositoryReadmeAction;
 use App\Data\RepositoryData;
 use Illuminate\Contracts\View\View;
@@ -20,11 +20,11 @@ final class ProjectDetail extends Component
         $this->name = $name;
     }
 
-    public function render(GetGitHubRepositoriesAction $getGitHubRepositories, GetGitHubRepositoryReadmeAction $getGitHubRepositoryReadme): View
+    public function render(GetGitHubRepositoryByNameAction $getGitHubRepositoryByName, GetGitHubRepositoryReadmeAction $getGitHubRepositoryReadme): View
     {
-        $repository = $getGitHubRepositories->execute()->first(fn (RepositoryData $repository): bool => $repository->name === $this->name);
+        $repository = $getGitHubRepositoryByName->execute($this->name);
 
-        if ($repository === null) {
+        if (!$repository instanceof RepositoryData) {
             abort(404);
         }
 

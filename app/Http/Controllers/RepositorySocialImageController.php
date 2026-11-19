@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\GitHub\GetGitHubRepositoriesAction;
+use App\Actions\GitHub\GetGitHubRepositoryByNameAction;
 use App\Actions\GitHub\GetRepositorySocialImagePathAction;
 use App\Data\RepositoryData;
 use Illuminate\Http\RedirectResponse;
@@ -18,13 +18,11 @@ final class RepositorySocialImageController extends Controller
     private const int MAX_AGE_SECONDS = 14_400;
 
     public function show(
-        GetGitHubRepositoriesAction $getGitHubRepositories,
+        GetGitHubRepositoryByNameAction $getGitHubRepositoryByName,
         GetRepositorySocialImagePathAction $getRepositorySocialImagePath,
         string $name,
     ): BinaryFileResponse|RedirectResponse {
-        $isKnown = $getGitHubRepositories->execute()->contains(static fn (RepositoryData $repository): bool => $repository->name === $name);
-
-        if (!$isKnown) {
+        if (!$getGitHubRepositoryByName->execute($name) instanceof RepositoryData) {
             abort(404);
         }
 

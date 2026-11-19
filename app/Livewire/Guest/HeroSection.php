@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Livewire\Guest;
 
+use App\Actions\Company\GetCompanyWebsitesAction;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -28,9 +29,9 @@ final class HeroSection extends Component
         $this->bio = __('guest.hero.bio');
     }
 
-    public function render(): View
+    public function render(GetCompanyWebsitesAction $getCompanyWebsites): View
     {
-        return view('livewire.guest.hero-section');
+        return view('livewire.guest.hero-section', ['companyLinks' => $getCompanyWebsites->execute()]);
     }
 
 }
