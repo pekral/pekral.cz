@@ -83,3 +83,15 @@ it('returns skills by category in defined order', function (): void {
     $skillsByCategory = $page->getSkillsByCategory();
     expect(array_keys($skillsByCategory))->toBe(SkillsPage::CATEGORY_ORDER);
 });
+
+it('lists the ai tooling skills', function (): void {
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(SkillsPage::class);
+    $component->assertSee('AI & agents');
+    $component->assertSee('Claude Code');
+    $component->assertSee('OpenAI Codex');
+    $component->assertSee('Cursor');
+    $component->assertSee('AI skill authoring');
+    $component->assertSee('AI agent design');
+    $component->assertSee('AI SDK integration');
+});

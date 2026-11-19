@@ -735,6 +735,17 @@ a.project-card:hover,
     margin-right: 0.4rem;
 }
 
+/* Company favicon on the timeline */
+.company-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.375rem;
+    background: hsl(220 10% 14% / 0.8);
+    border: 1px solid var(--color-border);
+    padding: 2px;
+    object-fit: contain;
+}
+
 /* Timeline */
 .timeline {
     position: relative;
@@ -826,17 +837,17 @@ a.project-card:hover,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 3.25rem;
-    padding: 0.25rem 0.5rem;
+    min-width: 4.5rem;
+    padding: 0.4rem 0.75rem;
     border-radius: 9999px;
-    border: 1px solid hsl(24 89% 57% / 0.5);
-    background: var(--color-background);
-    box-shadow: 0 0 0 4px var(--color-background), 0 0 18px hsl(24 89% 57% / 0.45);
+    border: 1px solid hsl(24 89% 57% / 0.8);
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-background), 0 0 22px hsl(24 89% 57% / 0.6);
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--color-primary);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-primary-foreground);
     transform: translateX(calc(var(--spine-x) * -1 + 50%));
     margin-left: calc(var(--spine-x) * -1);
 }
@@ -865,7 +876,7 @@ a.project-card:hover,
     }
 
     .career-item {
-        grid-template-columns: 1fr 7rem 1fr;
+        grid-template-columns: 1fr 8rem 1fr;
         padding-bottom: 2rem;
     }
 

@@ -20,8 +20,10 @@ final class SkillsPage extends Component
             ['name' => 'Claude Code', 'icon' => '🤖'],
             ['name' => 'OpenAI Codex', 'icon' => '⌘'],
             ['name' => 'Cursor', 'icon' => '⌨️'],
+            ['name' => 'AI skill authoring', 'icon' => '🧠'],
+            ['name' => 'AI agent design', 'icon' => '🕹️'],
+            ['name' => 'AI SDK integration', 'icon' => '🧩'],
             ['name' => 'MCP', 'icon' => '🔌'],
-            ['name' => 'Agent skills', 'icon' => '🧠'],
         ],
         'frameworks' => [
             ['name' => 'Laravel', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg'],

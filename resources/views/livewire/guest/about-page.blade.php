@@ -36,7 +36,8 @@
                         <h3 class="font-mono text-foreground font-semibold text-lg leading-snug">{{ $exp['role'] }}</h3>
                         <p class="text-primary font-mono text-sm mt-1">
                             @if($exp['website'] !== '')
-                                <a href="{{ $exp['website'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 hover:underline">
+                                <a href="{{ $exp['website'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:underline">
+                                    <img src="{{ route('company.icon', parse_url($exp['website'], PHP_URL_HOST)) }}" alt="" width="20" height="20" loading="lazy" decoding="async" class="company-icon">
                                     {{ $exp['company'] }}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
