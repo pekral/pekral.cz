@@ -26,6 +26,8 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
 
     private const int FAILURE_TTL_SECONDS = 600;
 
+    private const string COMPOSER_FAILURE_CACHE_KEY = 'github_composer_json_failed';
+
     private const string REPOSITORIES_URL = 'https://api.github.com/users/pekral/repos';
 
     private const string COMPOSER_JSON_URL = 'https://raw.githubusercontent.com/pekral/%s/%s/composer.json';
@@ -50,14 +52,6 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int, \App\Data\RepositoryData> $repositories
-     */
-    public function totalStars(Collection $repositories): int
-    {
-        return (int) $repositories->sum(static fn (RepositoryData $repository): int => $repository->stars);
-    }
-
-    /**
      * @return list<RepositoryArray>
      */
     private function loadRepositories(): array
@@ -75,7 +69,11 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
         }
 
         $cached = array_values($repositories->map(static fn (RepositoryData $repository): array => $repository->toArray())->all());
-        Cache::put(self::CACHE_KEY, $cached, self::CACHE_TTL_SECONDS);
+        Cache::put(
+            self::CACHE_KEY,
+            $cached,
+            Cache::has(self::COMPOSER_FAILURE_CACHE_KEY) ? self::FAILURE_TTL_SECONDS : self::CACHE_TTL_SECONDS,
+        );
 
         return $cached;
     }
@@ -128,7 +126,7 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
             return null;
         }
 
-        $composerJson = $this->fetchComposerJson($name);
+        $composerJson = Cache::has(self::COMPOSER_FAILURE_CACHE_KEY) ? [] : $this->fetchComposerJson($name);
         $description = $this->stringValue($repository, 'description');
         $composerDescription = $this->stringValue($composerJson, 'description');
 
@@ -191,7 +189,9 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
             try {
                 $response = Http::timeout(5)->get(sprintf(self::COMPOSER_JSON_URL, $name, $branch));
             } catch (ConnectionException) {
-                continue;
+                Cache::put(self::COMPOSER_FAILURE_CACHE_KEY, value: true, ttl: self::FAILURE_TTL_SECONDS);
+
+                return [];
             }
 
             if ($response->successful()) {

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 use App\Actions\GitHub\GetGitHubRepositoriesAction;
 use App\Data\RepositoryData;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -199,6 +200,29 @@ it('does not cache an error response as an empty list for hours', function (): v
     expect(app(GetGitHubRepositoriesAction::class)->execute())->toHaveCount(1);
 });
 
+it('stops the composer.json lookups after the first connection failure and retries after the failure memory expires', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            gitHubRepositoryPayload(['name' => 'one']),
+            gitHubRepositoryPayload(['name' => 'two']),
+            gitHubRepositoryPayload(['name' => 'three']),
+        ], 200),
+        'raw.githubusercontent.com/*' => Http::failedConnection('timeout'),
+    ]);
+
+    expect(app(GetGitHubRepositoriesAction::class)->execute())->toHaveCount(3);
+
+    Http::assertSentCount(2);
+    expect(Http::recorded(static fn (Request $request): bool => str_contains($request->url(), 'raw.githubusercontent.com')))->toHaveCount(1);
+
+    /** @var \Tests\TestCase $this */
+    $this->travel(11)->minutes();
+
+    app(GetGitHubRepositoriesAction::class)->execute();
+
+    Http::assertSentCount(4);
+});
+
 it('keeps a composer.json lookup that times out from dropping the repository list', function (): void {
     Http::fake([
         'api.github.com/users/pekral/repos*' => Http::response([gitHubRepositoryPayload()], 200),
@@ -210,17 +234,4 @@ it('keeps a composer.json lookup that times out from dropping the repository lis
     assert($repository instanceof RepositoryData);
     expect($repository->name)->toBe('rector-rules')
         ->and($repository->composerName)->toBe('');
-});
-
-it('sums the stars of the given repositories', function (): void {
-    Http::fake([
-        'api.github.com/users/pekral/repos*' => Http::response([
-            gitHubRepositoryPayload(['name' => 'one', 'stargazers_count' => 5]),
-            gitHubRepositoryPayload(['name' => 'two', 'stargazers_count' => 7]),
-        ], 200),
-        'raw.githubusercontent.com/*' => Http::response([], 404),
-    ]);
-    $action = app(GetGitHubRepositoriesAction::class);
-
-    expect($action->totalStars($action->execute()))->toBe(12);
 });

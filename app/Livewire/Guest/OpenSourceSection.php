@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Livewire\Guest;
 
 use App\Actions\GitHub\GetGitHubRepositoriesAction;
+use App\Data\RepositoryData;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -20,7 +21,7 @@ final class OpenSourceSection extends Component
         return view('livewire.guest.open-source-section', [
             'repositories' => $repositories->take(self::FEATURED_COUNT),
             'repositoryCount' => $repositories->count(),
-            'starCount' => $getGitHubRepositories->totalStars($repositories),
+            'starCount' => (int) $repositories->sum(static fn (RepositoryData $repository): int => $repository->stars),
         ]);
     }
 
