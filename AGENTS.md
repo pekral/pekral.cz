@@ -7,9 +7,8 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 ## Codex integration
 
 - Before changing files, inspect `.codex/rules/` and read every rule whose `paths` frontmatter matches the files in scope. Rules without `paths` apply to every task.
-- Reusable workflows live in `.agents/skills/`. Invoke a matching skill with `$skill-name`, and follow its `SKILL.md` in full.
 - Project-scoped custom agents live in `.codex/agents/`. Use the specialist named by the workflow and preserve the role boundaries in its instructions.
-- AI Olympus run state lives in `.codex/run/`. In imported role instructions, interpret `.claude/run/` as `.codex/run/`, `@skills/` as `.agents/skills/`, `@rules/` as `.codex/rules/`, and `agents/<name>.md` as `.codex/agent-instructions/<name>.md`.
+- AI Olympus run state lives in `.codex/run/`. In imported role instructions, interpret `.claude/run/` as `.codex/run/`, `@rules/` as `.codex/rules/`, and `agents/<name>.md` as `.codex/agent-instructions/<name>.md`.
 
 ## 1. Think Before Coding
 
