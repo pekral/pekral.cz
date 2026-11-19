@@ -10,7 +10,8 @@
 
     <livewire:guest.navigation />
 
-    <main id="main-content" role="main">
+    <main id="main-content" role="main" class="relative overflow-x-clip">
+        <div class="aurora aurora-page" aria-hidden="true"></div>
         {{ $slot }}
     </main>
 

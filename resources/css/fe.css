@@ -405,6 +405,12 @@ body::before {
     to { transform: translate3d(4rem, 3rem, 0) scale(1.12); }
 }
 
+/* Page aurora - the same glow at the top of every page */
+.aurora-page {
+    bottom: auto;
+    height: 80vh;
+}
+
 /* Gradient band - a lit seam between sections */
 .gradient-band {
     height: 1px;
