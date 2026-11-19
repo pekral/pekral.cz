@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace App\Data;
 
 /**
- * @phpstan-type RepositoryArray array{name: string, description: string, url: string, language: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>}
+ * @phpstan-type RepositoryArray array{name: string, description: string, url: string, language: string, composerName: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>}
  */
 final readonly class RepositoryData
 {
@@ -18,6 +18,7 @@ final readonly class RepositoryData
         public string $description,
         public string $url,
         public string $language,
+        public string $composerName,
         public string $composerDescription,
         public string $phpVersion,
         public int $stars,
@@ -34,6 +35,7 @@ final readonly class RepositoryData
             description: $data['description'],
             url: $data['url'],
             language: $data['language'],
+            composerName: $data['composerName'],
             composerDescription: $data['composerDescription'],
             phpVersion: $data['phpVersion'],
             stars: $data['stars'],
@@ -48,6 +50,7 @@ final readonly class RepositoryData
     {
         return [
             'composerDescription' => $this->composerDescription,
+            'composerName' => $this->composerName,
             'description' => $this->description,
             'language' => $this->language,
             'name' => $this->name,

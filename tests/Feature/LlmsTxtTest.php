@@ -3,6 +3,21 @@
 declare(strict_types = 1);
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
+
+beforeEach(function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'rector-rules',
+                'description' => 'Curated Rector rule set',
+                'html_url' => 'https://github.com/pekral/rector-rules',
+                'language' => 'PHP',
+            ],
+        ], 200),
+        'raw.githubusercontent.com/*' => Http::response([], 404),
+    ]);
+});
 
 test('llms.txt describes the site, its pages and articles for ai agents', function (): void {
     /** @var \Tests\TestCase $this */
@@ -16,6 +31,7 @@ test('llms.txt describes the site, its pages and articles for ai agents', functi
     $response->assertSee('](' . url('/projects') . ')');
     $response->assertSee('](' . url('/blog/vibe-coding-with-ai-good-servant-bad-master') . ')');
     $response->assertSee(Config::string('social.github'));
+    $response->assertSee('](' . url('/projects/rector-rules') . '): Curated Rector rule set');
     $response->assertSee('Sitemap: ' . url('/sitemap.xml'));
     $response->assertSee('RSS feed: ' . url('/feed.xml'));
 });

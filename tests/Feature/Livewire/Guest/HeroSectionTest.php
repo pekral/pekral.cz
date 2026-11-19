@@ -38,8 +38,11 @@ it('displays bio text', function (): void {
     $component->assertSee('open source contributor');
 });
 
-it('displays terminal window', function (): void {
+it('displays the headline and the about card without terminal chrome', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(HeroSection::class);
-    $component->assertSee('petr@portfolio');
+    $component->assertSee('built with AI agents.');
+    $component->assertSee('Open Source Contributor | Backend Developer');
+    $component->assertSeeHtml('href="' . route('about') . '"');
+    $component->assertDontSee('petr@portfolio');
 });

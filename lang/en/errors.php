@@ -5,7 +5,7 @@ declare(strict_types = 1);
 return [
     '404' => [
         'heading' => 'Page not found',
-        'message' => 'This page does not exist or has been moved. Try one of the links below.',
+        'message' => 'This page is not here, or it wandered off somewhere. Try one of the links below, or tell me what you were looking for.',
         'nav_label' => 'Suggested pages',
         'home' => 'Home',
         'blog' => 'Blog',

@@ -33,6 +33,7 @@ it('maps a github repository and its composer.json into repository data', functi
     Http::fake([
         'api.github.com/users/pekral/repos*' => Http::response([gitHubRepositoryPayload()], 200),
         'raw.githubusercontent.com/pekral/rector-rules/main/composer.json' => Http::response([
+            'name' => 'pekral/rector-rules',
             'description' => 'Rector rules for PHP 8.4+',
             'require' => ['php' => '^8.4'],
         ], 200),
@@ -48,6 +49,7 @@ it('maps a github repository and its composer.json into repository data', functi
         ->and($repository->description)->toBe('Curated Rector rule set')
         ->and($repository->url)->toBe('https://github.com/pekral/rector-rules')
         ->and($repository->language)->toBe('PHP')
+        ->and($repository->composerName)->toBe('pekral/rector-rules')
         ->and($repository->composerDescription)->toBe('Rector rules for PHP 8.4+')
         ->and($repository->phpVersion)->toBe('8.4')
         ->and($repository->stars)->toBe(2)
