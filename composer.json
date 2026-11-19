@@ -80,7 +80,7 @@
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
       "phpcs-fix": "vendor/bin/phpcbf --standard=ruleset.xml --no-cache app/ tests/ || true",
       "pint-check": "vendor/bin/pint app/ tests/ --test --parallel",
-      "pint-fix": "vendor/bin/pint app/ tests/ --parallel --cache-file=\"$(mktemp -u)\"",
+      "pint-fix": "rm -f storage/framework/cache/pint.cache && vendor/bin/pint app/ tests/ --parallel --cache-file=storage/framework/cache/pint.cache",
       "rector-check": "vendor/bin/rector process --dry-run",
       "rector-fix": "vendor/bin/rector process --clear-cache",
       "security-audit": "composer audit",
