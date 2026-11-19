@@ -3,6 +3,7 @@
 use App\Actions\Blog\GetAllBlogArticlesAction;
 use App\Actions\Blog\GetBlogArticleBySlugAction;
 use App\Actions\GitHub\GetGitHubRepositoriesAction;
+use App\Actions\GitHub\GetGitHubRepositoryByNameAction;
 use App\Data\RepositoryData;
 use App\Http\Controllers\BlogImageController;
 use App\Http\Controllers\CompanyFaviconController;
@@ -41,8 +42,8 @@ Route::get('/projects', function () {
     return view('projects');
 })->name('projects');
 
-Route::get('/projects/{name}', function (string $name, GetGitHubRepositoriesAction $getGitHubRepositories) {
-    $project = $getGitHubRepositories->execute()->first(static fn (RepositoryData $repository): bool => $repository->name === $name);
+Route::get('/projects/{name}', function (string $name, GetGitHubRepositoryByNameAction $getGitHubRepositoryByName) {
+    $project = $getGitHubRepositoryByName->execute($name);
     if ($project === null) {
         abort(404);
     }

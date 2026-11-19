@@ -61,3 +61,23 @@ it('returns null when the readme is missing or empty and caches the answer', fun
     'blank file' => [200, "  \n"],
     'not found' => [404, 'Not Found'],
 ]);
+
+it('keeps dot directories intact while resolving relative paths', function (string $path, string $expected): void {
+    Http::fake([
+        'raw.githubusercontent.com/pekral/demo/HEAD/README.md' => Http::response('![banner](' . $path . ')', 200),
+    ]);
+
+    $html = app(GetGitHubRepositoryReadmeAction::class)->execute('demo');
+
+    expect($html)->toContain('src="https://raw.githubusercontent.com/pekral/demo/HEAD/' . $expected . '"');
+})->with([
+    'current directory prefix' => ['./docs/logo.png', 'docs/logo.png'],
+    'dot directory' => ['.github/banner.png', '.github/banner.png'],
+    'root prefix' => ['/docs/logo.png', 'docs/logo.png'],
+]);
+
+it('returns null when github cannot be reached', function (): void {
+    Http::fake(Http::failedConnection('timeout'));
+
+    expect(app(GetGitHubRepositoryReadmeAction::class)->execute('demo'))->toBeNull();
+});

@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Actions\GitHub;
 
 use App\Data\RepositoryData;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -21,6 +22,10 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
 
     private const int CACHE_TTL_SECONDS = 3_600 * 4;
 
+    private const string FAILURE_CACHE_KEY = 'github_repositories_failed';
+
+    private const int FAILURE_TTL_SECONDS = 600;
+
     private const string REPOSITORIES_URL = 'https://api.github.com/users/pekral/repos';
 
     private const string COMPOSER_JSON_URL = 'https://raw.githubusercontent.com/pekral/%s/%s/composer.json';
@@ -34,30 +39,71 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
      */
     public function execute(): Collection
     {
-        /** @var list<RepositoryArray> $cached */
-        $cached = Cache::remember(
-            self::CACHE_KEY,
-            self::CACHE_TTL_SECONDS,
-            fn (): array => $this->fetchRepositories()->map(static fn (RepositoryData $repository): array => $repository->toArray())->all(),
-        );
+        $cached = Cache::get(self::CACHE_KEY);
 
+        if (!is_array($cached)) {
+            $cached = $this->loadRepositories();
+        }
+
+        /** @var list<RepositoryArray> $cached */
         return collect($cached)->map(static fn (array $repository): RepositoryData => RepositoryData::fromArray($repository));
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, \App\Data\RepositoryData>
+     * @param \Illuminate\Support\Collection<int, \App\Data\RepositoryData> $repositories
      */
-    private function fetchRepositories(): Collection
+    public function totalStars(Collection $repositories): int
     {
-        $response = Http::timeout(10)->get(self::REPOSITORIES_URL, [
-            'per_page' => self::REPOSITORIES_PER_PAGE,
-            'sort' => 'updated',
-            'type' => 'owner',
-        ]);
-        $repositories = $response->successful() ? $response->json() : [];
+        return (int) $repositories->sum(static fn (RepositoryData $repository): int => $repository->stars);
+    }
+
+    /**
+     * @return list<RepositoryArray>
+     */
+    private function loadRepositories(): array
+    {
+        if (Cache::has(self::FAILURE_CACHE_KEY)) {
+            return [];
+        }
+
+        $repositories = $this->fetchRepositories();
+
+        if (!$repositories instanceof Collection) {
+            Cache::put(self::FAILURE_CACHE_KEY, value: true, ttl: self::FAILURE_TTL_SECONDS);
+
+            return [];
+        }
+
+        $cached = array_values($repositories->map(static fn (RepositoryData $repository): array => $repository->toArray())->all());
+        Cache::put(self::CACHE_KEY, $cached, self::CACHE_TTL_SECONDS);
+
+        return $cached;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, \App\Data\RepositoryData>|null
+     */
+    private function fetchRepositories(): ?Collection
+    {
+        try {
+            $response = Http::timeout(10)->get(self::REPOSITORIES_URL, [
+                'per_page' => self::REPOSITORIES_PER_PAGE,
+                'sort' => 'updated',
+                'type' => 'owner',
+            ]);
+        } catch (ConnectionException) {
+            return null;
+        }
+
+        $repositories = $response->successful() ? $response->json() : null;
+
+        if (!is_array($repositories)) {
+            return null;
+        }
+
         $projects = [];
 
-        foreach (is_array($repositories) ? $repositories : [] as $repository) {
+        foreach ($repositories as $repository) {
             $project = $this->toRepositoryData($repository);
 
             if ($project instanceof RepositoryData) {
@@ -142,7 +188,11 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
     private function fetchComposerJson(string $name): array
     {
         foreach (['main', 'master'] as $branch) {
-            $response = Http::timeout(5)->get(sprintf(self::COMPOSER_JSON_URL, $name, $branch));
+            try {
+                $response = Http::timeout(5)->get(sprintf(self::COMPOSER_JSON_URL, $name, $branch));
+            } catch (ConnectionException) {
+                continue;
+            }
 
             if ($response->successful()) {
                 $json = $response->json();

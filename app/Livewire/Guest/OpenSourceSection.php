@@ -20,7 +20,7 @@ final class OpenSourceSection extends Component
         return view('livewire.guest.open-source-section', [
             'repositories' => $repositories->take(self::FEATURED_COUNT),
             'repositoryCount' => $repositories->count(),
-            'starCount' => (int) $repositories->sum(static fn ($repository): int => $repository->stars),
+            'starCount' => $getGitHubRepositories->totalStars($repositories),
         ]);
     }
 

@@ -66,3 +66,15 @@ test('about page timeline links each company favicon through the icon endpoint',
     $response->assertSee('src="' . route('company.icon', 'ecomail.cz') . '"', escape: false);
     $response->assertSee('src="' . route('company.icon', 'www.cis.cz') . '"', escape: false);
 });
+
+test('company icon endpoint falls back to a transparent pixel when the favicon service times out', function (): void {
+    Http::fake([
+        'www.google.com/s2/favicons*' => Http::failedConnection('timeout'),
+    ]);
+
+    /** @var \Tests\TestCase $this */
+    $this->get(route('company.icon', 'ecomail.cz'))->assertSuccessful()->assertHeader('Cache-Control', 'max-age=3600, public');
+    /** @var \Tests\TestCase $this */
+    $this->get(route('company.icon', 'ecomail.cz'))->assertSuccessful();
+    Http::assertSentCount(1);
+});

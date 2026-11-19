@@ -113,3 +113,14 @@ test('social image endpoint returns 404 for an unknown repository without fetchi
     Http::assertNotSent(static fn (Request $request): bool => str_contains($request->url(), 'opengraph.githubassets.com'));
     Storage::disk('local')->assertMissing('github-social/unknown-repo.webp');
 });
+
+test('social image endpoint redirects to github when the preview download times out', function (): void {
+    Http::fake([
+        'opengraph.githubassets.com/*' => Http::failedConnection('timeout'),
+    ]);
+
+    /** @var \Tests\TestCase $this */
+    $response = $this->get(route('projects.social-image', 'rector-rules'));
+    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
+    $response->assertRedirect('https://opengraph.githubassets.com/pekral/pekral/rector-rules');
+});

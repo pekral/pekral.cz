@@ -35,7 +35,7 @@
             <dl class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 @foreach(['years', 'ecomail', 'stack'] as $fact)
                     <div class="stat">
-                        <dt class="stat-label order-2"><x-linked-text :text="__('guest.hero.facts.' . $fact . '.label')" :links="['ECOMAIL.CZ' => 'https://ecomail.cz']" /></dt>
+                        <dt class="stat-label order-2"><x-linked-text :text="__('guest.hero.facts.' . $fact . '.label')" :links="$companyLinks" /></dt>
                         <dd class="stat-value">{{ __('guest.hero.facts.' . $fact . '.value') }}</dd>
                     </div>
                 @endforeach

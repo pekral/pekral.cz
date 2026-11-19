@@ -173,3 +173,54 @@ it('caches the repositories so github is called once', function (): void {
 
     Http::assertSentCount(3);
 });
+
+it('returns an empty collection when github cannot be reached and does not hammer it again', function (): void {
+    Http::fake(Http::failedConnection('timeout'));
+
+    expect(app(GetGitHubRepositoriesAction::class)->execute())->toBeEmpty();
+    expect(app(GetGitHubRepositoriesAction::class)->execute())->toBeEmpty();
+
+    Http::assertSentCount(1);
+});
+
+it('does not cache an error response as an empty list for hours', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::sequence()
+            ->push('[]', 500, ['Content-Type' => 'application/json'])
+            ->push([gitHubRepositoryPayload()], 200),
+        'raw.githubusercontent.com/*' => Http::response([], 404),
+    ]);
+
+    expect(app(GetGitHubRepositoriesAction::class)->execute())->toBeEmpty();
+
+    /** @var \Tests\TestCase $this */
+    $this->travel(11)->minutes();
+
+    expect(app(GetGitHubRepositoriesAction::class)->execute())->toHaveCount(1);
+});
+
+it('keeps a composer.json lookup that times out from dropping the repository list', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([gitHubRepositoryPayload()], 200),
+        'raw.githubusercontent.com/*' => Http::failedConnection('timeout'),
+    ]);
+
+    $repository = app(GetGitHubRepositoriesAction::class)->execute()->first();
+
+    assert($repository instanceof RepositoryData);
+    expect($repository->name)->toBe('rector-rules')
+        ->and($repository->composerName)->toBe('');
+});
+
+it('sums the stars of the given repositories', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            gitHubRepositoryPayload(['name' => 'one', 'stargazers_count' => 5]),
+            gitHubRepositoryPayload(['name' => 'two', 'stargazers_count' => 7]),
+        ], 200),
+        'raw.githubusercontent.com/*' => Http::response([], 404),
+    ]);
+    $action = app(GetGitHubRepositoriesAction::class);
+
+    expect($action->totalStars($action->execute()))->toBe(12);
+});

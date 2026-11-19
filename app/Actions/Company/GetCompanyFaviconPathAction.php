@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Actions\Company;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
 use Pekral\Arch\Action\ArchAction;
 
@@ -22,6 +22,10 @@ final readonly class GetCompanyFaviconPathAction implements ArchAction
     private const string FAILURE_CACHE_KEY = 'company_favicon_failed_%s';
 
     private const int FAILURE_TTL_SECONDS = 3_600;
+
+    public function __construct(private GetCompanyWebsitesAction $getCompanyWebsites)
+    {
+    }
 
     public function execute(string $host): ?string
     {
@@ -42,9 +46,13 @@ final readonly class GetCompanyFaviconPathAction implements ArchAction
             return null;
         }
 
-        $response = Http::timeout(5)->get(sprintf(self::SOURCE_URL, $host));
+        try {
+            $response = Http::timeout(5)->get(sprintf(self::SOURCE_URL, $host));
+        } catch (ConnectionException) {
+            $response = null;
+        }
 
-        if (!$response->successful() || !str_starts_with($response->header('Content-Type'), 'image/')) {
+        if ($response === null || !$response->successful() || !str_starts_with($response->header('Content-Type'), 'image/')) {
             Cache::put($failureKey, value: true, ttl: self::FAILURE_TTL_SECONDS);
 
             return null;
@@ -57,18 +65,10 @@ final readonly class GetCompanyFaviconPathAction implements ArchAction
 
     private function isKnownCompanyHost(string $host): bool
     {
-        $experiences = Lang::get('guest.about.experiences', [], 'en');
-        assert(is_array($experiences));
-
-        foreach ($experiences as $experience) {
-            $website = is_array($experience) ? $experience['website'] ?? '' : '';
-
-            if (is_string($website) && filled($website) && parse_url($website, PHP_URL_HOST) === $host) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            $this->getCompanyWebsites->execute(),
+            static fn (string $website): bool => parse_url($website, PHP_URL_HOST) === $host,
+        );
     }
 
 }
