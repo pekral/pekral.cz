@@ -71,3 +71,4 @@ Strong success criteria let you loop independently. Weak criteria require consta
 - Git worktrees are supported, but create one only when the user explicitly requests it.
 - Generated `.claude/`, `.codex/`, and `.agents/` directories are not source files in this package. Edit the tracked `rules/`, `skills/`, `agents/`, and `codex/` sources instead.
 - Read relevant entries in `docs/memory/PROJECT_MEMORY.md` before starting a task.
+- Redundant tests: read and follow `.ai/guidelines/test-redundancy.md` before adding or changing a test and in every code review.
