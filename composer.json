@@ -76,17 +76,20 @@
       "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
       "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
-      "phpcs-fix": "vendor/bin/phpcbf --standard=ruleset.xml app/ tests/ || true",
+      "phpcs-fix": "vendor/bin/phpcbf --standard=ruleset.xml --no-cache app/ tests/ || true",
       "pint-check": "vendor/bin/pint app/ tests/ --test --parallel",
-      "pint-fix": "vendor/bin/pint app/ tests/ --parallel",
+      "pint-fix": "vendor/bin/pint app/ tests/ --parallel --cache-file=\"$(mktemp -u)\"",
       "rector-check": "vendor/bin/rector process --dry-run",
-      "rector-fix": "vendor/bin/rector process",
+      "rector-fix": "vendor/bin/rector process --clear-cache",
       "security-audit": "composer audit",
       "test:coverage": "php -dzend.assertions=1 -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off -dpcov.exclude=\"~vendor~\" vendor/bin/pest --coverage --min=100"
     },
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "ai-olympus": {
+            "pr-gate": ["composer fix"]
         }
     },
     "config": {
