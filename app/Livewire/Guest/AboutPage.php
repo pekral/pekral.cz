@@ -46,9 +46,21 @@ final class AboutPage extends Component
         return $focus;
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function getCompanyLinks(): array
+    {
+        return collect($this->getExperiences())
+            ->filter(static fn (array $experience): bool => $experience['website'] !== '')
+            ->mapWithKeys(static fn (array $experience): array => [$experience['company'] => $experience['website']])
+            ->all();
+    }
+
     public function render(): View
     {
         return view('livewire.guest.about-page', [
+            'companyLinks' => $this->getCompanyLinks(),
             'experiences' => $this->getExperiences(),
             'focus' => $this->getFocus(),
         ]);

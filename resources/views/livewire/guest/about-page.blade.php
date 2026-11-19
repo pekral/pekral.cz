@@ -62,9 +62,9 @@
                                 <path d="M8 10h.01"></path>
                                 <path d="M8 14h.01"></path>
                             </svg>
-                            <span>{{ $exp['about'] }}</span>
+                            <span><x-linked-text :text="$exp['about']" :links="$companyLinks" /></span>
                         </p>
-                        <p class="text-sm text-muted-foreground leading-relaxed mt-3">{{ $exp['description'] }}</p>
+                        <p class="text-sm text-muted-foreground leading-relaxed mt-3"><x-linked-text :text="$exp['description']" :links="$companyLinks" /></p>
                     </article>
                 </li>
             @endforeach
