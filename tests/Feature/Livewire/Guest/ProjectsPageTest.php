@@ -176,13 +176,19 @@ it('excludes custom repository when set in config', function (): void {
     $component->assertSee('Visible repo description');
 });
 
-it('filters out projects without composer description', function (): void {
+it('filters out repositories without any description', function (): void {
     Http::fake([
         'api.github.com/users/pekral/repos*' => Http::response([
             [
-                'name' => 'no-composer-repo',
-                'description' => 'Repository without composer.json',
-                'html_url' => 'https://github.com/pekral/no-composer-repo',
+                'name' => 'no-description-repo',
+                'description' => null,
+                'html_url' => 'https://github.com/pekral/no-description-repo',
+                'language' => 'JavaScript',
+            ],
+            [
+                'name' => 'github-only-repo',
+                'description' => 'Described only on GitHub',
+                'html_url' => 'https://github.com/pekral/github-only-repo',
                 'language' => 'JavaScript',
             ],
         ], 200),
@@ -192,7 +198,33 @@ it('filters out projects without composer description', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(ProjectsPage::class);
     $component->assertStatus(200);
-    $component->assertDontSee('no-composer-repo');
+    $component->assertDontSee('no-description-repo');
+    $component->assertSee('github-only-repo');
+    $component->assertSee('Described only on GitHub');
+});
+
+it('displays stars, topics and the repository totals', function (): void {
+    Http::fake([
+        'api.github.com/users/pekral/repos*' => Http::response([
+            [
+                'name' => 'starred-repo',
+                'description' => 'Starred repository',
+                'html_url' => 'https://github.com/pekral/starred-repo',
+                'language' => 'PHP',
+                'stargazers_count' => 12,
+                'topics' => ['laravel', 'claude-code'],
+            ],
+        ], 200),
+        'raw.githubusercontent.com/*' => Http::response([], 404),
+    ]);
+
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(ProjectsPage::class);
+    $component->assertSee('1 repository');
+    $component->assertSee('12 stars');
+    $component->assertSee('#laravel');
+    $component->assertSee('#claude-code');
+    $component->assertSeeHtml('aria-label="Open starred-repo on GitHub"');
 });
 
 it('tries master branch if main branch fails', function (): void {
