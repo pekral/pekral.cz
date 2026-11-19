@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e8b4faf575d0e9a346d93ada1981177",
+    "content-hash": "f3f8c47d7c336cba0ab5027bc3bfb65e",
     "packages": [
         {
             "name": "brick/math",
@@ -8727,32 +8727,32 @@
         },
         {
             "name": "pekral/phpcs-rules",
-            "version": "0.4.8",
+            "version": "0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pekral/phpcs-rules.git",
-                "reference": "9474a74c86b06fa1d883978a712aa5faf6295063"
+                "reference": "b253ca3315dc5a26472bf33d456562d395c27c23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pekral/phpcs-rules/zipball/9474a74c86b06fa1d883978a712aa5faf6295063",
-                "reference": "9474a74c86b06fa1d883978a712aa5faf6295063",
+                "url": "https://api.github.com/repos/pekral/phpcs-rules/zipball/b253ca3315dc5a26472bf33d456562d395c27c23",
+                "reference": "b253ca3315dc5a26472bf33d456562d395c27c23",
                 "shasum": ""
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
-                "php": "^8.4",
-                "slevomat/coding-standard": "^8.28.0"
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "php": "^8.5",
+                "slevomat/coding-standard": "^8.30.1"
             },
             "require-dev": {
-                "illuminate/collections": "^12.52.0",
+                "illuminate/collections": "^13.17.0",
                 "mockery/mockery": "^1.6.12",
-                "pekral/cursor-rules": "^0.4.1",
-                "pekral/phpstan-rules": "^0.4.5",
-                "pekral/rector-rules": "^0.4.8",
-                "phpunit/phpunit": "^13.0.5",
+                "pekral/cursor-rules": "dev-master",
+                "pekral/phpstan-rules": "dev-master",
+                "pekral/rector-rules": "dev-master",
+                "phpunit/phpunit": "^13.2.1",
                 "roave/security-advisories": "dev-latest",
-                "symfony/console": "^7.4.1 || ^8.0.4"
+                "symfony/console": "^7.4.1 || ^8.1.1"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -8804,8 +8804,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-24T06:55:52+00:00",
-            "published-time": "2026-02-24T06:57:03+00:00"
+            "time": "2026-06-29T05:23:16+00:00",
+            "published-time": "2026-07-26T07:11:11+00:00"
         },
         {
             "name": "pekral/rector-rules",
