@@ -76,8 +76,26 @@ it('keeps dot directories intact while resolving relative paths', function (stri
     'root prefix' => ['/docs/logo.png', 'docs/logo.png'],
 ]);
 
-it('returns null when github cannot be reached', function (): void {
-    Http::fake(Http::failedConnection('timeout'));
+it('does not cache a connection failure or a server error as an empty readme', function (string $failure): void {
+    Http::fake([
+        'raw.githubusercontent.com/pekral/demo/HEAD/README.md' => $failure === 'connection'
+            ? Http::failedConnection('timeout')
+            : Http::sequence()->push('Server Error', 500)->push('# Demo', 200),
+    ]);
 
     expect(app(GetGitHubRepositoryReadmeAction::class)->execute('demo'))->toBeNull();
-});
+    expect(app(GetGitHubRepositoryReadmeAction::class)->execute('demo'))->toBeNull();
+
+    Http::assertSentCount(1);
+
+    /** @var \Tests\TestCase $this */
+    $this->travel(11)->minutes();
+
+    $html = app(GetGitHubRepositoryReadmeAction::class)->execute('demo');
+
+    Http::assertSentCount(2);
+    expect($html)->toBe($failure === 'connection' ? null : "<h1>Demo</h1>\n");
+})->with([
+    'connection failure' => ['connection'],
+    'server error' => ['server-error'],
+]);

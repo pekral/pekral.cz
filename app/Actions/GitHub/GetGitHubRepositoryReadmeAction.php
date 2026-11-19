@@ -25,6 +25,10 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
 
     private const int CACHE_TTL_SECONDS = 3_600 * 4;
 
+    private const string FAILURE_CACHE_KEY = 'github_readme_%s_failed';
+
+    private const int FAILURE_TTL_SECONDS = 600;
+
     private const string README_URL = 'https://raw.githubusercontent.com/pekral/%s/HEAD/README.md';
 
     private const string RAW_BASE_URL = 'https://raw.githubusercontent.com/pekral/%s/HEAD/';
@@ -33,27 +37,39 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
 
     public function execute(string $repositoryName): ?string
     {
-        $html = Cache::remember(
-            sprintf(self::CACHE_KEY, $repositoryName),
-            self::CACHE_TTL_SECONDS,
-            fn (): string => $this->renderReadme($repositoryName),
-        );
+        $cacheKey = sprintf(self::CACHE_KEY, $repositoryName);
+        $failureKey = sprintf(self::FAILURE_CACHE_KEY, $repositoryName);
+        $html = Cache::get($cacheKey);
+
+        if (!is_string($html)) {
+            $html = Cache::has($failureKey) ? null : $this->fetchReadme($repositoryName, $cacheKey, $failureKey);
+        }
 
         return is_string($html) && filled($html) ? $html : null;
     }
 
-    private function renderReadme(string $repositoryName): string
+    private function fetchReadme(string $repositoryName, string $cacheKey, string $failureKey): ?string
     {
         try {
             $response = Http::timeout(10)->get(sprintf(self::README_URL, $repositoryName));
         } catch (ConnectionException) {
-            return '';
+            $response = null;
         }
 
-        if (!$response->successful() || blank($response->body())) {
-            return '';
+        if ($response === null || !($response->successful() || $response->notFound())) {
+            Cache::put($failureKey, value: true, ttl: self::FAILURE_TTL_SECONDS);
+
+            return null;
         }
 
+        $html = $response->successful() && filled($response->body()) ? $this->renderReadme($response->body(), $repositoryName) : '';
+        Cache::put($cacheKey, $html, self::CACHE_TTL_SECONDS);
+
+        return $html;
+    }
+
+    private function renderReadme(string $markdown, string $repositoryName): string
+    {
         $environment = new Environment([
             'allow_unsafe_links' => false,
             'html_input' => 'strip',
@@ -62,7 +78,7 @@ final readonly class GetGitHubRepositoryReadmeAction implements ArchAction
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new GithubFlavoredMarkdownExtension());
 
-        $html = new MarkdownConverter($environment)->convert($response->body())->getContent();
+        $html = new MarkdownConverter($environment)->convert($markdown)->getContent();
 
         return $this->resolveRelativeUrls($html, $repositoryName);
     }
