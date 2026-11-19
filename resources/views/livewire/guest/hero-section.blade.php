@@ -1,6 +1,5 @@
 <div>
-<section class="relative overflow-hidden pt-36 pb-16 md:pt-44 md:pb-24" aria-labelledby="hero-heading">
-    <div class="aurora" aria-hidden="true"></div>
+<section class="relative pt-36 pb-16 md:pt-44 md:pb-24" aria-labelledby="hero-heading">
 
     <div class="container max-w-5xl mx-auto px-6">
         <div class="animate-fade-in-up">
