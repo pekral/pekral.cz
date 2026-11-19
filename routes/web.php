@@ -161,6 +161,105 @@ Route::get('sitemap.xml', function () {
     ]);
 })->name('sitemap');
 
+Route::get('feed.xml', function (GetAllBlogArticlesAction $getAllBlogArticles) {
+    $articles = $getAllBlogArticles->execute();
+    $siteName = __('head.meta.site_name');
+    $blogUrl = url('/blog');
+    $feedUrl = url('/feed.xml');
+    $feedDescription = e(__('head.description.blog.index'));
+    $lastBuildDate = ($articles->first()?->date ?? now(config('app.timezone')))->toRfc2822String();
+
+    $items = $articles->map(static function ($article): string {
+        $articleUrl = url('/blog/' . $article->slug);
+        $title = e($article->title);
+        $description = e($article->description);
+        $pubDate = $article->date->toRfc2822String();
+        $enclosure = $article->hasImage
+            ? sprintf('<enclosure url="%s" type="image/jpeg" length="0" />', e(url('/blog/' . $article->slug . '/image')))
+            : '';
+
+        return <<<XML
+                <item>
+                    <title>{$title}</title>
+                    <link>{$articleUrl}</link>
+                    <guid isPermaLink="true">{$articleUrl}</guid>
+                    <pubDate>{$pubDate}</pubDate>
+                    <description>{$description}</description>
+                    {$enclosure}
+                </item>
+            XML;
+    })->implode("\n");
+
+    $xml = <<<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+            <channel>
+                <title>{$siteName} - Blog</title>
+                <link>{$blogUrl}</link>
+                <atom:link href="{$feedUrl}" rel="self" type="application/rss+xml" />
+                <description>{$feedDescription}</description>
+                <language>en</language>
+                <lastBuildDate>{$lastBuildDate}</lastBuildDate>
+        {$items}
+            </channel>
+        </rss>
+        XML;
+
+    return response($xml, 200, [
+        'Content-Type' => 'application/rss+xml; charset=UTF-8',
+        'X-Robots-Tag' => 'noindex',
+    ]);
+})->name('feed');
+
+Route::get('llms.txt', function (GetAllBlogArticlesAction $getAllBlogArticles) {
+    $pages = collect([
+        ['/', 'head.title.home', 'head.description.home'],
+        ['/about', 'head.title.about', 'head.description.about'],
+        ['/skills', 'head.title.skills', 'head.description.skills'],
+        ['/projects', 'head.title.projects', 'head.description.projects'],
+        ['/blog', 'head.title.blog.index', 'head.description.blog.index'],
+    ])->map(static fn (array $page): string => sprintf('- [%s](%s): %s', __($page[1]), url($page[0]), __($page[2])))->implode("\n");
+
+    $articles = $getAllBlogArticles->execute()
+        ->map(static fn ($article): string => sprintf('- [%s](%s): %s', $article->title, url('/blog/' . $article->slug), $article->description))
+        ->implode("\n");
+
+    $github = config('social.github');
+    $linkedin = config('social.linkedin');
+    $description = __('head.description.home');
+    $sitemapUrl = url('/sitemap.xml');
+    $feedUrl = url('/feed.xml');
+
+    $text = <<<MARKDOWN
+        # Petr Král - pekral.cz
+
+        > {$description}
+
+        ## Pages
+
+        {$pages}
+
+        ## Blog articles (English)
+
+        {$articles}
+
+        ## Open source
+
+        - [GitHub profile]({$github}): Laravel packages, Rector rules, PHPCS rules, Claude Code and Codex agent skills (ai-olympus, cursor-rules, test-redundancy, github-readme-generator).
+        - [LinkedIn]({$linkedin})
+
+        ## Machine-readable resources
+
+        - Sitemap: {$sitemapUrl}
+        - RSS feed: {$feedUrl}
+        MARKDOWN;
+
+    return response($text, 200, [
+        'Content-Type' => 'text/markdown; charset=UTF-8',
+        'X-Robots-Tag' => 'noindex',
+    ]);
+})->name('llms');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
