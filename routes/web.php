@@ -5,9 +5,14 @@ use App\Actions\Blog\GetBlogArticleBySlugAction;
 use App\Actions\GitHub\GetGitHubRepositoriesAction;
 use App\Data\RepositoryData;
 use App\Http\Controllers\BlogImageController;
+use App\Http\Controllers\CompanyFaviconController;
 use App\Http\Controllers\RepositorySocialImageController;
+use App\Http\Middleware\SetLocaleFromSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\View;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
@@ -45,7 +50,16 @@ Route::get('/projects/{name}', function (string $name, GetGitHubRepositoriesActi
 
     return view('projects.show', ['name' => $name]);
 })->name('projects.show')->where('name', '[A-Za-z0-9._-]+');
-Route::get('/projects/{name}/social-image', [RepositorySocialImageController::class, 'show'])->name('projects.social-image')->where('name', '[A-Za-z0-9._-]+');
+Route::get('/projects/{name}/social-image', [RepositorySocialImageController::class, 'show'])
+    ->name('projects.social-image')
+    ->where('name', '[A-Za-z0-9._-]+')
+    ->middleware('throttle:60,1')
+    ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, SetLocaleFromSession::class, PreventRequestForgery::class]);
+Route::get('/company-icon/{host}', [CompanyFaviconController::class, 'show'])
+    ->name('company.icon')
+    ->where('host', '[a-z0-9.-]+')
+    ->middleware('throttle:60,1')
+    ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, SetLocaleFromSession::class, PreventRequestForgery::class]);
 
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 

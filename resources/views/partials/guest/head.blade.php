@@ -173,7 +173,7 @@
         '@type' => 'EducationalOrganization',
         'name' => 'Self-taught Developer'
     ]
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 
 <!-- JSON-LD Structured Data - WebSite -->
@@ -190,7 +190,7 @@
         '@id' => url('/') . '#person'
     ],
     'inLanguage' => $structuredDataLocale,
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 
 <!-- JSON-LD Structured Data - WebPage -->
@@ -211,7 +211,7 @@
         '@id' => url('/') . '#person'
     ],
     'inLanguage' => $structuredDataLocale,
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 
 @if(count($breadcrumbs) > 1)
@@ -226,7 +226,7 @@
         'name' => $crumb['name'],
         'item' => $crumb['url'],
     ])->all(),
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 @endif
 
@@ -249,7 +249,7 @@
     'inLanguage' => 'en',
     'timeRequired' => 'PT' . $article->readingTimeMinutes . 'M',
     'isPartOf' => ['@id' => url('/') . '#website'],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 @endif
 
@@ -272,6 +272,6 @@
     'url' => url()->current(),
     'image' => $pageImage,
     'isPartOf' => ['@id' => url('/') . '#website'],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP) !!}
 </script>
 @endif

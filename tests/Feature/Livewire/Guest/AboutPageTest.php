@@ -36,7 +36,7 @@ it('displays focus section', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(AboutPage::class);
     $component->assertSee('What I Focus On');
-    $component->assertSee('Building scalable web applications with Laravel & PHP');
+    $component->assertSee('Building web applications with Laravel & PHP that can take growth');
 });
 
 it('displays connect section', function (): void {

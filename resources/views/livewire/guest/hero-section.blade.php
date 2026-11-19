@@ -5,7 +5,7 @@
     <div class="container max-w-5xl mx-auto px-6">
         <div class="animate-fade-in-up">
             <p class="hud-label flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span class="text-foreground">{{ $name }}</span>
+                <span class="text-foreground">{{ __('guest.hero.first_name') }}</span>
                 <span aria-hidden="true">·</span>
                 <span>{{ $role }}</span>
             </p>
@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div class="min-w-0">
-                <h2 id="about-txt-heading" class="text-foreground font-semibold text-2xl md:text-3xl leading-tight tracking-tight">{{ $name }}</h2>
+                <h2 id="about-txt-heading" class="text-foreground font-semibold text-2xl md:text-3xl leading-tight tracking-tight">{{ __('guest.hero.first_name') }}</h2>
                 <p class="text-primary font-mono text-base glow-text mt-1">{{ $role }}</p>
                 <p class="hud-label mt-3 flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

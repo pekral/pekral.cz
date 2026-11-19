@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\GitHub\GetGitHubRepositoriesAction;
 use App\Actions\GitHub\GetRepositorySocialImagePathAction;
+use App\Data\RepositoryData;
 use Illuminate\Http\RedirectResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -15,8 +17,17 @@ final class RepositorySocialImageController extends Controller
 
     private const int MAX_AGE_SECONDS = 14_400;
 
-    public function show(GetRepositorySocialImagePathAction $getRepositorySocialImagePath, string $name): BinaryFileResponse|RedirectResponse
-    {
+    public function show(
+        GetGitHubRepositoriesAction $getGitHubRepositories,
+        GetRepositorySocialImagePathAction $getRepositorySocialImagePath,
+        string $name,
+    ): BinaryFileResponse|RedirectResponse {
+        $isKnown = $getGitHubRepositories->execute()->contains(static fn (RepositoryData $repository): bool => $repository->name === $name);
+
+        if (!$isKnown) {
+            abort(404);
+        }
+
         $path = $getRepositorySocialImagePath->execute($name);
 
         if ($path === null) {
