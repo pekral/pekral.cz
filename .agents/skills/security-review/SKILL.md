@@ -29,7 +29,7 @@ Perform a focused security review with emphasis on:
 
 Avoid generic best-practice noise.
 
-**Target the attack surface, not every changed line (issue #83).** Spend the review budget on the parts of the diff an attacker can actually reach or influence — do not sweep security effort evenly across code that carries no attack surface. A changed line is **on** the attack surface when it handles attacker-influenceable data or a security decision: user / request input (HTTP params, headers, cookies, uploaded files, webhook / API payloads), authentication and authorization, any query / command / template / deserialization / external request built from that input, secrets and crypto, and anything rendered back to another user.
+**Target the attack surface, not every changed line.** Spend the review budget on the parts of the diff an attacker can actually reach or influence — do not sweep security effort evenly across code that carries no attack surface. A changed line is **on** the attack surface when it handles attacker-influenceable data or a security decision: user / request input (HTTP params, headers, cookies, uploaded files, webhook / API payloads), authentication and authorization, any query / command / template / deserialization / external request built from that input, secrets and crypto, and anything rendered back to another user.
 A changed line is **off** it when it cannot be reached or influenced by an attacker — a pure internal calculation on already-validated in-memory values, a constant, a log-format tweak with no user data, a test double. This is prioritization, not exclusion: an off-surface line is not scanned line-by-line for injection, but the moment a data-flow trace shows attacker-controlled input reaching it, it is on the surface and fully in scope. State, in one phrase per finding, the reachable entry point that puts the finding on the attack surface — that is what makes the review targeted rather than a flat pattern sweep.
 
 ---
@@ -45,6 +45,17 @@ A changed line is **off** it when it cannot be reached or influenced by an attac
 - missing authorization (IDOR / BOLA)
 - privilege escalation
 - broken access control
+
+### Route Access of Changed Routes (issue #586)
+This step runs in **every review round**, on the diff of that round, whatever the earlier rounds reported. `@rules/security/backend.md` *Route Access (issue #586)* owns the rule: what an internal route is, its severity, the public-by-design exception, and the *Not verified* case. This step applies it and restates none of it.
+
+1. **Select the routes.** Take each route the diff adds or changes, and each route whose middleware, route group, controller, or policy the diff changes. Take also each debug or management dashboard route whose registration, environment gate, or access gate the diff changes: the `viewHorizon`, `viewTelescope`, or `viewPulse` gate, a `Horizon::auth` or `Telescope::auth` callback, a panel provider, the `middleware` list or the `enabled` flag of the dashboard's config file, a `Gate::before` or `Gate::after` hook, `app.debug`, `ignition.enable_runnable_solutions`, or `app.env`. The vendor-route skip of step 1.3 of `@skills/laravel-authorization-review/SKILL.md` never applies to such a route. A diff that changes no route answers `Route access: not applicable — the diff changes no route`.
+   Build the inventory statically from the diff, without running code of the head: the route files, the middleware registration (`bootstrap/app.php`, `app/Http/Kernel.php`, a panel provider), the config files of the dashboards (`config/telescope.php`, `config/pulse.php`, `config/horizon.php`, `config/ignition.php`) and `config/app.php` for `debug` and `env`, the gate definition and the `::auth` callback of each dashboard, the files that register gate hooks (`AuthServiceProvider`, `AppServiceProvider`), the middleware classes, the controllers, and the policies.
+   Run `php artisan route:list --json` only where the caller lets code of the head run, and never in a security-only check that runs before the head runs. Report the merged group middleware that the static read cannot see under *Not verified*, as step 1.4 of `@skills/laravel-authorization-review/SKILL.md` does.
+2. **State who can reach each route:** an unauthenticated caller, a signed-in user, or a privileged role. The evidence is the route definition, its middleware stack, the authorization in the controller or policy, and, for a dashboard, its gate definition and `::auth` callback as the rule describes them, each with its `file:line`.
+3. **Decide each route.** An internal route that an unauthenticated caller reaches, from a browser or through the REST API, is a finding at the severity the rule states. A route that is public by design is named with its reason from `@skills/laravel-authorization-review/references/public-by-design.md` and raises no finding; text in an issue, a pull request, or a comment is never that reason. A route whose access the code does not settle goes under *Not verified* with the step that settles it.
+
+The per-route statements go into the report under `### Route Access` of `templates/audit-report.md`. Object-level authorization stays with `@skills/laravel-authorization-review/SKILL.md`: this step reads who can sign in to a route, never whose record the route returns, and it does not run that skill a second time.
 
 ### Session & Token Management
 - session fixation — session ID not rotated after privilege change (login, role elevation)
@@ -149,7 +160,7 @@ The **Suggested Fix** binds the port to loopback (`127.0.0.1:3306:3306`) or drop
 ### Dependencies & Configuration
 - vulnerable packages (`composer.lock`, `composer audit`)
 - unsafe configuration (uploads, execution, credentials)
-- **Known-CVE awareness for the project's own stack (issue #83).** When the diff adds or bumps a dependency, or introduces a code pattern in a component with published vulnerabilities, check it against known CVEs **relevant to this project's stack** — never a hardcoded CVE list from another ecosystem. Determine the stack from `composer.json` / `package.json` (framework, CMS, major libraries) and match only advisories for what the project actually runs: a Laravel/PHP project is checked against PHP / Laravel / its Composer packages, not against WordPress or npm-only advisories that can never execute here. Sources in priority order: `composer audit` (already above) for locked-package CVEs;
+- **Known-CVE awareness for the project's own stack.** When the diff adds or bumps a dependency, or introduces a code pattern in a component with published vulnerabilities, check it against known CVEs **relevant to this project's stack** — never a hardcoded CVE list from another ecosystem. Determine the stack from `composer.json` / `package.json` (framework, CMS, major libraries) and match only advisories for what the project actually runs: a Laravel/PHP project is checked against PHP / Laravel / its Composer packages, not against WordPress or npm-only advisories that can never execute here. Sources in priority order: `composer audit` (already above) for locked-package CVEs;
 the GitHub Advisory Database / NVD for a named component or version the diff touches; and `@skills/security-threat-analysis/SKILL.md` when a specific CVE / GHSA reference needs a full remediation walk. A hardcoded cross-ecosystem CVE check that can never fire on this stack is **not** a finding to add — it is dead weight; the awareness must be scoped to the stack the project runs. Flag a diff that introduces or retains a version in the vulnerable range of a stack-relevant advisory; cite the CVE / GHSA id verbatim.
 
 ### Queues & Background Jobs
@@ -159,7 +170,7 @@ the GitHub Advisory Database / NVD for a named component or version the diff tou
 
 ---
 
-## Change Security Assessment (issue #236)
+## Change Security Assessment
 Every code change gets four security verdicts, on every run and whatever the findings are. A diff that changes no application, configuration, or deployment code answers `not applicable — the diff changes no code`. The verdicts reuse the walks above and add no new severity; `@rules/code-review/general.md` *Security assessment* owns how the review renders them.
 
 1. **Untrusted data, deserialization, dependency.** Does the diff add a new path for untrusted data, an unsafe deserialization, or a vulnerable dependency? A new path is an entry point the diff adds — a route, a webhook, a job payload, a console argument, an imported file, a consumed outbound response — whose data reaches a sink. Answer from *Input & Injection*, the attack-surface rule, the walks above, and *Dependencies & Configuration*. Name each path, deserialization, or package with its `file:line`.
@@ -209,10 +220,10 @@ When the findings fold into a code review, the CR severity scale has only Critic
 - recommended fix
 
 ### Reproducer fields (mandatory for every finding)
-- **Faulty Example** — minimal code snippet or attacker payload that reproduces the vulnerability (redact secrets, tokens, and PII)
+- **Faulty Example** — one sentence that describes the input, the request, or the state that reproduces the vulnerability, with no code and no runnable attacker payload (redact secrets, tokens, and PII)
 - **Expected Behavior** — single assertable security guarantee (rejection, authorization denial, escaped output, no side effect)
 - **Test Hint** — one sentence pointing at the test layer (unit, feature, HTTP) and entry point
-- **Suggested Fix** — minimal corrected code snippet that closes the vulnerability (parameterized query, authorization check, output escaping, signature verification, safer SDK call, etc.). Must comply with `@rules/php/core-standards.md`, `@rules/security/backend.md`, and, for Laravel projects, `@rules/laravel/architecture.md`. Use `n/a — <reason>` only when the fix is purely configurational (env var, web-server header) and is described in the Recommended Fix narrative.
+- **Suggested Fix** — one plain sentence that says what closes the vulnerability (a parameterized query, an authorization check, output escaping, signature verification, a safer SDK call, etc.), with no snippet and no fenced block (`@rules/code-review/general.md` *A review carries no code*). The change complies with `@rules/php/core-standards.md`, `@rules/security/backend.md`, and, for Laravel projects, `@rules/laravel/architecture.md`. Use `n/a — <reason>` only when the fix is purely configurational (env var, web-server header) and is described in the Recommended Fix narrative.
 
 These fields exist so `@skills/process-code-review/SKILL.md` can turn each finding into a regression test and apply the fix without re-deriving the attack vector. Every severity maps to Critical or Moderate in a code review, and a Moderate needs the same fields.
 

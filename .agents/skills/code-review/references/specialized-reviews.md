@@ -201,6 +201,8 @@ Criterion: the skill's unit of work is the whole repository, a document, a track
 - `analyze-support-issue` — analyses a support issue and publishes a tracker comment. It may reproduce a case locally, but its evidence never depends on a running application, so question 3 passes it on to question 4.
 - `smartest-project-addition` — proposes the next addition to this package.
 - `github-issue-triage`, `github-release-roadmap`, `create-issue`, `create-issues-from-text` — produce tracker artifacts. The review calls none of them, because a code review proposes and files no follow-up issue (`@rules/code-review/general.md` *What a code review checks, and nothing else*).
+- `laravel-horizon-audit` — audits the queue, supervisor, and process configuration of the whole repository, so a review would report on files the pull request never touched. Its default mode is static and read-only.
+- `unslop` — rewrites the prose of a text before it is published. Its output is an edited text, not a finding on a changed line, and it writes no file.
 - `cleanup-local-branches` — deletes local branch refs. It writes no file, which is what keeps it here while `git-workflow` sits in group 1.
 
 ### Group 4 — moves the run's own artifact forward
@@ -216,6 +218,7 @@ Criterion: the skill produces or advances the very artifact under review, rather
 - `pr-summary` — publishes the run's non-technical tracker summary.
 - `merge-github-pr` — merges the pull request after the review converges.
 - `merge-github-pr-fast` — merges a hotfix pull request on the user's explicit `/merge-github-pr-fast` command, with one security-only check of the diff in place of the converged review. No review run starts it.
+- `publish-github-release` — merges the release pull request and publishes the tag and the GitHub release on the user's explicit `/publish-github-release` command. No review run starts it.
 - `auto-interactive-testing` — works through the open `interactive-testing` issues: it merges the fix for every defect it meets through `krang` and `merge-github-pr`, then publishes each issue's verdicts and closes the issue. It also writes code through `krang` and needs a running application through `interactive-testing`, but question 1 is asked before questions 2 and 3, so it lands here.
 
 ### Adding a `MODE=cr` lens — what moves a skill out of groups 1–3

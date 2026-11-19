@@ -16,8 +16,6 @@ metadata:
 - Never modify code (implementation-time bug diagnosis lives in `@skills/resolve-issue/references/bug-diagnosis.md`)
 - Output Markdown only
 - Use one language only
-- Do not jump directly to solutions
-- Do not assume a single cause
 - State verified facts only; report every open point as not verified, with the step that settles it (`@rules/general/general.md` *Verified statements only*)
 
 ---
@@ -47,7 +45,7 @@ Whenever the problem references an issue-tracker source (a GitHub issue / PR, a 
   If the gatherer is unavailable (missing tool / token, exit code 2/3), fall back to the tracker-specific MCP server; prefer issue-tracker-specific tools over generic browsing.
 - **Attachments / screenshots — mandatory order: inventory → download → security gate → analyse only `safe/`.** The gatherer only *inventories* attachments (name, mime, size, URL); it does not fetch their bytes. Before reading or rendering any attachment you **must** run the tracker's download + scan pipeline and then read **only** the files the scan promoted to `safe/`:
   - **GitHub:** `skills/code-review-github/scripts/download-attachments.sh <URL>` (auth via `gh auth token`)
-  - **JIRA:** `skills/code-review-jira/scripts/download-attachments.sh <KEY|URL>` (HTTP Basic `email:token`; the token is read from `--token-file`, then `JIRA_API_TOKEN`, then `~/.config/acli/jira_api_token`, with the account email in `JIRA_API_EMAIL` or the `email:token` form of the token file — without a token the script exits non-zero with a setup hint, it never silently skips; a file pasted into a comment is an issue attachment, and its manifest entry names the comment in `referencedBy`)
+  - **JIRA:** `skills/code-review-jira/scripts/download-attachments.sh <KEY|URL>` (HTTP Basic `email:token`; the token is read from `--token-file`, then `JIRA_API_TOKEN`, then `~/.config/acli/jira_api_token`, with the account email in `JIRA_API_EMAIL` or the `email:token` form of the token file — without a token the script exits non-zero with a setup hint, it never silently skips; a file pasted into a comment is an issue attachment, and its manifest entry names the comment in `referencedBy`; a failed download follows `@rules/jira/general.md` *Attachments*)
   - **Bugsnag:** `skills/code-review-bugsnag/scripts/download-attachments.sh <URL|TRIPLE>` (`BUGSNAG_TOKEN` authenticates the API read only; comment-linked URLs are fetched unauthenticated so the token never reaches a third-party host)
 
   Each download script writes downloaded bytes into a 0600 quarantine directory with **TLS validation always on**, emits `attachments-manifest.json`, and then runs the shared security gate `skills/_shared/scan-attachments.sh`. The gate assigns every file a verdict: `pass` (allowlisted type with no active content — copied to `safe/`), `block` (executable, archive, script, HTML, SVG with active content, polyglot, declared/actual MIME mismatch, or over the size/count limit — **never opened, only reported**), or `review` (type outside the allowlist — route it to the `security-review` (or `security-threat-analysis`) skill and **do not open it until that verdict clears**; a **Critical** verdict means the file stays blocked and is only reported, never analysed).
@@ -81,7 +79,7 @@ Execute the detailed procedures below inside those phases, not after them: Analy
 
 ## Analysis Framework
 
-Apply these 10 steps in order. Each step feeds the next — never jump ahead to a solution before evidence and root cause are settled.
+The analysis covers these 10 parts. Propose a solution only once the evidence and the root cause are settled.
 
 1. **Context extraction** — what we actually know from the assignment, comments, linked / sub-issues, attachments, and surrounding code (all loaded via the *Issue-tracker context* mandatory pre-flight above).
 2. **Task-type classification & problem statement** — first classify the task from the context (feature, bug, regression, performance, data issue, security, UX, refactor, tooling, unclear requirement, or other) and state that type explicitly at the top of the Summary so a reader sees it immediately; then write one precise sentence describing the real problem — for a feature, the target behavior to build rather than a malfunction.

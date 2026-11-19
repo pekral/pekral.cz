@@ -13,7 +13,6 @@ metadata:
 - Apply @rules/jira/general.md
 - Apply @rules/reports/general.md. **CR reply comments and resolved-items updates posted on the GitHub PR** stay in canonical English per the rule's *Exception — technical CR findings on the GitHub PR*. The **mirrored non-technical summary** delegated to `@skills/pr-summary/SKILL.md` follows the assignment language. A manifest `language.github` overrides both on GitHub. Never mix languages inside the same comment; never use bilingual *Kritické (Critical)* style parentheses.
 - If the current project uses Laravel, also apply `@rules/laravel/laravel.md`, `@rules/laravel/architecture.md`, `@rules/laravel/filament.md`, and `@rules/laravel/livewire.md`
-- Never mix two natural languages inside a single CR comment. The English exception applies to entire comments — not to inline parenthetical glosses.
 - Never push direct changes to the main branch
 - If the pull request has merge conflicts with the base branch, stop and report it
 - Do not introduce new logic unrelated to review feedback
@@ -55,11 +54,11 @@ If the rebase changed `composer.lock`, run `skills/_shared/run-gate.sh --exclusi
     }
   }' -F owner=<owner> -F repo=<repo> -F number=<number>
   ```
-  **Keep `authorAssociation` in the selection.** `@skills/code-review-github/references/cr-wrapper-contract.md` *Delegation of a reviewer comment to another account* reads that field on every thread comment to decide whether a trusted reviewer addressed the comment to another account. An association this run cannot resolve is treated as absent, so dropping the field from this selection silently turns every line-anchored comment untrusted and disables the disposition for exactly the case it was written for.
+  **Keep `authorAssociation` in the selection.** `@skills/code-review-github/references/cr-wrapper-contract.md` *Delegation of a reviewer comment to another account* reads that field on every thread comment to decide whether a trusted reviewer addressed the comment to another account. An unresolved association counts as absent, so dropping the field turns every line-anchored comment untrusted.
   **Do not accept a truncated list** — the "every unresolved thread" guarantee depends on completeness. When `reviewThreads.pageInfo.hasNextPage` is `true`, repeat the query with `-F cursor=<endCursor>` until it is `false`; when any thread's `comments.nodes` reaches the page size, page that thread's comments the same way. If `gh api graphql` is unavailable, fall back to the GitHub MCP server for the same thread list plus its resolved state.
 - Build the checklist from **both** sources:
   1. Structured CR findings published by the review skills (general comments come from `comments[]`).
-  2. **Unresolved reviewer threads** from the `reviewThreads` query — add every thread where `isResolved == false` (human reviewer **and** bot) as a checklist item, and **skip every thread where `isResolved == true`**. Classify each comment on its own (`@skills/code-review-github/references/cr-wrapper-contract.md` *Inline review comments*): only a comment the current actor wrote with its `cr-inline` marker is its own finding; every other comment, a reply included, is a reviewer comment. Record each thread's `id` so it can be marked resolved once its fix lands (see **Resolve addressed reviewer threads** below).
+  2. **Unresolved reviewer threads** from the `reviewThreads` query — add every thread where `isResolved == false` (human reviewer **and** bot) as a checklist item, and **skip every thread where `isResolved == true`**. Classify each comment on its own (`@skills/code-review-github/references/cr-wrapper-contract.md` *Findings in the review body*): only the current actor's comment with its `cr-inline` marker is its own finding; every other comment, a reply included, is a reviewer comment. Record each thread's `id` so it can be marked resolved once its fix lands (see **Resolve addressed reviewer threads** below).
 - **`## Excluded per assignment` entries are not findings (issue #17).** A CR's `## Excluded per assignment` section (`@rules/code-review/general.md` *Assignment-Declared Test-Only Conditions — Exclusion Gate (issue #17)*) lists findings the Exclusion Gate already relocated out of the blocking buckets — do **not** add these entries to the checklist, do not extract a reproducer for them, and do not generate a fix commit for them.
 - **`## Delegated to another person` entries are not this run's work.** When the CR carries that section, **load `references/delegated-entries.md` and follow it in full.**
 - Map each finding to a concrete code or test change
@@ -68,20 +67,22 @@ If the rebase changed `composer.lock`, run `skills/_shared/run-gate.sh --exclusi
 
 For every Critical and Moderate finding, extract the reproducer fields published by the CR skills (`@skills/code-review/SKILL.md`, `@skills/code-review-github/SKILL.md`, `@skills/code-review-jira/SKILL.md`, `@skills/security-review/SKILL.md`):
 
-- **Faulty Example** — the minimal snippet or input that reproduces the bug
+- **Faulty Example** — the input or state that reproduces the bug, in words
 - **Expected Behavior** — the assertion target the test must verify
 - **Test Hint** — the layer (unit, integration, feature) and entry point
-- **Suggested Fix** — the minimal corrected snippet that resolves the finding (may be `n/a — <reason>` when the Fix narrative is sufficient)
+- **Suggested Fix** — what to change and where, never as code (`@rules/code-review/general.md` *A review carries no code*); `n/a — <reason>` when the Fix narrative suffices
 
 Read the reproducer fields off `comments[]` and `body` / `descriptionText` returned by the deterministic loader for the originating tracker instead of re-fetching the issue:
 - **GitHub-originated reviews:** `skills/code-review-github/scripts/load-issue.sh <URL>` — always the full GitHub URL, never a bare number (the loader rejects it). Never call `gh issue view`, `gh pr view`, or `gh api /repos/.../issues/...` directly.
 - **JIRA-originated reviews:** `skills/code-review-jira/scripts/load-issue.sh <KEY|URL>`. Never call `acli` directly.
 
+**Close each finding's whole class** (`references/close-the-defect-class.md`).
+
 Use these to write a failing test **before** applying the fix, unless the Test Hint reads `none is needed` because the fix changes no behaviour (`@skills/test-audit/SKILL.md`) — then apply the fix directly:
 
-1. Drop the Faulty Example into a new test case at the layer named in the Test Hint.
+1. Turn the Faulty Example into a test at the layer of the Test Hint.
 2. Assert the Expected Behavior — the test must fail on the current code.
-3. Apply the Suggested Fix snippet (or the Fix narrative when Suggested Fix is `n/a`); rerun the test, through `skills/_shared/run-gate.sh --exclusive --command "<command>"`, until it passes.
+3. Make the Suggested Fix change (or the Fix narrative when it is `n/a`); rerun the test, through `skills/_shared/run-gate.sh --exclusive --command "<command>"`, until it passes.
 
 If a **CR-skill finding** lacks Faulty Example, Expected Behavior, or Test Hint, request a CR rerun rather than guessing. Suggested Fix may legitimately be `n/a` per the CR rules.
 
@@ -125,7 +126,7 @@ In the single CR comment posted during **PR update**, list every pre-existing se
 
 This is a **blocking loop**. Do not advance to **Finalization**, **PR update**, or **Completion** until the loop converges. The final report (technical and non-technical) is published only **once**, after convergence.
 
-1. Initialise `iteration = 1` and the loop state: `skills/_shared/review-state.sh init` (`references/review-state.md`: rounds, statuses, troubleshooting). `maxIterations` is the default-branch manifest key `review.max-iterations`, default 3; only the script reads it. The cap round (`iteration == maxIterations`, round 3 by default) is the **deferral boundary**, not a failure line: a run still carrying findings there triages them under step 6 instead of iterating again. A Critical and a security-relevant Moderate stay hard blockers at the cap round exactly as at round 1, so the bounded round count never lowers the bar of anything that merges.
+1. Initialise `iteration = 1` and the loop state: `skills/_shared/review-state.sh init` (`references/review-state.md`: rounds, statuses, troubleshooting). `maxIterations` is the default-branch manifest key `review.max-iterations`, default 3; only the script reads it. The cap round (`iteration == maxIterations`, round 3 by default) is the **deferral boundary**, not a failure line: a run still carrying findings there triages them under step 6 instead of iterating again. A Critical and a security-relevant Moderate stay hard blockers at the cap round, as at round 1 (step 6).
 2. **Run the review inline.** Invoke the appropriate CR wrapper directly in this skill's context — do not dispatch as a subagent. Each iteration re-invokes the CR wrapper inline so it reloads the diff after the latest fix commit:
    - GitHub: `@skills/code-review-github/SKILL.md`
    - JIRA: `@skills/code-review-jira/SKILL.md`
@@ -141,12 +142,12 @@ This is a **blocking loop**. Do not advance to **Finalization**, **PR update**, 
    When `splinter` runs, the Critical and Moderate findings of the independent `splinter` security view count in `criticalCount` and `moderateCount`, and none is deferrable.
 
    The condition is compound, not simply `criticalCount == 0`. Before the cap round its third part means `moderateCount == 0`, because nothing is deferrable yet. When the gate holds → **converged**, exit the loop.
-5. Otherwise, when `iteration < maxIterations`, run `review-state.sh scope` on the next delta (a `full` scope reviews the whole PR diff again), apply the **Suggested Fix** snippet from each Critical / Moderate finding (including each not-fulfilled reviewer-instruction finding) using the **Reproducer extraction** workflow above, commit the fix, increment `iteration`, and go back to step 2.
-6. **The cap round — the deferral boundary.** When the review at `iteration == maxIterations` still carries findings, do not iterate again; `review-state.sh` refuses another round. Triage each one exactly once against `references/round-three-deferral.md`, which owns the resolution table, the per-tracker filing mechanics, and the reporting contract:
-   - **Critical → hard stop.** Never deferred, never filed as a sub-issue.
-   - **Moderate meeting the S1–S3 security carve-out → hard stop.** Identical treatment to a Critical, because a security finding is never suppressed at any severity.
-   - **Every other Moderate → deferred as a sub-issue, or blocking.** The filing bar in `@rules/compound-engineering/tracker.md` *File deferred points as follow-up tracker issues* → *The filing bar* decides which (cross-referenced, never restated). Passing it files a sub-issue via `scripts/file-deferred-moderate.sh`; failing it leaves the finding **blocking**, so it never silently vanishes.
-   - Record each landed sub-issue with `review-state.sh defer`, then run `review-state.sh evaluate --final`. A run left with a blocking finding **has not converged**: stop, surface the findings with the verdict's `reason`, publish nothing, and escalate to the caller.
+5. Otherwise, when `iteration < maxIterations`, run `review-state.sh scope` on the next delta with `--numstat` (a `full` scope reviews the whole PR diff again), apply the **Suggested Fix** of each Critical / Moderate finding (including each not-fulfilled reviewer-instruction finding) using the **Reproducer extraction** workflow above, commit the fix, increment `iteration`, and go back to step 2.
+6. **The cap round — the deferral boundary.** When the review at `iteration == maxIterations` still carries findings, do not iterate again except as a security round. Triage each one once against `references/round-three-deferral.md`, which owns the resolution table, the per-tracker filing mechanics, and the reporting contract:
+   - **Critical outside security → hard stop.** Never deferred, never filed as a sub-issue.
+   - **Security finding (the S1–S3 carve-out, at any severity) → up to two more rounds, fixing only the security findings.** Still open after them → hard stop.
+   - **Every other Moderate → deferred automatically as a sub-issue, or blocking.** The filing bar in `@rules/compound-engineering/tracker.md` *File deferred points as follow-up tracker issues* → *The filing bar* decides which (cross-referenced, never restated). Passing it files a sub-issue via `scripts/file-deferred-moderate.sh`; failing it leaves the finding **blocking**, so it never vanishes.
+   - Record each landed sub-issue with `review-state.sh defer`, then run `review-state.sh evaluate --final`. Otherwise a run with a blocking finding **has not converged**: stop, surface the findings with the verdict's `reason`, publish nothing, and tell the caller it waits for the user's decision (`@skills/agent-voice/SKILL.md`).
 
 #### Quiet review runs and incremental review scope
 
@@ -156,7 +157,7 @@ Loop iterations run **quiet** — the review is invoked with the explicit instru
 
 ### Quality gates — not run in this loop
 
-**Do not run fixers, checkers, or the full build inside the review loop.** Per `@skills/resolve-issue/references/quality-gates.md` *Gate placement — deferred to the merge boundary*, the project's gate runs exactly once, after the loop converges: *Finalization* below runs it, and `@skills/merge-github-pr/SKILL.md` *Pre-merge quality gate* accepts that record for the exact head SHA or runs the gate itself. A gate per iteration would prove nothing the final run does not re-prove.
+**Do not run fixers, checkers, or the full build inside the review loop.** Per `@skills/resolve-issue/references/quality-gates.md` *Gate placement — deferred to the merge boundary*, the project's gate runs exactly once, after the loop converges: *Finalization* below runs it, and `@skills/merge-github-pr/SKILL.md` *Pre-merge quality gate* accepts that record for the exact head SHA or runs the gate itself. Before each push of a fix only that section's pre-push gate runs.
 
 Apply each fix, commit it, push it, and let the next review iteration read the new diff.
 
@@ -198,7 +199,7 @@ This step **assembles** the report; **Completion** publishes it. This skill publ
 - **`## Deferred to sub-issues`** — only when the Review loop deferred a Moderate at the cap round or a refactoring-only pull request carries over a discrepancy: one entry per finding with `file:line`, the original severity, the reason, and the sub-issue or follow-up issue URL (`references/round-three-deferral.md` *Reporting the deferral*).
 - **`## Pre-existing fixes`** — only when **Pre-fix phase** landed a security fix: each commit subject with a one-line rationale from the commit body. Omit when none landed.
 
-Never quote or reply to a previous CR report, and never copy a line from it — this run's publish posts a new pull-request review and leaves the earlier reports unchanged. The `Reviewed revision:` / `Reviewed diff fingerprint:` header lines of the newest trusted report carry the next round's baseline, and this skill holds the previous round's finding dispositions in its own loop state.
+Never quote, reply to, or copy a line from a previous CR report: this run's publish posts a new pull-request review and leaves earlier reports unchanged. The `Reviewed revision:` / `Reviewed diff fingerprint:` header lines of the newest trusted report carry the next round's baseline, and this skill holds the previous round's finding dispositions in its own loop state.
 
 
 #### Resolve addressed reviewer threads (GitHub)
@@ -209,6 +210,7 @@ After the fixes are committed and pushed (Finalization above), mark every review
 
 Convergence is exactly the moment the PR becomes ready to merge, so this skill owns that signal on the pull request — the Draft → ready transition per `@rules/git/pull-requests.md` *Draft pull requests*. It never writes a status on the source tracker item (`@rules/compound-engineering/tracker.md` *No status write once the code review has started*):
 
+- Skip this step for a pull request whose body carries the marker `<!-- ai-olympus:contribution-policy=human-description -->` (`references/ready-to-merge-signal.md`).
 - Because this step runs only after the **Review loop converged** (step 4's gate: `criticalCount == 0`, `unfulfilledCount == 0`, no undeferred Moderate), mark the PR ready for review now: `AUDIT_TRAIL_FILE=<abs .audit path> AUDIT_TRAIL_ROLE=leonardo skills/_shared/audit-trail.sh run -- gh pr ready <PR-NUMBER|URL>` (the helper appends the audit line itself and still runs the write when no ledger is set), and label it `ready to merge` (`references/ready-to-merge-signal.md` *Pull-request label*); its label commands run in the same per-call `run` form. Both are PR state changes, not code changes.
 - Do **this only on a converged loop.** If the loop stopped at the cap round without converging, the PR stays a Draft — never promote a PR that still carries a Critical, a security-relevant Moderate, or a Moderate that failed the filing bar. A Moderate deferred into a sub-issue is not such a finding: it is resolved for this PR and recorded in the tracker.
 - A PR that was already non-draft stays non-draft; `gh pr ready` is idempotent. If `gh pr ready` is unavailable, fall back to the GitHub MCP server's mark-ready operation.
@@ -219,13 +221,14 @@ Convergence is exactly the moment the PR becomes ready to merge, so this skill o
 
 **Precondition:** Review loop has converged (step 4's gate: `criticalCount == 0`, `unfulfilledCount == 0`, no undeferred Moderate).
 
-- **Run the final publishing run inline.** Invoke the appropriate CR wrapper directly in this skill's context with publishing enabled — this is the **only** review whose output reaches the PR / issue tracker, and it posts **one** report per destination. The invocation must include the PR URL, the converged state (`criticalCount == 0`, no undeferred Moderate),
+- **Publish nothing in the owner-answers case of `@rules/code-review/general.md` *One published comment per review run*:** skip every publish below (no pull-request review, comment, or tracker mirror), edit only the pull-request body or the assignment, and report each processed answer and that nothing was published.
+- **Run the final publishing run inline,** unless `@rules/git/pull-requests.md` *Foreign repository with a contribution policy — a human writes the description* holds back AI text in the pull request's repository: then publish nothing there and put the review in the completion report. Invoke the appropriate CR wrapper directly in this skill's context with publishing enabled — this is the **only** review whose output reaches the PR / issue tracker, and it posts **one** report per destination. The invocation must include the PR URL, the converged state (`criticalCount == 0`, no undeferred Moderate),
   the `reviewedRevision` and `reviewedDiffFingerprint` baseline of the last iteration (per **Incremental review scope**, so the published comment carries the `Reviewed revision:`, `Reviewed diff fingerprint:`, and `Review scope:` header lines), the parts **PR update** assembled, and the instruction to post the final pull-request review + linked-issue / JIRA mirror per the CR wrapper's contract.
   When the caller passed `tracker-report: deferred`, pass it to the wrapper too: the final publish then writes the pull-request review only, and the caller publishes the one tracker report after every CR step finished (`@skills/code-review-github/references/cr-wrapper-contract.md` *Non-technical tracker summary*).
   Do not dispatch as a subagent — run it sequentially in the current context:
   - GitHub: `@skills/code-review-github/SKILL.md`
   - JIRA: `@skills/code-review-jira/SKILL.md`
-- **The published report is a TL;DR, never a systematic report.** A converged run carries the header block, `## TL;DR` (not on GitHub), `## Functional Review`, the conditional sections (`## Input consistency` and `## Reuse (DRY)` among them), and `## Interactive testing` / `## Database report` when their reports were passed — nothing else, and no `## Findings` over an empty body. Canonical shape: `@rules/code-review/general.md` *One published comment per review run — a TL;DR, not a systematic report*.
+- **The published report is a TL;DR, never a systematic report** — shape in `@rules/code-review/general.md` *One published comment per review run — a TL;DR, not a systematic report*.
 - Share a concise completion report (in-conversation, not on the tracker):
   - PR link
   - resolved items
@@ -233,7 +236,7 @@ Convergence is exactly the moment the PR becomes ready to merge, so this skill o
   - reviewer comments fulfilled (the final `M/N fulfilled` verdict) — every actionable reviewer instruction satisfied, rejected/deferred with its recorded reason, or delegated to the account the reviewer addressed it to
   - follow-up tracker issues filed for deferred points (URLs), or the unfiled points listed as blockers when issue creation was blocked
   - Moderate findings deferred at the cap round with the sub-issue URL each was filed as, or `none` when the loop converged before the deferral boundary (`references/round-three-deferral.md`)
-  - loop iteration count and final convergence status with the `review-state.sh` `counts` and any `escalation_reason`, plus the review scope the final publish carried (`full PR` on a single-iteration run, `delta since <SHA>` otherwise)
+  - loop iteration count and convergence status (`counts`, any `escalation_reason`, worded per `@skills/agent-voice/SKILL.md`), the review scope the final publish carried (`full PR` on a single-iteration run, `delta since <SHA>` otherwise)
   - `report: not-published (no-orchestrator)` when the run ended with no `april` reporting step and the source is a tracker — this skill publishes no post-convergence report, it only refuses to leave a missing one silent
   - remaining blockers (if any — should be empty when convergence was reached)
 
@@ -242,6 +245,7 @@ Convergence is exactly the moment the PR becomes ready to merge, so this skill o
 ## References
 
 - references/answering-reviewer-questions.md
+- references/close-the-defect-class.md
 - references/ready-to-merge-signal.md
 - references/resolve-reviewer-threads.md
 - references/review-loop-scope.md

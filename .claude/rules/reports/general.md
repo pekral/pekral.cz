@@ -20,7 +20,7 @@ The rule applies to every tracker target and every tracker output:
 
 One narrowly scoped exception: **the technical code-review comment posted on a GitHub pull request stays in canonical English**, regardless of the assignment language. Specifically:
 
-- `@skills/code-review-github/SKILL.md` pull-request reviews: the short inline comments, the visible lines of the review body, and the hidden record (full CR template — Status, Counts, Findings, Coverage, Summary line); a legacy `cr-comment` PR comment of an earlier run follows the same exception
+- `@skills/code-review-github/SKILL.md` pull-request reviews: the visible body of `templates/review-body.md` with every finding in its Actionable comments block, and the hidden record (full CR template — Status, Counts, Findings, Coverage, Summary line); a legacy `cr-comment` PR comment of an earlier run follows the same exception
 - `@skills/code-review-jira/SKILL.md` GitHub-side pull-request reviews (the technical findings half of its split publish)
 - `@skills/code-review/SKILL.md` review markdown — produced for the wrappers above and never published directly, but the output is shaped for the exception channel and therefore stays English at source
 - `@skills/process-code-review/SKILL.md` reply comments on the PR (resolved-items follow-up)
@@ -36,7 +36,7 @@ The exception does **not** extend to the reports below. On GitHub, the manifest 
 - the JIRA-side comment from `code-review-jira` (delegated to `pr-summary`) — that follows the assignment language
 - the assignment-compliance comment from `assignment-compliance-check` — that follows the assignment language
 - the `pr-summary` comment, regardless of where it is posted — that follows the assignment language. GitHub and Bugsnag carry the same shape: *What changed* (Problem / Cause / Result / What I fixed, plus the conditional *Side benefit* / *Filed separately* fields), then *How to test*, then a closing line linking the PR and the source issue, plus any conditional *Clarifying questions* / *Assignment Compliance* blocks.
-JIRA carries its own shape on every run — a status line, *Acceptance criteria*, *Review findings*, *What changed*, *Impact after deployment*, then the same closing line and a footer, with each open question inside the bullet it concerns — and no *How to test*, for the reason *A JIRA comment is written for a non-technical reader* below states (`@skills/pr-summary/SKILL.md` *The JIRA shape*). The section headings and the field labels are part of the report's prose, so they are translated too — a Czech assignment renders *Co se změnilo*, *Jak otestovat*, and *Co může změna ovlivnit po nasazení*, never an English heading above Czech prose.
+JIRA carries its own shape on every run — no status line, *Acceptance criteria* only when the assignment states explicit criteria, *Review findings*, *What changed* and *Impact after deployment* as a TL;DR each, then the same closing line and a footer, with each open question inside the bullet it concerns — and no *How to test*, for the reason *A JIRA comment is written for a non-technical reader* below states (`@skills/pr-summary/SKILL.md` *The JIRA shape*). The section headings and the field labels are part of the report's prose, so they are translated too — a Czech assignment renders *Co se změnilo*, *Jak otestovat*, and *Co může změna ovlivnit po nasazení*, never an English heading above Czech prose.
 On GitHub and Bugsnag one exception replaces *How to test*: a review-only run (`/report-code-review`) passes `review-only`, and `pr-summary` renders *Review findings* in its place — a plain-language retelling of the points of the GitHub review that must be resolved, which invites the reader's feedback (`@skills/pr-summary/SKILL.md` *Review-only run*).
 
 ### Project override — `language.github` in the manifest
@@ -57,6 +57,7 @@ Reports on JIRA and Bugsnag keep the assignment language. The key never lets one
 
 ### Scope clarifications
 - **This rule picks the language and the length limits; `@skills/agent-voice/SKILL.md` shapes the sentences.** Once the language is settled here, the prose of the report takes the voice that skill selects (`relaxed` by default; `technical` is the simplified technical style `@rules/writing/general.md` mandates — one idea per sentence, active voice, one term per concept) in that language, never only in English. The voice governs the prose only: every marker, heading, field, finding identifier, severity label, and link this rule requires stays. The two never override each other: raise one finding per violation, and never a second finding on the same line for the sibling.
+  Before the publish of a report, the prose goes through `@skills/unslop/SKILL.md`, as `@skills/agent-voice/SKILL.md` *Execution* step 3 requires.
 - **Code identifiers stay verbatim.** Class names, file paths, function names, error codes, enum cases, configuration keys, route paths, and similar machine-readable tokens keep their original form regardless of the surrounding prose language. Do not translate `App\Actions\ProcessPayment` into the assignment language. Quoting a code identifier inside an assignment-language sentence is not "mixing" — code is not a natural language.
 - **PR titles and commit messages follow `@rules/git/general.md`** — English, or the manifest's `language.github` when it is set. Branch names are always English. The language-matching rule applies to report bodies posted as comments / descriptions, not to git metadata.
 - **In-conversation status, terminal output, and debug logs may stay in English.** Only tracker-facing reports follow the assignment language.
@@ -108,7 +109,7 @@ Nothing on the banned list is lost. Every one of those facts belongs on the **pu
 
 ### Length — 3 000 characters
 
-A JIRA comment fits within **3 000 characters**, counted over the published body. When it overflows, shorten *What changed* first, then merge *Impact after deployment* bullets. **Never drop an *Acceptance criteria* bullet or a *Review findings* bullet**: those are what the reader decides on. A JIRA comment carries no *How to test*; the steps a tester follows live on the GitHub pull request, whose description carries them and has no length cap.
+A JIRA comment fits within **3 000 characters**, counted over the published body. When it overflows, shorten *What changed* first, then merge *Impact after deployment* bullets. **Never drop an *Acceptance criteria* bullet or a *Review findings* bullet**: those are what the reader decides on. A JIRA comment carries no *How to test*; the steps a tester follows live on the GitHub pull request, whose description carries them under the length limit of `@rules/git/pull-requests.md` *PR Content Requirements*.
 
 ### Boundary — this section and the GitHub-PR English exception never fire on the same comment
 
