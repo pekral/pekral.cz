@@ -46,3 +46,11 @@ it('displays the headline and the about card without terminal chrome', function 
     $component->assertSeeHtml('href="' . route('about') . '"');
     $component->assertDontSee('petr@portfolio');
 });
+
+it('links ECOMAIL.CZ in the facts strip and opens it in a new window', function (): void {
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(HeroSection::class);
+    $component->assertSeeHtml(
+        '<a href="https://ecomail.cz" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">ECOMAIL.CZ</a>',
+    );
+});

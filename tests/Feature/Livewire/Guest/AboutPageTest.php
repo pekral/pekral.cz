@@ -45,3 +45,12 @@ it('displays connect section', function (): void {
     $component->assertSee('Connect');
     $component->assertSee('github.com/pekral');
 });
+
+it('links company names in the timeline texts and opens them in a new window', function (): void {
+    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
+    $component = Livewire::test(AboutPage::class);
+    $component->assertSeeHtml(
+        '<a href="https://ecomail.cz" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">ECOMAIL.CZ</a>',
+    );
+    $component->assertSeeHtml('alongside my role at <a href="https://ecomail.cz"');
+});
