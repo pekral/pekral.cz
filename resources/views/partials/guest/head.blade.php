@@ -1,12 +1,22 @@
 @php
     $routeName = Route::currentRouteName() ?? 'default';
     $structuredDataLocale = app()->getLocale() === 'cs' ? 'cs-CZ' : 'en-US';
-    if ($routeName === 'blog.show' && isset($article)) {
+    $isArticle = $routeName === 'blog.show' && isset($article);
+    if ($isArticle) {
         $pageTitle = $article->title . ' | ' . __('head.meta.site_name');
-        $pageDescription = $article->description !== '' ? $article->description : __('head.description.blog.show');
+        $pageDescription = filled($article->description) ? $article->description : __('head.description.blog.show');
+        $pageImage = $article->hasImage ? route('blog.image', $article->slug) : asset('assets/profile-photo.jpg');
     } else {
         $pageTitle = __('head.title.' . $routeName);
         $pageDescription = __('head.description.' . $routeName);
+        $pageImage = asset('assets/profile-photo.jpg');
+    }
+    $breadcrumbs = [['name' => __('guest.nav.home'), 'url' => route('home')]];
+    if ($isArticle) {
+        $breadcrumbs[] = ['name' => __('guest.blog.title'), 'url' => route('blog.index')];
+        $breadcrumbs[] = ['name' => $article->title, 'url' => url()->current()];
+    } elseif ($routeName !== 'home') {
+        $breadcrumbs[] = ['name' => $pageTitle, 'url' => url()->current()];
     }
 @endphp
 
@@ -20,30 +30,40 @@
 <meta name="language" content="{{ app()->getLocale() }}">
 <meta name="geo.region" content="CZ">
 <meta name="geo.placename" content="Chlumec nad Cidlinou">
+<meta name="theme-color" content="#0b0d11">
+<meta name="color-scheme" content="dark">
 
 <link rel="canonical" href="{{ url()->current() }}">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
+<link rel="alternate" type="application/rss+xml" title="{{ __('head.meta.site_name') }} - {{ __('guest.blog.title') }}" href="{{ route('feed') }}">
 
 <meta property="og:title" content="{{ $pageTitle }}">
 <meta property="og:description" content="{{ $pageDescription }}">
-<meta property="og:type" content="{{ Route::currentRouteName() === 'home' ? 'profile' : 'website' }}">
+<meta property="og:type" content="{{ $isArticle ? 'article' : (Route::currentRouteName() === 'home' ? 'profile' : 'website') }}">
 <meta property="og:url" content="{{ url()->current() }}">
 <meta property="og:site_name" content="{{ __('head.meta.site_name') }}">
 <meta property="og:locale" content="{{ app()->getLocale() === 'cs' ? 'cs_CZ' : 'en_US' }}">
-<meta property="og:image" content="{{ asset('assets/profile-photo.jpg') }}">
+<meta property="og:image" content="{{ $pageImage }}">
+@unless($isArticle)
 <meta property="og:image:width" content="460">
 <meta property="og:image:height" content="460">
-<meta property="og:image:alt" content="{{ __('head.meta.image_alt') }}">
+@endunless
+<meta property="og:image:alt" content="{{ $isArticle ? $article->title : __('head.meta.image_alt') }}">
 <meta property="og:image:type" content="image/jpeg">
+@if($isArticle)
+<meta property="article:published_time" content="{{ $article->date->toIso8601String() }}">
+<meta property="article:author" content="{{ __('head.meta.author') }}">
+@else
 <meta property="profile:first_name" content="Petr">
 <meta property="profile:last_name" content="Král">
+@endif
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="{{ '@' . basename((string) config('social.x')) }}">
 <meta name="twitter:creator" content="{{ '@' . basename((string) config('social.x')) }}">
 <meta name="twitter:title" content="{{ $pageTitle }}">
 <meta name="twitter:description" content="{{ $pageDescription }}">
-<meta name="twitter:image" content="{{ asset('assets/profile-photo.jpg') }}">
+<meta name="twitter:image" content="{{ $pageImage }}">
 <meta name="twitter:image:alt" content="{{ __('head.meta.image_alt_short') }}">
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -52,7 +72,7 @@
 
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link rel="dns-prefetch" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=jetbrains-mono:400,500,600,700|inter:400,500,600,700" rel="stylesheet" />
+<link href="https://fonts.bunny.net/css?family=jetbrains-mono:400,500,600,700|inter:400,500,600,700|instrument-serif:400i" rel="stylesheet" />
 
 @if(Route::currentRouteName() === 'home')
 <link rel="preload" href="{{ asset('assets/profile-photo.jpg') }}" as="image" type="image/jpeg">
@@ -111,6 +131,10 @@
         'Docker',
         'Git',
         'Rector PHP',
+        'AI-assisted development',
+        'Agentic engineering',
+        'Claude Code',
+        'Automated code review',
         'Clean Code',
         'SOLID Principles',
         'Domain-Driven Design',
@@ -127,6 +151,11 @@
             'name' => 'Czech Republic'
         ],
         'skills' => 'PHP, Laravel, Open Source, Symfony, REST API, MySQL, PostgreSQL, Docker, Git, Clean Code'
+    ],
+    'worksFor' => [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'ECOMAIL.CZ',
     ],
     'alumniOf' => [
         '@context' => 'https://schema.org',
@@ -173,3 +202,42 @@
     'inLanguage' => $structuredDataLocale,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
+
+@if(count($breadcrumbs) > 1)
+<!-- JSON-LD Structured Data - BreadcrumbList -->
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => collect($breadcrumbs)->map(static fn (array $crumb, int $index): array => [
+        '@type' => 'ListItem',
+        'position' => $index + 1,
+        'name' => $crumb['name'],
+        'item' => $crumb['url'],
+    ])->all(),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endif
+
+@if($isArticle)
+<!-- JSON-LD Structured Data - BlogPosting -->
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BlogPosting',
+    '@id' => url()->current() . '#article',
+    'headline' => $article->title,
+    'description' => $pageDescription,
+    'image' => $pageImage,
+    'datePublished' => $article->date->toIso8601String(),
+    'dateModified' => $article->date->toIso8601String(),
+    'author' => ['@id' => url('/') . '#person'],
+    'publisher' => ['@id' => url('/') . '#person'],
+    'mainEntityOfPage' => ['@id' => url()->current() . '#webpage'],
+    'url' => url()->current(),
+    'inLanguage' => 'en',
+    'timeRequired' => 'PT' . $article->readingTimeMinutes . 'M',
+    'isPartOf' => ['@id' => url('/') . '#website'],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endif
