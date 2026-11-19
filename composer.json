@@ -93,7 +93,8 @@
             "dont-discover": []
         },
         "ai-olympus": {
-            "pr-gate": ["composer fix"]
+            "pr-gate": ["composer fix"],
+            "fast-checks": ["composer test-redundancy-fast"]
         }
     },
     "config": {
