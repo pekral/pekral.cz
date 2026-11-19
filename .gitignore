@@ -27,3 +27,4 @@ yarn-error.log
 /.claude/run/
 /.codex/run/
 /.agents/
+/.test-redundancy

@@ -1,0 +1,5 @@
+{
+    "source": ["app"],
+    "ignore": "#^app/Providers/#",
+    "processes": 6
+}

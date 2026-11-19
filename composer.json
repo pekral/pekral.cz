@@ -32,8 +32,8 @@
         "pekral/ai-olympus": "dev-master",
         "pekral/phpcs-rules": "^0.4.8",
         "pekral/rector-rules": "dev-master",
+        "pekral/test-redundancy": "^0.2.6",
         "pestphp/pest": "^5.3.7",
-
         "phpstan/phpstan": "^2.3.7",
         "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpstan/phpstan-mockery": "^2.0",
@@ -75,7 +75,7 @@
       "ai-olympus": "vendor/bin/ai-olympus install --force --prune && rm -rf .agents",
       "analyse": "vendor/bin/phpstan analyse --memory-limit=4G",
       "build": "composer ai-olympus && composer fix && composer check",
-      "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage",
+      "check": "composer run phpcs-check && composer run pint-check && composer run rector-check && composer run analyse && composer run security-audit && composer run test:coverage && composer run test-redundancy-fast",
       "fix": "composer run rector-fix && composer run pint-fix && composer run phpcs-fix || true",
       "phpcs-check": "vendor/bin/phpcs --standard=ruleset.xml app/ tests/",
       "phpcs-fix": "vendor/bin/phpcbf --standard=ruleset.xml --no-cache app/ tests/ || true",
@@ -84,6 +84,8 @@
       "rector-check": "vendor/bin/rector process --dry-run",
       "rector-fix": "vendor/bin/rector process --clear-cache",
       "security-audit": "composer audit",
+      "test-redundancy": "XDEBUG_MODE=off vendor/bin/test-redundancy",
+      "test-redundancy-fast": "mkdir -p .test-redundancy && XDEBUG_MODE=off vendor/bin/test-redundancy analyse --base=origin/master > .test-redundancy/fast.json; status=$?; jq -r --arg root \"$PWD/\" -f build/test-redundancy-fast.jq .test-redundancy/fast.json && exit $status",
       "test:coverage": "php -dzend.assertions=1 -dpcov.enabled=1 -dpcov.directory=. -dxdebug.mode=off -dpcov.exclude=\"~vendor~\" vendor/bin/pest --coverage --min=100"
     },
     "extra": {
