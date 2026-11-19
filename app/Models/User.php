@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Override;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'name',
         'email',
@@ -33,6 +35,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    #[Override]
     protected $hidden = [
         'password',
         'remember_token',
