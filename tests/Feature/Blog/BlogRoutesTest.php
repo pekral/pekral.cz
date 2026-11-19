@@ -82,8 +82,8 @@ test('blog post page renders the article head tags and the table of contents', f
     $response->assertSuccessful();
     $response->assertSee($fragment, escape: false);
 })->with([
-    'title' => ['<title>Vibe coding with AI'],
     'open graph title' => ['og:title'],
     'table of contents heading' => ['Contents'],
     'table of contents link' => ['href="#it-starts-like-any-other-project"'],
+    'title' => ['<title>Vibe coding with AI'],
 ]);

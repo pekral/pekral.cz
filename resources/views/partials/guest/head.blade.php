@@ -91,7 +91,7 @@
     'familyName' => 'Král',
     'jobTitle' => 'PHP Developer building with Laravel',
     'alternateName' => 'Senior PHP Programmer',
-    'description' => 'Senior PHP programmer building projects with Laravel, with over 20 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
+    'description' => 'Senior PHP programmer building projects with Laravel, with over 25 years of experience. Open source contributor specializing in backend development, REST APIs, and scalable web applications.',
     'url' => url('/'),
     'image' => [
         '@context' => 'https://schema.org',
@@ -173,7 +173,7 @@
     '@id' => url('/') . '#website',
     'url' => url('/'),
     'name' => 'Petr Král - Senior PHP Developer',
-    'description' => 'Personal portfolio and blog of Petr Král, Senior PHP Developer with 20+ years of experience.',
+    'description' => 'Personal portfolio and blog of Petr Král, Senior PHP Developer with 25+ years of experience.',
     'publisher' => [
         '@context' => 'https://schema.org',
         '@id' => url('/') . '#person'

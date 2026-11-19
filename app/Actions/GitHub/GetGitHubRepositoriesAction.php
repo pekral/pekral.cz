@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Pekral\Arch\Action\ArchAction;
 
+/**
+ * @phpstan-import-type RepositoryArray from \App\Data\RepositoryData
+ */
 final readonly class GetGitHubRepositoriesAction implements ArchAction
 {
 
@@ -31,7 +34,7 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
      */
     public function execute(): Collection
     {
-        /** @var list<array{name: string, description: string, url: string, language: string, composerDescription: string, phpVersion: string, stars: int, topics: list<string>}> $cached */
+        /** @var list<RepositoryArray> $cached */
         $cached = Cache::remember(
             self::CACHE_KEY,
             self::CACHE_TTL_SECONDS,
@@ -73,15 +76,15 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
             return null;
         }
 
-        $name = is_string($repository['name'] ?? null) ? $repository['name'] : '';
+        $name = $this->stringValue($repository, 'name');
 
-        if (blank($name) || ($repository['fork'] ?? false) === true || $this->isExcluded($name)) {
+        if ($this->isSkipped($repository, $name)) {
             return null;
         }
 
         $composerJson = $this->fetchComposerJson($name);
-        $description = is_string($repository['description'] ?? null) ? $repository['description'] : '';
-        $composerDescription = is_string($composerJson['description'] ?? null) ? $composerJson['description'] : '';
+        $description = $this->stringValue($repository, 'description');
+        $composerDescription = $this->stringValue($composerJson, 'description');
 
         if (blank($description) && blank($composerDescription)) {
             return null;
@@ -90,13 +93,41 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
         return new RepositoryData(
             name: $name,
             description: $description,
-            url: is_string($repository['html_url'] ?? null) ? $repository['html_url'] : '',
-            language: is_string($repository['language'] ?? null) ? $repository['language'] : 'Other',
+            url: $this->stringValue($repository, 'html_url'),
+            language: $this->stringValue($repository, 'language', 'Other'),
             composerDescription: $composerDescription,
             phpVersion: $this->extractPhpVersion($composerJson),
-            stars: is_int($repository['stargazers_count'] ?? null) ? $repository['stargazers_count'] : 0,
+            stars: $this->stars($repository),
             topics: $this->extractTopics($repository),
         );
+    }
+
+    /**
+     * @param array<mixed> $repository
+     */
+    private function isSkipped(array $repository, string $name): bool
+    {
+        return blank($name) || ($repository['fork'] ?? false) === true || $this->isExcluded($name);
+    }
+
+    /**
+     * @param array<mixed> $values
+     */
+    private function stringValue(array $values, string $key, string $default = ''): string
+    {
+        $value = $values[$key] ?? null;
+
+        return is_string($value) ? $value : $default;
+    }
+
+    /**
+     * @param array<mixed> $repository
+     */
+    private function stars(array $repository): int
+    {
+        $stars = $repository['stargazers_count'] ?? null;
+
+        return is_int($stars) ? $stars : 0;
     }
 
     private function isExcluded(string $name): bool
