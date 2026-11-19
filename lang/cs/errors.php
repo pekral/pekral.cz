@@ -10,5 +10,9 @@ return [
         'home' => 'Domů',
         'blog' => 'Blog',
         'projects' => 'Projekty',
+        'kicker' => 'Chyba 404',
+        'command' => 'cd :path',
+        'output' => 'bash: cd: :path: No such file or directory',
+        'latest_heading' => 'Nebo si přečtěte něco z blogu',
     ],
 ];

@@ -10,12 +10,19 @@ use Livewire\Component;
 final class SkillsPage extends Component
 {
 
-    public const array CATEGORY_ORDER = ['languages', 'frameworks', 'tools', 'practices'];
+    public const array CATEGORY_ORDER = ['languages', 'frameworks', 'tools', 'ai', 'practices'];
 
     /**
      * @var array<string, array<int, array{name: string, logo?: string, icon?: string}>>
      */
     public array $skills = [
+        'ai' => [
+            ['name' => 'Claude Code', 'icon' => '🤖'],
+            ['name' => 'OpenAI Codex', 'icon' => '⌘'],
+            ['name' => 'Cursor', 'icon' => '⌨️'],
+            ['name' => 'MCP', 'icon' => '🔌'],
+            ['name' => 'Agent skills', 'icon' => '🧠'],
+        ],
         'frameworks' => [
             ['name' => 'Laravel', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg'],
             ['name' => 'Symfony', 'logo' => 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/symfony/symfony-original.svg'],

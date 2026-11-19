@@ -1,55 +1,28 @@
 <div>
-    <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-mono mb-8">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m12 19-7-7 7-7"></path>
-            <path d="M19 12H5"></path>
-        </svg>
-        {{ __('guest.blog.back_to_home') }}
-    </a>
-
-    <section class="mb-12">
-        <h1 class="text-2xl md:text-3xl font-bold text-foreground font-mono">
-            <span class="text-primary">#</span> {{ __('guest.blog.title') }}
-        </h1>
-        <p class="text-muted-foreground mt-2">
-            {{ __('guest.blog.subtitle') }}
-        </p>
-    </section>
+    <x-page-header :eyebrow="__('guest.blog.eyebrow')" :back="route('home')" :back-label="__('guest.blog.back_to_home')">
+        {{ __('guest.blog.title') }}
+        <x-slot:lead>
+            <p>{{ __('guest.blog.subtitle') }}</p>
+            <p>
+                <a href="{{ route('feed') }}" class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 11a9 9 0 0 1 9 9"></path>
+                        <path d="M4 4a16 16 0 0 1 16 16"></path>
+                        <circle cx="5" cy="19" r="1"></circle>
+                    </svg>
+                    {{ __('guest.blog.feed') }}
+                </a>
+            </p>
+        </x-slot:lead>
+    </x-page-header>
 
     @if($articles->isEmpty())
         <p class="text-muted-foreground">{{ __('guest.blog.no_articles') }}</p>
     @else
-        <ul class="space-y-6">
+        <ul class="space-y-4" role="list">
             @foreach($articles as $article)
-                <li>
-                    <a href="{{ route('blog.show', $article->slug) }}" class="project-card group block">
-                        <div class="flex flex-col sm:flex-row sm:items-start gap-4">
-                            @if($article->hasImage)
-                                <div class="sm:w-32 shrink-0 aspect-video rounded-lg overflow-hidden bg-muted">
-                                    <img
-                                        src="{{ route('blog.image', $article->slug) }}"
-                                        alt=""
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                    />
-                                </div>
-                            @endif
-                            <div class="min-w-0 flex-1">
-                                <h2 class="font-mono text-foreground group-hover:text-primary transition-colors font-semibold">
-                                    {{ $article->title }}
-                                </h2>
-                                <p class="hud-label mt-1.5">
-                                    <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
-                                    <span aria-hidden="true"> · </span>
-                                    <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>
-                                </p>
-                                @if($article->description)
-                                    <p class="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                        {{ $article->description }}
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                    </a>
+                <li class="reveal">
+                    <x-article-row :article="$article" />
                 </li>
             @endforeach
         </ul>

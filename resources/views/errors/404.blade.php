@@ -1,33 +1,37 @@
 <x-layouts.guest.layout>
-    <div class="container max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <section class="animate-fade-in">
-            <x-terminal title="petr@portfolio:~$ cd {{ request()->path() }}">
-                <div class="space-y-6">
-                    <div class="terminal-line mb-4">
-                        <span class="terminal-prompt">$</span>
-                        <span class="terminal-command ml-2">cat {{ request()->path() }}</span>
+    <div class="container max-w-5xl mx-auto px-6 pt-36 pb-24">
+        <section class="relative animate-fade-in-up" aria-labelledby="not-found-heading">
+            <div class="grid gap-10 lg:grid-cols-[auto_1fr] lg:items-center">
+                <p class="glitch-404 select-none" aria-hidden="true">404</p>
+
+                <div>
+                    <p class="eyebrow">{{ __('errors.404.kicker') }}</p>
+                    <h1 id="not-found-heading" class="display-sm mt-5">{{ __('errors.404.heading') }}</h1>
+                    <p class="text-muted-foreground text-base md:text-lg leading-relaxed mt-4 max-w-xl">
+                        {{ __('errors.404.message') }}
+                    </p>
+
+                    <div class="mt-8 max-w-xl">
+                        <x-terminal title="petr@portfolio:~$">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-command ml-2 break-all">{{ __('errors.404.command', ['path' => '/' . request()->path()]) }}</span>
+                            </div>
+                            <p class="terminal-output text-functional-red break-all">{{ __('errors.404.output', ['path' => '/' . request()->path()]) }}</p>
+                            <div class="terminal-line mt-3">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-cursor" aria-hidden="true"></span>
+                            </div>
+                        </x-terminal>
                     </div>
-                    <div class="terminal-output ml-4 mt-2 space-y-4">
-                        <h1 class="text-2xl md:text-3xl font-bold text-foreground">
-                            404 <span class="block text-lg md:text-xl text-primary font-mono mt-1">{{ __('errors.404.heading') }}</span>
-                        </h1>
-                        <p class="text-muted-foreground leading-relaxed max-w-2xl">
-                            {{ __('errors.404.message') }}
-                        </p>
-                        <nav class="flex flex-wrap gap-4 pt-2" aria-label="{{ __('errors.404.nav_label') }}">
-                            <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                                {{ __('errors.404.home') }}
-                            </a>
-                            <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                                {{ __('errors.404.blog') }}
-                            </a>
-                            <a href="{{ route('projects') }}" class="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono">
-                                {{ __('errors.404.projects') }}
-                            </a>
-                        </nav>
-                    </div>
+
+                    <nav class="mt-8 flex flex-wrap gap-3" aria-label="{{ __('errors.404.nav_label') }}">
+                        <a href="{{ route('home') }}" class="btn btn-primary">{{ __('errors.404.home') }}</a>
+                        <a href="{{ route('blog.index') }}" class="btn btn-ghost">{{ __('errors.404.blog') }}</a>
+                        <a href="{{ route('projects') }}" class="btn btn-ghost">{{ __('errors.404.projects') }}</a>
+                    </nav>
                 </div>
-            </x-terminal>
+            </div>
         </section>
     </div>
 </x-layouts.guest.layout>

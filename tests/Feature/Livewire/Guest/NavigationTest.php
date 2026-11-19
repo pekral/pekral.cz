@@ -50,27 +50,21 @@ it('contains obfuscated email component', function (): void {
     $component->assertSee('contact');
 });
 
-it('shows hamburger menu button for mobile', function (): void {
+it('shows a mobile menu toggle that controls the mobile menu', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(Navigation::class);
-    $component->assertSeeHtml('toggleMenu');
+    $component->assertSeeHtml('aria-controls="mobile-menu"');
+    $component->assertSeeHtml('@click="open = !open"');
+    $component->assertSeeHtml('id="mobile-menu"');
+    $component->assertSeeHtml('x-show="open"');
 });
 
-it('toggles mobile menu open and closed', function (): void {
-    /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
-    $component = Livewire::test(Navigation::class);
-    $component->assertSet('menuOpen', value: false);
-    $component->call('toggleMenu');
-    $component->assertSet('menuOpen', value: true);
-    $component->call('toggleMenu');
-    $component->assertSet('menuOpen', value: false);
-});
+it('marks the current locale in the language switch', function (string $locale): void {
+    app()->setLocale($locale);
 
-it('closes mobile menu when closeMenu is called', function (): void {
     /** @var \Livewire\Features\SupportTesting\Testable<\Livewire\Component> $component */
     $component = Livewire::test(Navigation::class);
-    $component->call('toggleMenu');
-    $component->assertSet('menuOpen', value: true);
-    $component->call('closeMenu');
-    $component->assertSet('menuOpen', value: false);
-});
+    $html = $component->html();
+    expect(substr_count($html, 'aria-current="true"'))->toBe(1);
+    expect(preg_match(sprintf('~href="%s"[^>]*aria-current="true"~', preg_quote(route('locale.switch', $locale), '~')), $html))->toBe(1);
+})->with(['en', 'cs']);

@@ -1,50 +1,20 @@
 @if($articles->isNotEmpty())
-    <section class="mt-16" aria-labelledby="latest-from-blog-heading">
-        <h2 id="latest-from-blog-heading" class="text-2xl md:text-3xl font-bold text-foreground font-mono">
-            <span class="text-primary">#</span> {{ __('guest.blog.latest_from_blog') }}
-        </h2>
+    <section aria-labelledby="latest-from-blog-heading">
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <x-section-heading :eyebrow="__('guest.blog.eyebrow')" id="latest-from-blog-heading" :text="__('guest.blog.subtitle')">
+                {{ __('guest.blog.latest_from_blog') }}
+            </x-section-heading>
+            <a href="{{ route('blog.index') }}" class="btn btn-ghost btn-sm reveal" wire:navigate>
+                {{ __('guest.blog.view_all_articles') }}
+            </a>
+        </div>
 
-        <ul class="mt-6 space-y-6">
+        <ul class="mt-10 space-y-4" role="list">
             @foreach($articles as $article)
-                <li>
-                    <a href="{{ route('blog.show', $article->slug) }}" class="project-card group block">
-                        <div class="flex flex-col sm:flex-row sm:items-start gap-4">
-                            @if($article->hasImage)
-                                <div class="sm:w-32 shrink-0 aspect-video rounded-lg overflow-hidden bg-muted">
-                                    <img
-                                        src="{{ route('blog.image', $article->slug) }}"
-                                        alt=""
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                    />
-                                </div>
-                            @endif
-                            <div class="min-w-0 flex-1">
-                                <h3 class="font-mono text-foreground group-hover:text-primary transition-colors font-semibold">
-                                    {{ $article->title }}
-                                </h3>
-                                <p class="hud-label mt-1.5">
-                                    <time datetime="{{ $article->date->toIso8601String() }}">{{ $article->date->format('F j, Y') }}</time>
-                                    <span aria-hidden="true"> · </span>
-                                    <span>{{ __('guest.blog.min_read', ['minutes' => $article->readingTimeMinutes]) }}</span>
-                                </p>
-                                @if($article->description)
-                                    <p class="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                        {{ $article->description }}
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                    </a>
+                <li class="reveal">
+                    <x-article-row :article="$article" heading-level="h3" />
                 </li>
             @endforeach
         </ul>
-
-        <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 mt-6 text-sm text-primary hover:underline font-mono">
-            {{ __('guest.blog.view_all_articles') }}
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"></path>
-                <path d="m12 5 7 7-7 7"></path>
-            </svg>
-        </a>
     </section>
 @endif
