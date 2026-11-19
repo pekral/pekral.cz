@@ -1,139 +1,106 @@
 @php
     $currentUrl = url()->current();
+    $currentLocale = app()->getLocale();
 @endphp
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-[0_1px_0_hsl(190_85%_52%_/_0.14)]" role="navigation" aria-label="Main navigation">
-    <div class="container max-w-4xl mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-            <a href="{{ route('home') }}" class="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
-                <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m18 16 4-4-4-4"></path>
-                    <path d="m6 8-4 4 4 4"></path>
-                    <path d="m14.5 4-5 16"></path>
-                </svg>
-                <span class="font-mono font-semibold tracking-tight">pekral</span>
-            </a>
+<nav
+    class="site-nav"
+    role="navigation"
+    aria-label="{{ __('guest.nav.main_label') }}"
+    x-data="{ open: false }"
+    @keydown.escape.window="open = false"
+>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5 md:px-5">
+        <a href="{{ route('home') }}" class="flex items-center gap-2 text-foreground hover:text-primary transition-colors" wire:navigate>
+            <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m18 16 4-4-4-4"></path>
+                <path d="m6 8-4 4 4 4"></path>
+                <path d="m14.5 4-5 16"></path>
+            </svg>
+            <span class="font-mono font-semibold tracking-tight">pekral</span>
+        </a>
 
-            <div class="hidden md:flex items-center gap-6">
-                @foreach($links as $link)
-                    @if($link['is_anchor'])
-                        <a href="{{ $link['route'] }}" class="hud-label px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors no-underline">
-                            {{ __('guest.nav.' . $link['name']) }}
-                        </a>
-                    @else
-                        @php
-                            $isActive = str_starts_with($currentUrl, $link['route']);
-                        @endphp
-                        <a
-                            href="{{ $link['route'] }}"
-                            @class([
-                                'hud-label inline-flex items-center gap-2 transition-colors link-underline',
-                                'text-primary' => $isActive,
-                                'hover:text-primary' => !$isActive,
-                            ])
-                            @if($isActive) aria-current="page" @endif
-                            wire:navigate
-                        >
-                            @if($isActive)
-                                <span class="status-dot" aria-hidden="true"></span>
-                            @endif
-                            {{ __('guest.nav.' . $link['name']) }}
-                        </a>
-                    @endif
-                @endforeach
-                <flux:dropdown position="bottom" align="end" class="flex items-center">
-                    <flux:button
-                        variant="ghost"
-                        size="sm"
-                        icon="globe-alt"
-                        class="!p-2"
-                        aria-label="{{ __('guest.locale.language') }}"
-                    />
-                    <flux:menu>
-                        <flux:menu.item
-                            :href="route('locale.switch', 'cs')"
-                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
-                        >
-                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
-                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
-                        </flux:menu.item>
-                        <flux:menu.item
-                            :href="route('locale.switch', 'en')"
-                            aria-label="{{ __('guest.locale.switch_to_en') }}"
-                        >
-                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
-                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
-                        </flux:menu.item>
-                    </flux:menu>
-                </flux:dropdown>
-            </div>
-
-            <flux:button
-                variant="ghost"
-                size="sm"
-                icon="bars-2"
-                class="md:hidden"
-                wire:click="toggleMenu"
-                aria-expanded="{{ $menuOpen ? 'true' : 'false' }}"
-                aria-label="{{ $menuOpen ? __('Close menu') : __('Open menu') }}"
-            />
+        <div class="hidden md:flex items-center gap-1">
+            @foreach($links as $link)
+                @if($link['is_anchor'])
+                    <a href="{{ $link['route'] }}" class="btn btn-primary btn-nav ml-2">
+                        {{ __('guest.nav.' . $link['name']) }}
+                    </a>
+                @else
+                    @php
+                        $isActive = str_starts_with($currentUrl, $link['route']);
+                    @endphp
+                    <a
+                        href="{{ $link['route'] }}"
+                        class="site-nav-link"
+                        @if($isActive) aria-current="page" @endif
+                        wire:navigate
+                    >
+                        @if($isActive)
+                            <span class="status-dot" aria-hidden="true"></span>
+                        @endif
+                        {{ __('guest.nav.' . $link['name']) }}
+                    </a>
+                @endif
+            @endforeach
         </div>
 
-        @if($menuOpen)
-            <div class="md:hidden flex flex-col gap-4 pt-4 pb-2 border-t border-border mt-2">
-                @foreach($links as $link)
-                    @if($link['is_anchor'])
-                        <a href="{{ $link['route'] }}" class="hud-label px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors no-underline" wire:click="closeMenu">
-                            {{ __('guest.nav.' . $link['name']) }}
-                        </a>
-                    @else
-                        @php
-                            $isActive = str_starts_with($currentUrl, $link['route']);
-                        @endphp
-                        <a
-                            href="{{ $link['route'] }}"
-                            @class([
-                                'hud-label inline-flex items-center gap-2 transition-colors link-underline',
-                                'text-primary' => $isActive,
-                                'hover:text-primary' => !$isActive,
-                            ])
-                            @if($isActive) aria-current="page" @endif
-                            wire:click="closeMenu"
-                            wire:navigate
-                        >
-                            @if($isActive)
-                                <span class="status-dot" aria-hidden="true"></span>
-                            @endif
-                            {{ __('guest.nav.' . $link['name']) }}
-                        </a>
-                    @endif
-                @endforeach
-                <flux:dropdown position="bottom" align="start" class="flex items-center">
-                    <flux:button
-                        variant="ghost"
-                        size="sm"
-                        icon="globe-alt"
-                        class="!p-2"
-                        aria-label="{{ __('guest.locale.language') }}"
-                    />
-                    <flux:menu>
-                        <flux:menu.item
-                            :href="route('locale.switch', 'cs')"
-                            aria-label="{{ __('guest.locale.switch_to_cz') }}"
-                        >
-                            <span class="text-lg" aria-hidden="true">🇨🇿</span>
-                            <span class="sr-only">{{ __('guest.locale.switch_to_cz') }}</span>
-                        </flux:menu.item>
-                        <flux:menu.item
-                            :href="route('locale.switch', 'en')"
-                            aria-label="{{ __('guest.locale.switch_to_en') }}"
-                        >
-                            <span class="text-lg" aria-hidden="true">🇬🇧</span>
-                            <span class="sr-only">{{ __('guest.locale.switch_to_en') }}</span>
-                        </flux:menu.item>
-                    </flux:menu>
-                </flux:dropdown>
+        <div class="flex items-center gap-2">
+            <div class="locale-switch" role="group" aria-label="{{ __('guest.locale.language') }}">
+                <a href="{{ route('locale.switch', 'cs') }}" aria-label="{{ __('guest.locale.switch_to_cz') }}" @if($currentLocale === 'cs') aria-current="true" @endif>cs</a>
+                <a href="{{ route('locale.switch', 'en') }}" aria-label="{{ __('guest.locale.switch_to_en') }}" @if($currentLocale === 'en') aria-current="true" @endif>en</a>
             </div>
-        @endif
+
+            <button
+                type="button"
+                class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-full border border-border bg-secondary/60 text-foreground hover:text-primary transition-colors"
+                @click="open = !open"
+                :aria-expanded="open"
+                :aria-label="open ? @js(__('guest.nav.close_menu')) : @js(__('guest.nav.open_menu'))"
+                aria-controls="mobile-menu"
+            >
+                <svg x-show="!open" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 7h16"></path>
+                    <path d="M4 12h16"></path>
+                    <path d="M4 17h16"></path>
+                </svg>
+                <svg x-show="open" x-cloak class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div
+        id="mobile-menu"
+        class="md:hidden flex flex-col gap-1 border-t border-border px-4 py-4"
+        x-show="open"
+        x-cloak
+        x-transition.opacity.duration.200ms
+    >
+        @foreach($links as $link)
+            @if($link['is_anchor'])
+                <a href="{{ $link['route'] }}" class="btn btn-primary btn-nav mt-2 self-start" @click="open = false">
+                    {{ __('guest.nav.' . $link['name']) }}
+                </a>
+            @else
+                @php
+                    $isActive = str_starts_with($currentUrl, $link['route']);
+                @endphp
+                <a
+                    href="{{ $link['route'] }}"
+                    class="site-nav-link"
+                    @if($isActive) aria-current="page" @endif
+                    @click="open = false"
+                    wire:navigate
+                >
+                    @if($isActive)
+                        <span class="status-dot" aria-hidden="true"></span>
+                    @endif
+                    {{ __('guest.nav.' . $link['name']) }}
+                </a>
+            @endif
+        @endforeach
     </div>
 </nav>

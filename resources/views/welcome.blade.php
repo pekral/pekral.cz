@@ -1,6 +1,9 @@
 <x-layouts.guest.layout>
-    <div class="container max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <livewire:guest.hero-section />
+    <livewire:guest.hero-section />
+
+    <div class="container max-w-5xl mx-auto px-6 pb-24 space-y-28">
+        @include('partials.guest.how-i-work')
+        <livewire:guest.open-source-section />
         <livewire:guest.blog-latest-section />
         @include('partials.guest.contact')
     </div>

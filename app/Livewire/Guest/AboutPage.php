@@ -11,7 +11,7 @@ final class AboutPage extends Component
 {
 
     /**
-     * @return array<int, array{role: string, company: string, period: string, description: string}>
+     * @return array<int, array{role: string, company: string, period: string, description: string, about: string, location: string, website: string}>
      */
     public function getExperiences(): array
     {
@@ -19,10 +19,13 @@ final class AboutPage extends Component
 
         for ($i = 0; $i <= 8; $i++) {
             $experiences[] = [
+                'about' => __('guest.about.experiences.' . $i . '.about'),
                 'company' => __('guest.about.experiences.' . $i . '.company'),
                 'description' => __('guest.about.experiences.' . $i . '.description'),
+                'location' => __('guest.about.experiences.' . $i . '.location'),
                 'period' => __('guest.about.experiences.' . $i . '.period'),
                 'role' => __('guest.about.experiences.' . $i . '.role'),
+                'website' => __('guest.about.experiences.' . $i . '.website'),
             ];
         }
 

@@ -2,6 +2,14 @@
 
 declare(strict_types = 1);
 
+use Illuminate\Support\Facades\Http;
+
+beforeEach(function (): void {
+    Http::fake([
+        'api.github.com/*' => Http::response([], 200),
+    ]);
+});
+
 /**
  * Ensures all public and guest-accessible web routes respond successfully (no 404).
  * Auth-required routes must redirect (302) to login, not 404.
@@ -15,6 +23,8 @@ test('all public page routes return success or redirect', function (): void {
         ['GET', '/blog', 'blog.index'],
         ['GET', '/blog/' . $existingBlogSlug, 'blog.show'],
         ['GET', '/blog/' . $existingBlogSlug . '/image', 'blog.image'],
+        ['GET', '/feed.xml', 'feed'],
+        ['GET', '/llms.txt', 'llms'],
         ['GET', '/locale/en', 'locale.switch'],
         ['GET', '/locale/cs', 'locale.switch'],
         ['GET', '/privacy-policy', 'privacy-policy'],
@@ -22,27 +32,13 @@ test('all public page routes return success or redirect', function (): void {
         ['GET', '/robots.txt', 'robots'],
         ['GET', '/sitemap.xml', 'sitemap'],
         ['GET', '/skills', 'skills'],
-    ];
-
-    foreach ($publicRoutes as [$method, $uri, $name]) {
-        /** @var \Tests\TestCase $this */
-        $response = $this->get($uri);
-        /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
-        $status = $response->getStatusCode();
-
-        expect($status)->not->toBe(404, sprintf('Route [%s] (%s) must not return 404', $name, $uri));
-    }
-});
-
-test('guest auth routes return success or redirect', function (): void {
-    $guestRoutes = [
         ['GET', '/login', 'login'],
         ['GET', '/register', 'register'],
         ['GET', '/forgot-password', 'password.request'],
         ['GET', '/reset-password/valid-token-placeholder', 'password.reset'],
     ];
 
-    foreach ($guestRoutes as [$method, $uri, $name]) {
+    foreach ($publicRoutes as [$method, $uri, $name]) {
         /** @var \Tests\TestCase $this */
         $response = $this->get($uri);
         /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */

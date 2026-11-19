@@ -2,6 +2,14 @@
 
 declare(strict_types = 1);
 
+use Illuminate\Support\Facades\Http;
+
+beforeEach(function (): void {
+    Http::fake([
+        'api.github.com/*' => Http::response([], 200),
+    ]);
+});
+
 test('blog index page loads successfully', function (): void {
     /** @var \Tests\TestCase $this */
     $response = $this->get(route('blog.index'));
@@ -67,20 +75,15 @@ test('navigation includes blog link', function (): void {
     $response->assertSee(route('blog.index'));
 });
 
-test('blog post page shows table of contents when article has headings', function (): void {
+test('blog post page renders the article head tags and the table of contents', function (string $fragment): void {
     /** @var \Tests\TestCase $this */
     $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
-    $response->assertSee('Contents', escape: false);
-    $response->assertSee('href="#it-starts-like-any-other-project"', escape: false);
-});
-
-test('blog post page has dynamic meta title and description from article', function (): void {
-    /** @var \Tests\TestCase $this */
-    $response = $this->get(route('blog.show', 'vibe-coding-with-ai-good-servant-bad-master'));
-    /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
-    $response->assertSuccessful();
-    $response->assertSee('<title>Vibe coding with AI', escape: false);
-    $response->assertSee('og:title', escape: false);
-});
+    $response->assertSee($fragment, escape: false);
+})->with([
+    'title' => ['<title>Vibe coding with AI'],
+    'open graph title' => ['og:title'],
+    'table of contents heading' => ['Contents'],
+    'table of contents link' => ['href="#it-starts-like-any-other-project"'],
+]);
