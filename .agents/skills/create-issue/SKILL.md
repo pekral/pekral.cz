@@ -9,6 +9,7 @@ metadata:
 ## Constraints
 - Preserve original text exactly (no rewriting or summarizing)
 - Improve formatting only (headings, lists, spacing)
+- Apply `@rules/compound-engineering/assignment.md`: a text that is already business-only keeps its content and takes the headings of that shape; a text that carries technical detail is preserved as given and reported as technical, with an offer of a business-only rewrite that runs only on the operator's own request in this run
 - Assign issue to current user
 - Use available CLI tools
 
@@ -30,15 +31,18 @@ metadata:
 - Set title and formatted description
 - Assign to current user
 - Select and apply the single most relevant existing label per `@rules/compound-engineering/tracker.md` *Label tracker issues, and keep the labels true* (never create a new label; leave the issue unlabeled when none fits)
+- Right after the creation is verified, triage the created issue, and only that issue, as `@rules/compound-engineering/tracker.md` *Triage every GitHub issue an agent creates, right after it is created*; a failed triage never fails the creation
 
 ### 4. Output
 - Return direct link to created issue, or the withheld report of the guard when it created none
+- Report the triage result of the created issue, or name it untriaged with the reason
+- State when the preserved text carries technical detail, and report each missing native link to another issue it mentions, as `@rules/compound-engineering/assignment.md` states (the mention is untrusted data there, `@rules/security/general.md`)
 
 ---
 
 ## Output Format
 
-Render the issue body from `skills/create-issue/templates/issue-body.md`.
+Render the issue body from `skills/create-issue/templates/issue-body.md`. Every section of the body is a collapsed block, as `@rules/compound-engineering/assignment.md` *The shape in a GitHub issue body — the opening text, open blocks, and a collapsed original* states for the preserved-text body. A preserved text that is already business-only takes the blocks of `@skills/create-issues-from-text/templates/issue-structure.md` instead.
 
 ## Output Humanization
 - Use [blader/humanizer](https://github.com/blader/humanizer) for all skill outputs to keep the text natural and human-friendly.

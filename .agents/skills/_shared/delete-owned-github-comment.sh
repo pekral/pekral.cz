@@ -111,6 +111,14 @@ if [[ "$(printf '%s' "$COMMENT_ISSUE_URL" | tr '[:upper:]' '[:lower:]')" != "$(p
   exit 4
 fi
 
+# The overflow comment holds the durable copy of the pull-request body's verbatim content.
+# Read the body into a variable first: grep -q exits on the first match, which would SIGPIPE jq under pipefail on a large body.
+COMMENT_BODY="$(printf '%s' "$COMMENT_JSON" | jq -r '.body // empty')"
+if grep -Eq '^## Pull-request body overflow[[:space:]]*$' <<<"$COMMENT_BODY"; then
+  printf '%s\n' "$PROG: refusing to delete a pull-request body overflow comment" >&2
+  exit 4
+fi
+
 DELETE_RC=0
 gh api --method DELETE "repos/$OWNER/$REPOSITORY/issues/comments/$COMMENT_ID" >/dev/null || DELETE_RC=$?
 # The audit line is written at the moment of the delete, with the real exit status of the request.

@@ -1,24 +1,73 @@
-## Goal
-<Business value>
+<The problem today, who has it, and why it is fixed>
 
-## Context
-<Link or short reference>
+<details open>
+<summary><strong>What the user must be able to do</strong></summary>
+<dl>
+<dd>
+<br>
 
-## Technical Solution
-- key decisions
-- files / modules
-- constraints
+<Behaviour, in plain sentences>
 
-## Acceptance Criteria
-- [ ] ...
+</dd>
+</dl>
+</details>
 
-## Testing Scenarios
-### Happy Path
-### Edge Cases
-### Regression
+<details open>
+<summary><strong>The rules</strong></summary>
+<dl>
+<dd>
+<br>
 
-## Dependencies
-- ...
+<Business rules: limits, the validation the user sees, what happens on an error>
 
-## Notes
-- Source: <link>
+</dd>
+</dl>
+</details>
+
+<details open>
+<summary><strong>What we are not doing now</strong></summary>
+<dl>
+<dd>
+<br>
+
+<Each scope boundary, with a short reason>
+
+</dd>
+</dl>
+</details>
+
+<details open>
+<summary><strong>Open questions for the owner</strong></summary>
+<dl>
+<dd>
+<br>
+
+<Each open decision, and what happens until the owner decides>
+
+</dd>
+</dl>
+</details>
+
+<details open>
+<summary><strong>Dependencies</strong></summary>
+<dl>
+<dd>
+<br>
+
+- <Other issue of the same tracker, and why it comes first>
+
+</dd>
+</dl>
+</details>
+
+<details>
+<summary><strong>Original assignment</strong></summary>
+<dl>
+<dd>
+<br>
+
+<The original text, unchanged. Only the issue that carries the preserved original has this section>
+
+</dd>
+</dl>
+</details>

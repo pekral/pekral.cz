@@ -53,14 +53,20 @@
 #      does not skip and that matches `^##\s`.
 #      A canonical `**Mode:**` line, whatever its value, marks a narrowed review. A mode line in any other shape is
 #      not canonical or carries an unknown label, so it gives `header invalid`. A value is never searched for words.
-#      After the block the body check walks the lines with the line rule of cr_header_fence_step (cr-header.sh):
+#      After the block the body check walks the lines with the line rule of cr_header_fence_step (cr-header.sh). A line is
+#      skipped only when two rules both skip it: the rule below, which follows GitHub, and the rule from before the
+#      closing-fence fix, so no line that the earlier rule read is skipped:
 #        - a line of 0–3 spaces, then three or more backticks or three or more tildes (after backticks, no further
 #          backtick on the line), opens a skipped region; that line and the lines after it are skipped;
 #        - the region closes on a line of 0–3 spaces, the opening character at least as many times as it opened, and
-#          then only spaces or tabs (that line is skipped too); before the first non-blank line that starts with fewer
-#          spaces than the opening line (that line is read); or at the end of the body;
-#        - a line of 0–3 spaces and `<` opens an HTML region instead: its lines are read and no skipped region opens
-#          in it, until the line that holds `-->` (opened by `<!--`), `?>` (by `<?`), `]]>` (by `<![CDATA[`), `>` (by
+#          then only spaces or tabs (that line is skipped too); when a list item may be open at the opening line,
+#          before the first non-blank line that starts with fewer spaces than the opening line (that line is read;
+#          cr-header.sh states which lines open or keep a list item); or at the end of the body. Without an open list
+#          item a line of less indent than the opening line is skipped too;
+#        - a line of 0–3 spaces and `<` at which GitHub starts an HTML block (cr-header.sh: a comment, an instruction, a
+#          declaration, a raw tag, a block tag, or a tag alone on a line that does not continue a paragraph) opens an
+#          HTML region instead; any other line that starts with a tag is paragraph text. The lines of the region are
+#          read and no skipped region opens in it, until the line that holds `-->` (opened by `<!--`), `?>` (by `<?`), `]]>` (by `<![CDATA[`), `>` (by
 #          `<!` and a letter), or `</pre>`, `</script>`, `</style>`, or `</textarea>` after lowercasing (opened by
 #          `<pre`, `<script`, `<style`, or `<textarea`, after lowercasing, then whitespace, `>`, or the end of the
 #          line); after any other opening line, until the next blank line. The end can be on the opening line.
@@ -1234,6 +1240,58 @@ EOF
     '{ print } /^## TL;DR/ { print "```"; print "**Mode:** HOTFIX" }'
   shape_case 'fence: a closer followed by a tab does not hide a decision line' "$HI" \
     '{ print } /^## TL;DR/ { print "```"; print "x"; print "```\t"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: the closer of an indented fence opens no fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "  ```"; print "x"; print "  ```"; print "  **Mode:** HOTFIX"; print "  ```"; print "y"; print "  ```" }'
+  shape_case 'fence: a less indented line inside an indented fence is read as before the fix, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "  ```"; print "**Mode:** HOTFIX"; print "  ```" }'
+  shape_case 'fence: a thematic break before an indented fence is not a list item, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- - -"; print ""; print "  ```"; print "x"; print "  ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a setext dash underline before an indented fence is not a list item, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "text"; print "-"; print ""; print "  ```"; print "x"; print "  ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an ordered marker above 1 after paragraph text is not a list item, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "text"; print "2. foo"; print ""; print "   ```"; print "x"; print "   ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a lazy continuation line keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- item"; print "lazy"; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a nested bullet item leaves the outer item as the bound of a fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print "  - b"; print ""; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a nested bullet item under an ordered item leaves the outer item as the bound, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "1. a"; print "   - b"; print ""; print "   ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an empty sibling item after an item with text keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "-  two"; print "-"; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an empty sibling item after an item with indented content keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "*"; print "   code"; print "-"; print "   ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a fence on the marker line keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- ```"; print "   ```"; print "  **Mode:** HOTFIX" }'
+  shape_case 'fence: a tab-indented line inside an empty item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "-"; print "\tx"; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a tab-indented line after a blank line in an item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print ""; print "\tb"; print ""; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an ordered item above 1 after a quoted fence keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "> ```"; print "2. foo"; print "   ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a === line in an item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "* x"; print "==="; print "   ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a tag alone on a line in an item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print "<span>x</span>"; print ""; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a backtick line that opens no fence in an item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print "```x`y"; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a paragraph line indented by four spaces in an item keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print ""; print "    b"; print "c"; print "  ```"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an item after the paragraph of a quote keeps the list item of its fence, so a decision line after it runs the round' "$HI" \
+    '{ print } /^## TL;DR/ { print "> q"; print "lazy"; print "*"; print "   ```"; print ""; print "  code"; print "x"; print ""; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: an inline tag line before an indented fence, then its closer, never hides a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "para"; print "<span>x</span>"; print ""; print "  ```"; print "code"; print "  ```"; print "  **Mode:** HOTFIX" }'
+  shape_case 'fence: an inline tag with text after it before an indented fence, then its closer, never hides a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "para"; print "<b>x</b> more"; print ""; print "  ```"; print "code"; print "  ```"; print "  **Mode:** HOTFIX" }'
+  shape_case 'fence: a fence indented more than its list item, then its closer, never hides a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "- a"; print ""; print "   ```"; print "  x"; print "   ```"; print "   **Mode:** HOTFIX" }'
+  shape_case 'fence: a fence on a list-marker line and a less indented line never hide a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "-  ```"; print "  code"; print "   ```"; print "  ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a fence on a list-marker line and a closer indented less than the item never hide a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "- ```"; print "x"; print "  ```"; print " ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a fence on an ordered list-marker line never hide a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "1. ```"; print "code"; print "   ```"; print "  ```"; print "**Mode:** HOTFIX" }'
+  shape_case 'fence: a tilde fence on a list-marker line after an inline tag line never hide a decision line, so the round runs' "$HI" \
+    '{ print } /^## TL;DR/ { print "para"; print "<span>x</span>"; print "- ~~~"; print "  ~~~"; print "   **Mode:** HOTFIX" }'
   shape_case 'fence: the end of a list item closes its fence' "$HI" \
     '{ print } /^## TL;DR/ { print "- item"; print ""; print "  ```"; print "  code"; print ""; print "**Mode:** HOTFIX" }'
   shape_case 'fence: three backticks inside an HTML comment open no fence' "$HI" \

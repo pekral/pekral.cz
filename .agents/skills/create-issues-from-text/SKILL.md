@@ -8,6 +8,7 @@ metadata:
 
 ## Constraints
 - Preserve original assignment (store in parent or first issue)
+- Write every issue it derives as a business-only assignment, as `@rules/compound-engineering/assignment.md` defines
 - Do not implement code
 - Assign all issues to current user
 - Use CLI tools
@@ -29,9 +30,11 @@ metadata:
 - One issue per step
 - Ensure each is independently deliverable: it delivers a working result on its own (*Split into vertical slices*)
 - For every issue created — flat breakdown, EPIC parent, and sub-issues alike — select and apply the single most relevant existing label per `@rules/compound-engineering/tracker.md` *Label tracker issues, and keep the labels true*; this is additive to, and independent of, the structural `EPIC` label from *EPIC parent & sub-issues* below
+- Right after the issues are created and verified, triage every issue this run created — flat breakdown, EPIC parent, and sub-issues alike — and no other, as `@rules/compound-engineering/tracker.md` *Triage every GitHub issue an agent creates, right after it is created*. A withheld item has no issue and is not triaged
 
 ### 4. Output
 - Return list of created issues with URLs, and the list of withheld items with their reasons
+- Report the triage result of each created issue, and name each untriaged issue with the reason
 
 ---
 
@@ -77,7 +80,9 @@ For a database column, `@rules/sql/optimalize.md` *Deploy-safe schema changes* o
 
 ## Issue Structure
 
-Use the template defined in `templates/issue-structure.md`.
+Use the template defined in `templates/issue-structure.md`. It is the business-only shape of `@rules/compound-engineering/assignment.md`.
+
+The body opens with *What this is about* as plain text, then an open block for each other section, and the preserved original text is the last block, *Original assignment*, which is the only collapsed one (*The shape in a GitHub issue body — the opening text, open blocks, and a collapsed original*): nothing that *What an assignment never contains* lists goes into an issue, and a security requirement of the original is restated as a business rule. The technical detail of the original assignment stays in the preserved original text. When an issue text mentions another issue of the same tracker, the output reports each missing native link with its recommended type, as that rule states.
 
 ---
 
@@ -89,12 +94,13 @@ Use this when the assignment bundles **several behaviours that are each delivere
 
 1. **Pick (or create) the parent.** When the assignment already has a tracker item, that item becomes the EPIC parent. When the assignment is a described task with no tracker item, create the parent issue first, carrying the full original assignment in its body.
 2. **Label the parent `EPIC`.** Apply the `EPIC` label to the parent. Create the label once if the repository does not have it yet (`gh label create EPIC --description "Tracks a cross-cutting effort split into sub-issues" --color 5319e7`), then ignore the "already exists" outcome on subsequent runs.
-3. **Create one sub-issue per vertical slice.** Cut the sub-issues as *Split into vertical slices* above defines. Each sub-issue is an independently deliverable assignment (same `templates/issue-structure.md` structure) that delivers a working piece through every layer it needs. Never create one sub-issue per layer or per application area.
+3. **Create one sub-issue per vertical slice.** Cut the sub-issues as *Split into vertical slices* above defines. Each sub-issue is an independently deliverable, business-only assignment (same `templates/issue-structure.md` structure) that delivers a working piece through every layer it needs. Never create one sub-issue per layer or per application area.
 4. **Link every sub-issue back to the parent (both directions).**
-   - In each sub-issue body, reference the parent with `Part of #<parent>` so the relationship is visible from the child.
-   - In the parent body, keep a checkable task list of the children — `- [ ] #<child>` per sub-issue — under a `## Sub-issues` heading, so the parent shows the full breakdown and progress.
+   - In each sub-issue body, reference the parent with `Part of #<parent>` so the relationship is visible from the child. Place the line after the last block of the body, never before the opening text, so *What this is about* stays the first text of the body.
+   - In the parent body, keep a checkable task list of the children — `- [ ] #<child>` per sub-issue — under a `## Sub-issues` heading, so the parent shows the full breakdown and progress. Place the heading and the list after the last block of the parent body, never before the opening text.
 5. **Order.** Fill each sub-issue's `## Dependencies` so a resolving run (e.g. `krang`) can pick a dependency-aware order — dependencies before dependents.
-6. **Output.** Return the `EPIC`-labelled parent URL plus the list of linked sub-issue URLs and the planned resolve order.
+6. **Triage.** Triage the parent only when step 1 created it, and every sub-issue, right after they are created, as step 3 of *Execution* states. An existing tracker item that became the parent is not triaged.
+7. **Output.** Return the `EPIC`-labelled parent URL plus the list of linked sub-issue URLs, the planned resolve order, and the untriaged issues with their reasons.
 
 ## Output Humanization
 - Use [blader/humanizer](https://github.com/blader/humanizer) for all skill outputs to keep the text natural and human-friendly.

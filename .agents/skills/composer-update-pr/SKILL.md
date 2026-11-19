@@ -75,25 +75,26 @@ The step is done when `git status --porcelain` prints nothing and `git log -1 --
 The step is done when every package of the pull request description appears in the script output or in that diff.
 
 ### 7. Push and open the Draft pull request
-1. Scan the commits of the branch before anything leaves the machine: `skills/git-history-exposure-audit/scripts/history-scan.sh range --base "$(git rev-parse "origin/$DEFAULT_BRANCH")" --head "$(git rev-parse HEAD)"`. The script takes full commit object ids only. Do not re-implement its rules.
+1. Scan the commits of the branch before anything leaves the machine. Resolve the fully qualified default-branch ref with git only, as `skills/merge-github-pr/references/merge-exemptions.md` *The trusted classifier* item 3 directs, and set `REF` to it in the same shell call as the scan: `skills/git-history-exposure-audit/scripts/history-scan.sh range --base "$(git rev-parse "${REF:?}")" --head "$(git rev-parse HEAD)"`. An empty `REF` is a failed scan. The script takes full commit object ids only. Do not re-implement its rules.
    - Exit `0`: continue.
    - Exit `5` with a finding of class `credential` or `sensitive-file`: stop. Push nothing, open no pull request, report each such finding line as the script printed it (the script never prints a found value), and leave the branch as it is for the user.
    - Exit `5` with findings of other classes only: continue and list those finding lines in the report.
    - Exit `3` or any other non-zero exit: stop and report the exit status and the script output. A failed scan is never a pass.
-2. Before the push apply `@skills/resolve-issue/references/quality-gates.md` *A public repository waits for CI instead of a local pre-push gate*. On a private repository, run `skills/_shared/run-gate.sh --tier pr --actor composer-update-pr` when the manifest sets `pr-gate`, and handle its exit codes as that file states.
+2. Before the push run the pre-push gate of `@skills/resolve-issue/references/quality-gates.md` *Gate placement — deferred to the merge boundary*: the `pr-gate` fixers on every repository, committing what they change, the `fast-checks` through `skills/_shared/run-fast-checks.sh`, and then *A repository with CI waits for CI instead of a local pre-push gate*. On a repository without CI, run the checkers and tests through `skills/_shared/run-gate.sh --tier full --actor composer-update-pr`, and handle its exit codes as that file states.
 3. `git push -u origin <branch>`
 4. `gh pr create --draft --title "chore(composer): update dependencies" --body-file <file>`. The title is English. The body follows the language rule of `@rules/git/pull-requests.md` *Pull Requests*. The skill never promotes the Draft: `@rules/git/pull-requests.md` *Draft pull requests* owns that.
 5. Re-read the pull request through `skills/code-review-github/scripts/load-issue.sh <PR-URL>` and confirm it exists and `isDraft` is `true`.
-6. On a public repository, wait for CI per `@rules/git/pull-requests.md` *Waiting for CI — read the checks every 3 minutes* and report the result.
+6. On a repository with CI, wait for CI per `@rules/git/pull-requests.md` *Waiting for CI — read the checks every 3 minutes* and report the result. A CI billing failure runs the local checkers and tests, as that section of `quality-gates.md` states.
 
-Render the body from `skills/composer-update-pr/templates/pull-request-body.md`. It owns the sections and their order. Fill each number from the script output and the sections as follows:
+Render the body from `skills/composer-update-pr/templates/pull-request-body.md`. It owns the sections and their order. `skills/_shared/check-pr-body.sh --file <file> --template composer-update` checks the body against this template before `gh pr create`, as `@rules/git/pull-requests.md` *PR Content Requirements* directs; the body is published only on exit `0`. Fold the sections as `@rules/git/pull-requests.md` *PR Content Requirements* *Fold the long sections, and only those* states. Fill each number from the script output and the sections as follows:
 - `## TL;DR` — every number is counted from the script output.
+- `## Summary` — the categorised bullets of the template, in plain words: each major update with its versions and what the jump means, the minor and patch updates, the added or removed packages, and the manifest changes. A category without a bullet is left out. A consequence the run did not read in the package's release notes is `not verified`.
 - `## Major updates` — one row per package with `level` `major`. Omit the section when no package has `level` `major`.
 - `## Other updates` — one row per remaining package; a `downgraded` row names the downgrade.
 - `## Manifest changes` — the `composer.json` constraint changes from the diff of step 6, or `none`.
 - `## Other changed files` — one line per committed path other than `composer.json` and `composer.lock`, as `git status --porcelain` printed it in step 4. Omit the section when there is no such path.
-- the collapsed *✅ Testing* block — the commands of step 2 and their result.
-- `## Merge risk` (the first section) and the collapsed *Audit* block (the last one) — the sections of `@skills/resolve-issue/references/pull-request.md`, with the assignment file holding the one line `Update the Composer dependencies` and the standalone-run fallback of the audit.
+- `## ✅ Testing` — the commands of step 2 and their result.
+- `## Merge risk` (the first section) and `## Audit` (the last one) — the sections of `@skills/resolve-issue/references/pull-request.md`, with the assignment file holding the one line `Update the Composer dependencies` and the standalone-run fallback of the audit.
 
 The step is done when the re-read confirms an open Draft pull request.
 

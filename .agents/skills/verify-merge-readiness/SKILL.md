@@ -68,8 +68,10 @@ still never merges.
 
   A missing or malformed reference is a hard stop, and so is a list of references that reached a
   unit without the batch path splitting it. A GitHub reference to another
-  repository is a hard stop too. Run `skills/_shared/assert-current-repo.sh <URL>` on the GitHub
-  issue or pull-request URL before any write. On a JIRA source, run it on the resolved pull-request
+  repository is a hard stop too. Run the ownership check of
+  `@skills/merge-github-pr/references/trusted-record-parser.md` *The trusted ownership check*
+  (the trusted copy of `skills/_shared/assert-current-repo.sh <URL>`, never the copy of the working tree)
+  on the GitHub issue or pull-request URL before any write. On a JIRA source, run it on the resolved pull-request
   URL.
 - Apply @rules/jira/general.md on a JIRA source.
 - An invocation explicitly authorizes the final TL;DR publish and deletion of qualifying
@@ -167,8 +169,11 @@ Record in the shared brief:
 - every explicit acceptance criterion and its evidence;
 - the authenticated GitHub actor from `gh api user --jq .login`, and on a JIRA source the `acli`
   account from `acli jira auth status`;
-- the newest trusted code-review report (`skills/_shared/cr-header.sh --report <loader-file>`: the
-  hidden record of a pull-request review, or a legacy `cr-comment` comment), including reviewed SHA,
+- the newest trusted code-review report (the trusted copy of `skills/_shared/cr-header.sh --report <loader-file>`,
+  `@skills/merge-github-pr/references/trusted-record-parser.md`: the hidden record of a pull-request
+  review, or a legacy `cr-comment` comment), including reviewed SHA,
+  read from the loader document that the trusted copy of the loader wrote in the same call, never
+  from the document of the GitHub load above,
   effective diff fingerprint, finding counts, unresolved findings, and the `Quality gate:` exact-head
   evidence it carries.
 
@@ -179,8 +184,8 @@ Dispatch `leonardo` to run the pull-policy and preparation path in
 below, because it never pushes. For every unit of a batch, with or without `--merge`, the root
 session first runs *Bring a unit to the default branch tip* of
 `skills/_shared/orchestration/batch-preparation.md`. That path assigns the rebase and the push to
-`donatello` and never force-pushes. Before any new CR round, resolve the default branch and
-compute the current fingerprint from the first field of:
+`donatello`, and it force-pushes only on a repository with CI, into the same pull request.
+Before any new CR round, resolve the default branch and compute the current fingerprint from the first field of:
 
 ```bash
 git diff --binary --full-index --no-color --no-ext-diff --no-renames <base>...<head> | git patch-id --verbatim
@@ -214,7 +219,8 @@ trusted record for the project-wide command required by
 content-changing commit, and record the command, result, head SHA, and coverage verdict.
 
 The machine gate record decides first, exactly as in `@skills/merge-github-pr/SKILL.md`
-*Pre-merge quality gate*: run `skills/_shared/verify-gate.sh --tier full <head SHA>` first. Exit
+*Pre-merge quality gate*: run the trusted copy of `skills/_shared/verify-gate.sh --tier full <head SHA>` first
+(`@skills/merge-github-pr/references/trusted-record-parser.md` *The trusted gate-record check*). Exit
 `0` is the green, trusted record, and no gate runs. Exit `10`, `11`, or `12` dispatches
 `donatello` to run `skills/_shared/run-gate.sh --tier full`, or stops; the PR is never reported
 ready on it. Exit `3` stops with the reason, and any other non-zero exit is handled like `3`.
@@ -266,8 +272,8 @@ GitHub pull-request comment, which is the surface that consumes them. On a JIRA 
 comments:
 
 1. **The JIRA TL;DR** in the one shape `@skills/pr-summary/SKILL.md` *The JIRA shape* defines: the
-   status line with the merge-readiness verdict or the exact blocker, `Acceptance criteria`,
-   `Review findings`, `What changed`, `Impact after deployment`, the closing links line, and the
+   `Acceptance criteria` when the assignment states explicit criteria, `Review findings` with the
+   exact blocker first, `What changed`, `Impact after deployment`, the closing links line, and the
    footer, within that rule's
    3 000-character cap. An open question about the assignment closes the bullet of the criterion
    it concerns. An open decision that is **Critical** is a `Review findings` bullet that closes
@@ -324,6 +330,7 @@ merge evidence. When that report is a pull-request review, it is no comment: pas
 JIRA comment that cannot be told apart from a code-review report is ambiguous and stays. Also
 preserve the new `merge-readiness` comment.
 A `proposal-review` comment (`skills/_shared/orchestration/proposal-review.md` step 6) never enters the manifest.
+A `## Pull-request body overflow` comment never enters the manifest: it holds the durable copy of the pull-request body's verbatim content (`@rules/git/pull-requests.md` *PR Content Requirements*), and the delete helper refuses it.
 
 Delete each manifested top-level issue/PR comment only through:
 

@@ -1,0 +1,37 @@
+# Effective configuration, the consumer map, and static parsing
+
+## Static parsing
+- `scripts/evaluate.php` does this parsing and the merge below for the computable checks (`SKILL.md` *The evaluator*). It tokenizes each config file with `PhpToken::tokenize` and never executes it. Where this file and the script differ, the script is the one that runs, and a difference is a defect to fix in the file or in the script.
+- Read each PHP config file as text. Interpret a literal scalar, a literal array, a class constant of the project, and a plain `env('NAME', <literal>)` call.
+- A value inside `env(...)` is **unknown**: the audit never reads `.env`, so the literal fallback shows only what applies when the variable is absent. Record the fallback as `fallback: <literal>` and the value as `unknown`.
+- A value built from a function call, a conditional, a loop, string concatenation with an unknown part, or a helper is `unknown`. Never evaluate it.
+- Never `include`, `require`, or execute a config file, never run `php artisan`, `tinker`, or `config:show`, never run a command that shows a configuration or environment value in any mode (`SKILL.md` *Constraints*), and never open a `.env*` file other than `.env.example`.
+- Record every value with its `file:line`.
+
+## Effective supervisor configuration
+1. Read `defaults` and `environments` of `config/horizon.php`.
+2. Resolve the environment key the way Horizon 5.x does: the first key of `environments`, in file order, for which `Str::is($key, $environment)` holds. A key matches when it equals the environment or is a pattern with `*`. An exact key does not win over an earlier pattern: with `'*'` listed before `'production'`, Horizon deploys the `*` block in production, so audit that block and report the order. A `*` listed last is the fallback. When no key matches, Horizon deploys no supervisor for that environment, and the audit reports `UNVERIFIED`.
+3. Merge the whole supervisor map. Horizon 5.x runs `array_replace_recursive($defaults, $environmentPlan)` over every supervisor of the environment. The result holds every supervisor of `defaults` and every supervisor of the environment. A supervisor that only `defaults` defines therefore runs in every environment, and for a supervisor in both the environment value wins. A list value such as `queue` is replaced index by index, not appended. A supervisor deploys only when its merged `maxProcesses` is above 0.
+4. Apply steps 2 and 3 only to a detected Horizon 5.x version (`composer.lock`). Confirm the merge against the installed `vendor/laravel/horizon` source (`ProvisioningPlan`) when it exists. When it shows a different merge, follow the installed source and say so. Without the source, a detected 5.x version still gives the computed result, and the report says that the source was not read. For another major version, an unknown version, or a project without `composer.lock`, the environment key and the merge result of a defaults-only supervisor and of a list value are `UNVERIFIED`, and `evaluate.php` selects no supervisor. The audit still lists such a supervisor and never omits it.
+5. Fill each option the merged row lacks with the Horizon default of the detected version, marked `built-in default`, only when the installed source states it. Otherwise leave it unknown.
+6. Keep the provenance of each value: `defaults`, `environment <name>`, or `built-in default`, with `file:line`.
+7. An environment key that the audit cannot match to the audited `environment` (for example one built from an expression) is `UNVERIFIED`.
+
+The audit of a supervisor uses the merged row. Auditing `defaults` and the override as separate fields misses the value that applies.
+
+## Consumer map
+One row for each consumer, with these columns, in this order:
+
+`consumer` → `source file:line` → `Laravel connection` → `driver` → `Redis connection` → `database` → `prefix` → `queue name` → `environment`
+
+- A Horizon supervisor gives its connection and its queue list from the merged row.
+- A `queue:work` or `queue:listen` command in a tracked file gives its connection, `--queue`, `--timeout`, and `--tries` from the command line.
+- The driver comes from the `connections.<name>.driver` of `config/queue.php`. The Redis connection, database, and prefix come from `config/database.php` (`redis`). The queue key prefix is a Redis connection option. The Horizon `prefix` setting names Horizon's own keys and is not part of the queue key.
+- Fill a column with `unknown` when its value is dynamic or environment-driven. Never guess it.
+- A `url` key of a Redis connection overrides its `host`, `port`, and `database`. A literal `url` gives those parts.
+- A `url` that is not a literal (for example `env('REDIS_URL')`) makes the host, the port, the database, and the prefix of that connection unknown. Laravel merges the query string of a `url` last, so a `url` with a query string (for example `?database=1` or `?prefix=x_`) does the same.
+- A Redis connection with no `url` that sets no `database` uses the server default `0`. The `prefix` is the `prefix` of the connection, else its `options.prefix`, else `redis.options.prefix`, and no prefix when none of them is set. An absent `host` or `port` is unknown, except between two consumers of the same Redis connection, which share its entry.
+- Different Laravel connection names are not different physical queues. Compare the key of HZ-001 instead.
+
+## Consumer sources
+Search tracked files only: `supervisor*` configs, `systemd` units, `Dockerfile` and `docker-compose*`, Kubernetes manifests, Forge and deploy scripts, `Procfile`, cron definitions, and CI/CD files. Look for `horizon`, `horizon:terminate`, `queue:work`, `queue:listen`, `stopwaitsecs`, and `terminationGracePeriodSeconds`.
