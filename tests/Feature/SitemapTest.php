@@ -2,6 +2,14 @@
 
 declare(strict_types = 1);
 
+use Illuminate\Support\Facades\Http;
+
+beforeEach(function (): void {
+    Http::fake([
+        'api.github.com/*' => Http::response([], 200),
+    ]);
+});
+
 test('sitemap returns valid xml response', function (): void {
     /** @var \Tests\TestCase $this */
     $response = $this->get('/sitemap.xml');

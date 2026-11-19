@@ -92,7 +92,7 @@ test('homepage contains contact section with id and CTA', function (): void {
     /** @var \Illuminate\Testing\TestResponse<\Symfony\Component\HttpFoundation\Response> $response */
     $response->assertSuccessful();
     $response->assertSee('id="contact"', escape: false);
-    $response->assertSee('Contact', escape: false);
+    $response->assertSee('Let\'s build something together');
     $response->assertSee(route('home') . '#contact', escape: false);
 });
 
@@ -104,7 +104,8 @@ test('homepage shows the open source repositories loaded from github', function 
     $response->assertSee('Open Source PHP Projects');
     $response->assertSee('ai-olympus');
     $response->assertSee('Agentic AI framework for Laravel');
-    $response->assertSee('href="https://github.com/pekral/ai-olympus"', escape: false);
+    $response->assertSee('href="' . route('projects.show', 'ai-olympus') . '"', escape: false);
+    $response->assertSee('src="' . route('projects.social-image', 'ai-olympus') . '"', escape: false);
 });
 
 test('homepage presents the laravel and ai agents positioning', function (): void {
@@ -115,5 +116,4 @@ test('homepage presents the laravel and ai agents positioning', function (): voi
     $response->assertSee('built with AI agents.');
     $response->assertSee('How I work');
     $response->assertSee('Agentic AI workflow');
-    $response->assertSee('Waiting for human approval');
 });

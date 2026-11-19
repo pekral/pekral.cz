@@ -2,7 +2,10 @@
 
 use App\Actions\Blog\GetAllBlogArticlesAction;
 use App\Actions\Blog\GetBlogArticleBySlugAction;
+use App\Actions\GitHub\GetGitHubRepositoriesAction;
+use App\Data\RepositoryData;
 use App\Http\Controllers\BlogImageController;
+use App\Http\Controllers\RepositorySocialImageController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Livewire\Volt\Volt;
@@ -32,6 +35,17 @@ Route::get('/skills', function () {
 Route::get('/projects', function () {
     return view('projects');
 })->name('projects');
+
+Route::get('/projects/{name}', function (string $name, GetGitHubRepositoriesAction $getGitHubRepositories) {
+    $project = $getGitHubRepositories->execute()->first(static fn (RepositoryData $repository): bool => $repository->name === $name);
+    if ($project === null) {
+        abort(404);
+    }
+    View::share('project', $project);
+
+    return view('projects.show', ['name' => $name]);
+})->name('projects.show')->where('name', '[A-Za-z0-9._-]+');
+Route::get('/projects/{name}/social-image', [RepositorySocialImageController::class, 'show'])->name('projects.social-image')->where('name', '[A-Za-z0-9._-]+');
 
 Route::view('privacy-policy', 'gdpr-en')->name('privacy-policy');
 
@@ -120,7 +134,16 @@ Route::get('sitemap.xml', function () {
         'default_locale' => $defaultLocale,
     ])->all();
 
-    $urls = array_merge($staticUrls->all(), $blogArticleUrls);
+    $projectUrls = app(GetGitHubRepositoriesAction::class)->execute()->map(static fn (RepositoryData $repository): array => [
+        'loc' => url('/projects/' . $repository->name),
+        'lastmod' => now(config('app.timezone'))->format('Y-m-d'),
+        'changefreq' => 'weekly',
+        'priority' => '0.7',
+        'alternates' => $supportedLocales,
+        'default_locale' => $defaultLocale,
+    ])->all();
+
+    $urls = array_merge($staticUrls->all(), $blogArticleUrls, $projectUrls);
 
     $urlEntries = collect($urls)->map(function (array $url): string {
         $loc = $url['loc'];
@@ -211,7 +234,7 @@ Route::get('feed.xml', function (GetAllBlogArticlesAction $getAllBlogArticles) {
     ]);
 })->name('feed');
 
-Route::get('llms.txt', function (GetAllBlogArticlesAction $getAllBlogArticles) {
+Route::get('llms.txt', function (GetAllBlogArticlesAction $getAllBlogArticles, GetGitHubRepositoriesAction $getGitHubRepositories) {
     $pages = collect([
         ['/', 'head.title.home', 'head.description.home'],
         ['/about', 'head.title.about', 'head.description.about'],
@@ -222,6 +245,10 @@ Route::get('llms.txt', function (GetAllBlogArticlesAction $getAllBlogArticles) {
 
     $articles = $getAllBlogArticles->execute()
         ->map(static fn ($article): string => sprintf('- [%s](%s): %s', $article->title, url('/blog/' . $article->slug), $article->description))
+        ->implode("\n");
+
+    $projects = $getGitHubRepositories->execute()
+        ->map(static fn (RepositoryData $repository): string => sprintf('- [%s](%s): %s', $repository->name, url('/projects/' . $repository->name), $repository->summary()))
         ->implode("\n");
 
     $github = config('social.github');
@@ -243,9 +270,10 @@ Route::get('llms.txt', function (GetAllBlogArticlesAction $getAllBlogArticles) {
 
         {$articles}
 
-        ## Open source
+        ## Open source projects (each page renders the repository README)
 
-        - [GitHub profile]({$github}): Laravel packages, Rector rules, PHPCS rules, Claude Code and Codex agent skills (ai-olympus, cursor-rules, test-redundancy, github-readme-generator).
+        {$projects}
+        - [GitHub profile]({$github})
         - [LinkedIn]({$linkedin})
 
         ## Machine-readable resources

@@ -224,7 +224,9 @@ it('displays stars, topics and the repository totals', function (): void {
     $component->assertSee('12 stars');
     $component->assertSee('#laravel');
     $component->assertSee('#claude-code');
-    $component->assertSeeHtml('aria-label="Open starred-repo on GitHub"');
+    $component->assertSeeHtml('aria-label="Project detail starred-repo"');
+    $component->assertSeeHtml('href="' . route('projects.show', 'starred-repo') . '"');
+    $component->assertDontSeeHtml(route('projects.social-image', 'starred-repo'));
 });
 
 it('tries master branch if main branch fails', function (): void {

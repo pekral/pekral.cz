@@ -21,7 +21,7 @@
         <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
             @foreach($repositories as $repository)
                 <li class="reveal">
-                    <x-repo-card :repository="$repository" class="h-full" />
+                    <x-repo-card :repository="$repository" :with-image="true" class="h-full" />
                 </li>
             @endforeach
         </ul>

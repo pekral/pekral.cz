@@ -45,7 +45,8 @@ it('shows at most six repositories with the total counts', function (): void {
     $component->assertSee('repo-2');
     $component->assertDontSee('repo-1 description');
     $component->assertSee('#laravel');
-    $component->assertSeeHtml('href="https://github.com/pekral/repo-7"');
+    $component->assertSeeHtml('href="' . route('projects.show', 'repo-7') . '"');
+    $component->assertSeeHtml('src="' . route('projects.social-image', 'repo-7') . '"');
     $component->assertSeeHtml('href="' . route('projects') . '"');
 });
 

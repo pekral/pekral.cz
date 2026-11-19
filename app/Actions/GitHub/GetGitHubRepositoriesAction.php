@@ -17,9 +17,9 @@ use Pekral\Arch\Action\ArchAction;
 final readonly class GetGitHubRepositoriesAction implements ArchAction
 {
 
-    private const string CACHE_KEY = 'github_repositories_pekral_v5';
+    private const string CACHE_KEY = 'github_repositories_pekral_v6';
 
-    private const int CACHE_TTL_SECONDS = 3_600 * 24;
+    private const int CACHE_TTL_SECONDS = 3_600 * 4;
 
     private const string REPOSITORIES_URL = 'https://api.github.com/users/pekral/repos';
 
@@ -95,6 +95,7 @@ final readonly class GetGitHubRepositoriesAction implements ArchAction
             description: $description,
             url: $this->stringValue($repository, 'html_url'),
             language: $this->stringValue($repository, 'language', 'Other'),
+            composerName: $this->stringValue($composerJson, 'name'),
             composerDescription: $composerDescription,
             phpVersion: $this->extractPhpVersion($composerJson),
             stars: $this->stars($repository),

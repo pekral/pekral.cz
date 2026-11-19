@@ -1,4 +1,4 @@
-@props(['repository'])
+@props(['repository', 'withImage' => false])
 
 @php
     $languageColors = [
@@ -12,12 +12,25 @@
 @endphp
 
 <a
-    href="{{ $repository->url }}"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="{{ __('guest.projects.open_on_github', ['name' => $repository->name]) }}"
+    href="{{ route('projects.show', $repository->name) }}"
+    aria-label="{{ __('guest.projects.open_detail', ['name' => $repository->name]) }}"
     {{ $attributes->merge(['class' => 'project-card group flex flex-col gap-4 no-underline']) }}
+    wire:navigate
 >
+    @if($withImage)
+        <div class="repo-cover" aria-hidden="true">
+            <img
+                src="{{ route('projects.social-image', $repository->name) }}"
+                alt=""
+                width="640"
+                height="320"
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
+            >
+        </div>
+    @endif
+
     <div class="flex items-start justify-between gap-3">
         <h3 class="font-mono text-foreground font-semibold group-hover:text-primary transition-colors flex items-center gap-2 min-w-0">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0" aria-hidden="true">

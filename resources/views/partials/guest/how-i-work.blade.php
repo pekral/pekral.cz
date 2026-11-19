@@ -7,7 +7,7 @@
 
     <div class="mt-10 grid gap-5 md:grid-cols-3">
         <article class="project-card project-card-lift reveal flex flex-col gap-4">
-            <span class="project-card-icon" aria-hidden="true">
+            <span class="project-card-icon project-card-icon-lg mx-auto" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m18 16 4-4-4-4"></path>
                     <path d="m6 8-4 4 4 4"></path>
@@ -27,7 +27,7 @@
         </article>
 
         <article class="project-card project-card-lift reveal flex flex-col gap-4 md:-translate-y-3">
-            <span class="project-card-icon" aria-hidden="true">
+            <span class="project-card-icon project-card-icon-lg mx-auto" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 8V4H8"></path>
                     <rect width="16" height="12" x="4" y="8" rx="2"></rect>
@@ -50,7 +50,7 @@
         </article>
 
         <article class="project-card project-card-lift reveal flex flex-col gap-4">
-            <span class="project-card-icon" aria-hidden="true">
+            <span class="project-card-icon project-card-icon-lg mx-auto" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="6" x2="6" y1="3" y2="15"></line>
                     <circle cx="18" cy="6" r="3"></circle>

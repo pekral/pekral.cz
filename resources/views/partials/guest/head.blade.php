@@ -2,7 +2,12 @@
     $routeName = Route::currentRouteName() ?? 'default';
     $structuredDataLocale = app()->getLocale() === 'cs' ? 'cs-CZ' : 'en-US';
     $isArticle = $routeName === 'blog.show' && isset($article);
-    if ($isArticle) {
+    $isProject = $routeName === 'projects.show' && isset($project);
+    if ($isProject) {
+        $pageTitle = __('head.title.project', ['name' => $project->name]);
+        $pageDescription = filled($project->summary()) ? $project->summary() : __('head.description.project', ['name' => $project->name]);
+        $pageImage = route('projects.social-image', $project->name);
+    } elseif ($isArticle) {
         $pageTitle = $article->title . ' | ' . __('head.meta.site_name');
         $pageDescription = filled($article->description) ? $article->description : __('head.description.blog.show');
         $pageImage = $article->hasImage ? route('blog.image', $article->slug) : asset('assets/profile-photo.jpg');
@@ -15,6 +20,9 @@
     if ($isArticle) {
         $breadcrumbs[] = ['name' => __('guest.blog.title'), 'url' => route('blog.index')];
         $breadcrumbs[] = ['name' => $article->title, 'url' => url()->current()];
+    } elseif ($isProject) {
+        $breadcrumbs[] = ['name' => __('guest.nav.open_source_projects'), 'url' => route('projects')];
+        $breadcrumbs[] = ['name' => $project->name, 'url' => url()->current()];
     } elseif ($routeName !== 'home') {
         $breadcrumbs[] = ['name' => $pageTitle, 'url' => url()->current()];
     }
@@ -44,12 +52,15 @@
 <meta property="og:site_name" content="{{ __('head.meta.site_name') }}">
 <meta property="og:locale" content="{{ app()->getLocale() === 'cs' ? 'cs_CZ' : 'en_US' }}">
 <meta property="og:image" content="{{ $pageImage }}">
-@unless($isArticle)
+@if($isProject)
+<meta property="og:image:width" content="640">
+<meta property="og:image:height" content="320">
+@elseif(!$isArticle)
 <meta property="og:image:width" content="460">
 <meta property="og:image:height" content="460">
-@endunless
-<meta property="og:image:alt" content="{{ $isArticle ? $article->title : __('head.meta.image_alt') }}">
-<meta property="og:image:type" content="image/jpeg">
+@endif
+<meta property="og:image:alt" content="{{ $isArticle ? $article->title : ($isProject ? $project->name : __('head.meta.image_alt')) }}">
+<meta property="og:image:type" content="{{ $isProject ? 'image/webp' : 'image/jpeg' }}">
 @if($isArticle)
 <meta property="article:published_time" content="{{ $article->date->toIso8601String() }}">
 <meta property="article:author" content="{{ __('head.meta.author') }}">
@@ -237,6 +248,29 @@
     'url' => url()->current(),
     'inLanguage' => 'en',
     'timeRequired' => 'PT' . $article->readingTimeMinutes . 'M',
+    'isPartOf' => ['@id' => url('/') . '#website'],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endif
+
+@if($isProject)
+<!-- JSON-LD Structured Data - SoftwareSourceCode -->
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'SoftwareSourceCode',
+    '@id' => url()->current() . '#software',
+    'name' => $project->name,
+    'description' => $pageDescription,
+    'codeRepository' => $project->url,
+    'programmingLanguage' => $project->language,
+    'runtimePlatform' => $project->phpVersion !== '' ? 'PHP ' . $project->phpVersion : 'PHP',
+    'keywords' => implode(', ', $project->topics),
+    'license' => 'https://opensource.org/licenses/MIT',
+    'author' => ['@id' => url('/') . '#person'],
+    'maintainer' => ['@id' => url('/') . '#person'],
+    'url' => url()->current(),
+    'image' => $pageImage,
     'isPartOf' => ['@id' => url('/') . '#website'],
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
